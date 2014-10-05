@@ -1,0 +1,10 @@
+{
+  "name": "HOFC Server",
+  "version": "0.0.1",
+  "author": "Anthony Maladot",
+  "dependencies": {
+    "sqlite3": "2.2.4",
+    "express": "4.0.0",
+	"jsdom": "0.10.5"
+  }
+}
