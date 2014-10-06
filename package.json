@@ -1,10 +1,11 @@
 {
-  "name": "HOFC Server",
+  "name": "HOFCServer",
   "version": "0.0.1",
   "author": "Anthony Maladot",
   "dependencies": {
+	"cheerio": "0.17.0",
+	"winston": "0.7.3",
     "sqlite3": "2.2.4",
-    "express": "4.0.0",
-	"jsdom": "0.10.5"
+    "express": "4.0.0"
   }
 }
