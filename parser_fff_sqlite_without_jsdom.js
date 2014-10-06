@@ -19,14 +19,14 @@ var urlActus = "http://www.hofc.fr/category/seniors/";
 var optionsClassement = {
   host: 'fr-proxy.groupinfra.com',
   port: 3128,
-  path: 'http://www.fff.fr/championnats/fff/district-hautes-pyrenees/2013/294485-excellence/phase-1/poule-1/derniers-resultats',
-  activated: true
+  path: 'http://www.fff.fr/championnats/fff/district-hautes-pyrenees/2014/305257-excellence/phase-1/poule-1/derniers-resultats',
+  activated: false
 };
 
 var optionsCalendrier = {
   host: 'fr-proxy.groupinfra.com',
   port: 3128,
-  path: 'http://www.fff.fr/championnats/fff/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/294485/phase-1/groupe-1',
+  path: 'http://www.fff.fr/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/305257/phase-1/groupe-1',
   activated: true
 };
 
@@ -142,12 +142,15 @@ if(optionsClassement.activated) {
 
 
 if(optionsCalendrier.activated) {
+	winston.info('Parser Calendrier Start');
 	http.get(optionsCalendrier, function(res) {
 	  var result = "";
 		if(res.statusCode != 200) {
+			winston.info('Calendrier get error. Result code ' + res.statusCode);
 			return;
 		}
 	    res.on('data', function(data) {
+			winston.info('Data fetched ! ' + data);
 			result += data;
 	    });
 		
