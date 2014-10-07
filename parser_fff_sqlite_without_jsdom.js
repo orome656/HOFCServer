@@ -20,21 +20,21 @@ var optionsClassement = {
   host: '',
   port: 3128,
   path: 'http://www.fff.fr/championnats/fff/district-hautes-pyrenees/2014/305257-excellence/phase-1/poule-1/derniers-resultats',
-  activated: true
+  activated: false
 };
 
 var optionsCalendrier = {
   host: '',
   port: 3128,
   path: 'http://www.fff.fr/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/305257/phase-1/groupe-1',
-  activated: true
+  activated: false
 };
 
 var optionsActus = {
   host: '',
   port: 3128,
   path: 'http://www.hofc.fr/category/seniors/',
-  activated: false
+  activated: true
 };
 
 /**
@@ -42,7 +42,7 @@ var optionsActus = {
  */
 var creation_table_classement_query = "CREATE TABLE IF NOT EXISTS `classement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT , `nom` varchar(255) NOT NULL, `points` int(11) NOT NULL, `joue` int(11) NOT NULL, `gagne` int(11) NOT NULL, `nul` int(11) NOT NULL, `perdu` int(11) NOT NULL, `bp` int(11) NOT NULL, `bc` int(11) NOT NULL, `diff` int(11) NOT NULL)";
 var creation_table_calendrier_query = "CREATE TABLE IF NOT EXISTS `calendrier` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `equipe1` varchar(255) NOT NULL, `score1` int(11) NOT NULL, `equipe2` varchar(255) NOT NULL, `score2` int(11) NOT NULL, `date` date DEFAULT NULL)";
-var creation_table_actus_query = "CREATE TABLE IF NOT EXISTS `actus` (`id` int(11) PRIMARY KEY, `postId` int(11) DEFAULT NULL, `titre` varchar(255) DEFAULT NULL, `texte` text, `url` varchar(255) DEFAULT NULL, `image` varchar(255) DEFAULT NULL, `date` date DEFAULT NULL)";
+var creation_table_actus_query = "CREATE TABLE IF NOT EXISTS `actus` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `postId` int(11) DEFAULT NULL, `titre` varchar(255) DEFAULT NULL, `texte` text, `url` varchar(255) DEFAULT NULL, `image` varchar(255) DEFAULT NULL, `date` date DEFAULT NULL)";
 
 /**
  *	Tableau permettant de convertir la chaine date récupérée en objet date
@@ -73,13 +73,16 @@ var listeMoisActu = {
         "mai":"05",
         "juin":"06",
         "juillet":"07",
-        "aout":"08",
+        "août":"08",
         "septembre":"09",
         "octobre":"10",
         "novembre":"11",
         "décembre":"12"
 };
 
+/**
+ *
+ */
 var doAfterQuery = function (errors, resultats) {
 	if (errors) {
 		winston.error('Erreur de mise a jour ' + errors);
@@ -91,6 +94,7 @@ var doAfterQuery = function (errors, resultats) {
 winston.info('Parser start at ' + new Date());
 
 if(optionsClassement.activated) {
+	winston.info('Parser Classement Start');
 	http.get(optionsClassement, function(res) {
 		var result = "";
 		if(res.statusCode != 200) {
@@ -125,6 +129,7 @@ if(optionsClassement.activated) {
 								winston.info('Erreur ' + err);
 								return;
 							}
+                            winston.info('Updating Classement for team ' + nom);
 							if (results != null) {
 								db.run('UPDATE classement set points=' + points + ', joue=' + joue + ', gagne=' + victoire + ', nul=' + nul + ', perdu=' + defaite + ', bp=' + bp + ', bc=' + bc + ', diff=' + diff + ' WHERE nom LIKE "' + nom + '"',doAfterQuery);
 							} else {
@@ -150,7 +155,6 @@ if(optionsCalendrier.activated) {
 			return;
 		}
 	    res.on('data', function(data) {
-			winston.info('Data fetched ! ' + data);
 			result += data;
 	    });
 		
@@ -199,6 +203,7 @@ if(optionsCalendrier.activated) {
 							winston.info('Erreur ' + err);
 							return;
 						}
+                        winston.info('Updating Calendrier for match ' + equipe1 + ' - ' + equipe2);
 						if (results != null) {
 							db.run('UPDATE calendrier set date="' + annee+'-'+mois+'-'+jour + ' ' + heure + ':'
 									+ minute + ':00' + '", score1=' + score1 + ', score2=' + score2 + ' WHERE equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"',doAfterQuery);
@@ -217,6 +222,7 @@ if(optionsCalendrier.activated) {
 }
 
 if(optionsActus.activated) {
+    winston.info('Parser actus start at ' + new Date());
 	http.get(optionsActus, function(res) {
 	    var result = "";
 		if(res.statusCode != 200) {
@@ -227,6 +233,7 @@ if(optionsActus.activated) {
 	    });
 		
 		res.on('end', function() {
+            winston.info('End getting response actus at ' + new Date());
 			$3 = cheerio.load(result);
 			db.serialize(function() {
 				db.run(creation_table_actus_query);
@@ -235,31 +242,35 @@ if(optionsActus.activated) {
 				var nbLines = linesActu.length;
 				winston.info('Actus to get ' + nbLines);
 				$3(linesActu).each(function(index, line){
-					var postId = line.id.split('-')[1]; 
+                    winston.info('working on line :' + line);
+					var postId = $3(line).attr('id').split('-')[1]; 
 					/**
 					 * Title : {
 					 *      href: url de l'actu
 					 *      text: titre de l'actu
 					 * }
 					 */
-					var title = $3(line).children('.title').children().children()[0];
-					var date = $3(line).children('.postmeta').children()[0].innerHTML;
-					var urlImage = $3(line).children('.entry').children('a').children()[0].src;
-					var texte = $3(line).children('.entry').children('p')[0].innerHTML;
+					var title = $3(line).children('.title').children().children();
+					var date = $3(line).children('.postmeta').children('span').text();
+					var urlImage = $3(line).children('.entry').children('a').children().attr('src');
+					var texte = $3(line).children('.entry').children('p').text();
 					
 					var jour = date.split(' ')[0];
 					var mois = listeMoisActu[date.split(' ')[1]];
 					var annee = date.split(' ')[2];
-					
+                    
 					db.run('select * from actus where postId=' + postId, function (err, results) {
 						if (err) {
 							winston.info('Erreur ' + err);
 							return;
 						}
+                        winston.info('inserting acticle ' + title.text());
+                        winston.info('Parameters : [postId='+postId+', titre='+title.text()+', texte='+texte+', url='+title.attr('href')+', image='+urlImage+', date='+annee+'-'+mois+'-'+jour+']')
 						if (results != null) {
-							db.run('update actus set titre="'+title.innerHTML+'", texte="'+texte+'", url="'+title.href+'", image="'+urlImage+'", date="' + annee+'-'+mois+'-'+jour + ' 00:00:00" WHERE postId='+postId, null,doAfterQuery);
+							db.run('update actus set titre="'+title.text()+'", texte="'+texte+'", url="'+title.attr('href') +'", image="'+urlImage+'", date="' + annee+'-'+mois+'-'+jour + ' 00:00:00" WHERE postId='+postId, null,doAfterQuery);
 						} else {
-							db.run('insert into actus (postId, titre, texte, url, image, date) VALUES (' + postId + ',"'+title.innerHTML+'","' + texte + '","' + title.href + '","' + urlImage + '","' + annee+'-'+mois+'-'+jour + ' 00:00:00")', null,doAfterQuery);
+                            var query = 'insert into actus (postId, titre, texte, url, image, date) VALUES (' + postId + ',"'+title.text()+'","' + texte + '","' + title.attr('href') + '","' + urlImage + '","' + annee+'-'+mois+'-'+jour + ' 00:00:00")'
+							db.run(query, null,doAfterQuery);
 						}
 					});
 				});
