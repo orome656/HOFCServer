@@ -18,21 +18,21 @@ var urlActus = "http://www.hofc.fr/category/seniors/";
 
 var optionsClassement = {
   host: '',
-  port: 3128,
+  port: ,
   path: 'http://www.fff.fr/championnats/fff/district-hautes-pyrenees/2014/305257-excellence/phase-1/poule-1/derniers-resultats',
   activated: false
 };
 
 var optionsCalendrier = {
   host: '',
-  port: 3128,
+  port: ,
   path: 'http://www.fff.fr/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/305257/phase-1/groupe-1',
   activated: false
 };
 
 var optionsActus = {
   host: '',
-  port: 3128,
+  port: ,
   path: 'http://www.hofc.fr/category/seniors/',
   activated: true
 };
@@ -256,6 +256,9 @@ if(optionsActus.activated) {
 					var texte = $3(line).children('.entry').children('p').text();
 					
 					var jour = date.split(' ')[0];
+                    if(jour.length == 1) {
+                        jour = "0"+jour;   
+                    }
 					var mois = listeMoisActu[date.split(' ')[1]];
 					var annee = date.split(' ')[2];
                     
@@ -264,13 +267,20 @@ if(optionsActus.activated) {
 							winston.info('Erreur ' + err);
 							return;
 						}
-                        winston.info('inserting acticle ' + title.text());
-                        winston.info('Parameters : [postId='+postId+', titre='+title.text()+', texte='+texte+', url='+title.attr('href')+', image='+urlImage+', date='+annee+'-'+mois+'-'+jour+']')
 						if (results != null) {
-							db.run('update actus set titre="'+title.text()+'", texte="'+texte+'", url="'+title.attr('href') +'", image="'+urlImage+'", date="' + annee+'-'+mois+'-'+jour + ' 00:00:00" WHERE postId='+postId, null,doAfterQuery);
+                            var query = 'update actus set titre=?, texte=?, url=?, image=?, date=? WHERE postId=?';
+                            var parameters = [title.text(),texte,title.attr('href'), urlImage, annee+'-'+mois+'-'+jour + ' 00:00:00', postId];
+                            
+                            winston.info('Updating actus postId = ' + postId + ' with parameters : ' + parameters);
+							
+                            db.run(query, parameters,doAfterQuery);
 						} else {
-                            var query = 'insert into actus (postId, titre, texte, url, image, date) VALUES (' + postId + ',"'+title.text()+'","' + texte + '","' + title.attr('href') + '","' + urlImage + '","' + annee+'-'+mois+'-'+jour + ' 00:00:00")'
-							db.run(query, null,doAfterQuery);
+                            var query = 'insert into actus (postId, titre, texte, url, image, date) VALUES (?,?,?,?,?,?)';
+                            var parameters = [postId, title.text(),texte,title.attr('href'), urlImage, annee+'-'+mois+'-'+jour + ' 00:00:00'];
+                            
+                            winston.info('Inserting actus postId = ' + postId + ' with parameters : ' + parameters);
+                        
+							db.run(query, parameters,doAfterQuery);
 						}
 					});
 				});
