@@ -132,7 +132,7 @@ if (optionsClassement.activated) {
 								return;
 							}
                             winston.info('Updating Classement for team ' + nom);
-							if (results !== null) {
+							if (results != null) {
 								db.run('UPDATE classement set points=' + points + ', joue=' + joue + ', gagne=' + victoire + ', nul=' + nul + ', perdu=' + defaite + ', bp=' + bp + ', bc=' + bc + ', diff=' + diff + ' WHERE nom LIKE "' + nom + '"', doAfterQuery);
 							} else {
 								db.run('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ("' + nom + '",' + points + ',' + joue + ' , ' + victoire + ',' + nul + ',' + defaite + ', ' + bp + ',' + bc + ',' + diff + ')', doAfterQuery);
@@ -274,7 +274,7 @@ if (optionsActus.activated) {
 							winston.info('Erreur ' + err);
 							return;
 						}
-						if (results !== null) {
+						if (results != null) {
                             var query = 'update actus set titre=?, texte=?, url=?, image=?, date=? WHERE postId=?',
                                 parameters = [title.text(), texte, title.attr('href'), urlImage, annee + '-' + mois + '-' + jour + ' 00:00:00', postId];
                             
