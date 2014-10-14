@@ -20,14 +20,14 @@ var optionsClassement = {
     host: '',
     port: 80,
     path: 'http://www.fff.fr/championnats/fff/district-hautes-pyrenees/2014/305257-excellence/phase-1/poule-1/derniers-resultats',
-    activated: false
+    activated: true
 };
 
 var optionsCalendrier = {
     host: '',
     port: 80,
     path: 'http://www.fff.fr/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/305257/phase-1/groupe-1',
-    activated: false
+    activated: true
 };
 
 var optionsActus = {
@@ -97,7 +97,6 @@ winston.info('Parser start at ' + new Date());
 if (optionsClassement.activated) {
 	winston.info('Parser Classement Start');
 	http.get(optionsClassement, function(res) {
-        "use strict";
 		var result = "";
 		if (res.statusCode != 200) {
 			return;
