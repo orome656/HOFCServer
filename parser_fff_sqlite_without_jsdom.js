@@ -18,21 +18,21 @@ var urlActus = "http://www.hofc.fr/category/seniors/";
 
 var optionsClassement = {
     host: '',
-    port: 80,
+    port: ,
     path: 'http://www.fff.fr/championnats/fff/district-hautes-pyrenees/2014/305257-excellence/phase-1/poule-1/derniers-resultats',
     activated: true
 };
 
 var optionsCalendrier = {
     host: '',
-    port: 80,
+    port: ,
     path: 'http://www.fff.fr/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/305257/phase-1/groupe-1',
     activated: true
 };
 
 var optionsActus = {
     host: '',
-    port: 80,
+    port: ,
     path: 'http://www.hofc.fr/category/seniors/',
     activated: true
 };
@@ -188,6 +188,8 @@ if (optionsCalendrier.activated) {
 				        annee = jourComplet.split(' ')[3],
 				        heure = "00",
 				        minute = "00";
+                    
+                    if(jour.length == 1) jour = '0' + jour;
                     
 				    if(heureComplet) {
 					    heure = heureComplet.split(':')[0];
