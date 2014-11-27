@@ -24,7 +24,7 @@ var logger = new (winston.Logger)({
 //    parser.updateDatabase(db);
 //});
 
-var job = new CronJob('* */15 * * * *', function(){
+var job = new CronJob('0 */15 * * * *', function(){
       logger.info('Launching Database Update');
       parser.updateDatabase(db);
   }, function () {
