@@ -205,7 +205,7 @@ exports.updateDatabase = function(db) {
                             score2 = score.split('-')[1];
                         }
 
-                        db.run('select * from calendrier where equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', function (err, results) {
+                        db.get('select * from calendrier where equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', function (err, results) {
                             if (err) {
                                 logger_parser.info('Erreur ' + err);
                                 return;
@@ -270,7 +270,7 @@ exports.updateDatabase = function(db) {
                         var mois = listeMoisActu[date.split(' ')[1]],
                             annee = date.split(' ')[2];
 
-                        db.run('select * from actus where postId=' + postId, function (err, results) {
+                        db.get('select * from actus where postId=' + postId, function (err, results) {
                             if (err) {
                                 logger_parser.info('Erreur ' + err);
                                 return;
