@@ -7,6 +7,6 @@
 	"winston": "0.7.3",
     "sqlite3": "2.2.4",
     "express": "4.0.0",
-    "node-schedule": "0.1.13"
+    "cron": "1.0.5"
   }
 }
