@@ -1,12 +1,14 @@
 var gcm = require('node-gcm');
 
-exports.updateDatabase = funtion(db, title, message) {
+exports.sendNotification = function(db, title, message) {
     db.serialize(function() {
-        db.get("SELECT notification_id from notification_client", function(err, results){
+        db.all("SELECT notification_id from notification_client", function(err, results){
             if(err) {
                 // TODO log error
                 return;
             }
+            
+            
             // create a message with default values
             var message = new gcm.Message();
 
@@ -22,11 +24,15 @@ exports.updateDatabase = funtion(db, title, message) {
             });
 
             var sender = new gcm.Sender('insert Google Server API Key here'); //TODO
-
+            var notificationIds = [];
+            for(var notif in results) {
+                notificationIds.push(results[notif].notification_id);   
+            }
+            
             /**
              * Params: message-literal, registrationIds-array, No. of retries, callback-function
              **/
-            sender.send(message, results, results.length, function (err, result) {
+            sender.send(message, notificationIds, notificationIds.length, function (err, result) {
                 console.log(result);
             });
         })
