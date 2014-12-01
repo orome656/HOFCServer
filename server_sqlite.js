@@ -80,6 +80,7 @@ app.post('/registerPush', function(req, res){
             });
         });
     }
+    res.send('0');
 });
 
 app.listen(3000);
