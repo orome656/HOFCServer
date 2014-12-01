@@ -61,21 +61,25 @@ app.get('/actus', function(req, res){
 
 app.post('/registerPush', function(req, res){
 	logger.info('New registration ');
-    db.serialize(function () {
-        db.run(creation_table_notification_query);
-        db.get("SELECT * FROM notification_client where uuid='" + req.body.uuid +"'", function(err, result){
-            if(err) {
-                logger.info('Error ' + err);
-                return;
-            }
-            
-            if(result != null) {
-                db.run("UPDATE notification_client set notification_id='"+req.body.notificationId+"' WHERE uuid='"+req.body.uuid+"'");
-            } else {
-                db.run("");
-            }
+    var notificationId = req.body.notification_id;
+    var uuid = req.body.uuid;
+    if(notificationId && uuid) {
+        db.serialize(function () {
+            db.run(creation_table_notification_query);
+            db.get("SELECT * FROM notification_client where uuid='" + uuid +"'", function(err, result){
+                if(err) {
+                    logger.info('Error ' + err);
+                    return;
+                }
+
+                if(result != null) {
+                    db.run("UPDATE notification_client set notification_id='"+notificationId+"' WHERE uuid='"+uuid+"'");
+                } else {
+                    db.run("INSERT INTO notification_client (notification_id, uuid) VALUES ('"+notificationId+"','"+uuid+"')");
+                }
+            });
         });
-    });
+    }
 });
 
 app.listen(3000);
