@@ -1,6 +1,6 @@
 var gcm = require('node-gcm');
 
-exports.sendNotification = function(db, title, message) {
+exports.sendNotification = function(db, title, messageNotif) {
     db.serialize(function() {
         db.all("SELECT notification_id from notification_client", function(err, results){
             if(err) {
@@ -19,7 +19,7 @@ exports.sendNotification = function(db, title, message) {
                 timeToLive: 3,
                 data: {
                     title: title,
-                    message: message
+                    message: messageNotif
                 }
             });
 
