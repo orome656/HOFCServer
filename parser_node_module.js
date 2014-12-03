@@ -1,6 +1,7 @@
 var http = require('http');
 var cheerio = require("cheerio");
 var winston_parser = require("winston");
+var notification = require('./send_notification.js')
 
 var logger_parser = new (winston_parser.Logger)({
     transports: [
@@ -8,12 +9,9 @@ var logger_parser = new (winston_parser.Logger)({
     ]
 });
   
-// Paramétrage url
-var urlClassement = "http://www.fff.fr/championnats/fff/district-hautes-pyrenees/2013/294485-excellence/phase-1/poule-1/derniers-resultats";
-var urlLastResult = "http://www.fff.fr/championnats/fff/district-hautes-pyrenees/2013/294485-excellence/phase-1/poule-1/derniers-resultats";
-var urlCalendrier = "http://www.fff.fr/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/294485/phase-1/groupe-1";
-var urlActus = "http://www.hofc.fr/category/seniors/";
+var HOFC_NAME = 'HORGUES ODOS F.C.';
 
+// Paramétrage url
 var optionsClassement = {
     host: 'www.fff.fr',
     port: 80,
@@ -115,7 +113,8 @@ exports.updateDatabase = function(db) {
                     $(linesClassement).each(function (index, line) {
                         var lineChildren = $(line).children();
                         if (lineChildren != null && lineChildren.length > 3) {
-                            var nom = $(lineChildren[1]).text().trim(),
+                            var place = $(lineChildren[0]).text().trim(),
+                                nom = $(lineChildren[1]).text().trim(),
                                 points = $(lineChildren[2]).text(),
                                 joue = $(lineChildren[3]).text(),
                                 victoire = $(lineChildren[4]).text(),
@@ -131,6 +130,9 @@ exports.updateDatabase = function(db) {
                                 }
                                 logger_parser.info('Updating Classement for team ' + nom);
                                 if (results != null) {
+                                    if(results.joue < joue) {
+                                        notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' place + ((place == 1) ? 'er' : 'eme'));
+                                    }
                                     db.run('UPDATE classement set points=' + points + ', joue=' + joue + ', gagne=' + victoire + ', nul=' + nul + ', perdu=' + defaite + ', bp=' + bp + ', bc=' + bc + ', diff=' + diff + ' WHERE nom LIKE "' + nom + '"', doAfterQuery);
                                 } else {
                                     db.run('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ("' + nom + '",' + points + ',' + joue + ' , ' + victoire + ',' + nul + ',' + defaite + ', ' + bp + ',' + bc + ',' + diff + ')', doAfterQuery);
@@ -212,6 +214,22 @@ exports.updateDatabase = function(db) {
                             }
                             logger_parser.info('Updating Calendrier for match ' + equipe1 + ' - ' + equipe2);
                             if (results != null) {
+                                if(results.score1 == null && results.score2 == null) {
+                                    var notifTitle = 'Nouveau Résultat';
+                                    var notifMessage = null;
+                                    if(equipe1 == HOFC_NAME && score1 > score2) {
+                                        notifMessage = 'Victoire du HOFC (' + score1+ '-' + score2 +') face à ' + equipe2;
+                                    } else if (equipe2 == HOFC_NAME && score2 > score1) {
+                                        notifMessage = 'Victoire du HOFC (' + score1+ '-' + score2 +') face à ' + equipe1;
+                                    } else if(equipe1 == HOFC_NAME && score1 < score2) {
+                                        notifMessage = 'Défaite du HOFC (' + score1+ '-' + score2 +') face à ' + equipe2;
+                                    } else if (equipe2 == HOFC_NAME && score2 < score1) {
+                                        notifMessage = 'Défaite du HOFC (' + score1+ '-' + score2 +') face à ' + equipe1;
+                                    } else {
+                                        notifMessage = 'Match nul entre le HOFC et ' + ((equipe1 == HOFC_NAME)? equipe2 : equipe1);
+                                    }
+                                    notification.sendNotification(db, notifTitle, notifMessage);
+                                }
                                 db.run('UPDATE calendrier set date="' + annee + '-' + mois + '-' + jour + ' ' + heure + ':'
                                         + minute + ':00' + '", score1=' + score1 + ', score2=' + score2 + ' WHERE equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', doAfterQuery);
                             } else {
@@ -283,6 +301,7 @@ exports.updateDatabase = function(db) {
 
                                 db.run(query, parameters, doAfterQuery);
                             } else {
+                                notification.sendNotification(db, 'Nouvel article sur HOFC.fr', title.text());
                                 var query = 'insert into actus (postId, titre, texte, url, image, date) VALUES (?,?,?,?,?,?)',
                                     parameters = [postId, title.text(), texte, title.attr('href'), urlImage, annee + '-' + mois + '-' + jour + ' 00:00:00'];
 
