@@ -131,7 +131,7 @@ exports.updateDatabase = function(db) {
                                 logger_parser.info('Updating Classement for team ' + nom);
                                 if (results != null) {
                                     if(results.joue < joue) {
-                                        notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' place + ((place == 1) ? 'er' : 'eme'));
+                                        notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' + place + ((place == 1) ? 'er' : 'eme'));
                                     }
                                     db.run('UPDATE classement set points=' + points + ', joue=' + joue + ', gagne=' + victoire + ', nul=' + nul + ', perdu=' + defaite + ', bp=' + bp + ', bc=' + bc + ', diff=' + diff + ' WHERE nom LIKE "' + nom + '"', doAfterQuery);
                                 } else {
