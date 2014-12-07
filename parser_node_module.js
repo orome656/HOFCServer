@@ -319,8 +319,72 @@ exports.updateDatabase = function(db) {
     }
 }
 
+exports.parseDiaporama = function(url, callback) {
+    http.get(url, function(res) {
+        
+            var result = "";
+            if(res.statusCode != 200) {
+                return;
+            }
+            res.on('data', function(data) {
+                result += data;
+            });
 
+            res.on('end', function() { 
+                // do parse
+                $4 = cheerio.load(result);
+                var photos = $4('.ngg-gallery-thumbnail-box a');
+                var resultats = [];
+                $4('.ngg-gallery-thumbnail-box a').each(function(index, line) {
+                    resultats.push($4(line).attr('href'));
+                });
+                callback(resultats);
+            })
+    });
+}
 
+exports.parseArticle = function(url, callback) {
+    http.get(url, function(res) {
+        
+            var result = "";
+            if(res.statusCode != 200) {
+                return;
+            }
+            res.on('data', function(data) {
+                result += data;
+            });
 
+            res.on('end', function() { 
+                // do parse
+                $5 = cheerio.load(result);
+                var title = $5('.post .title').text().trim();
+                var dateString = $5('.post .postmeta').text().trim();
+                var contents = $5('.post .entry').children();
+                var article="";
+                for(var i=0; i< contents.length;i++) {
+                    if($5(contents[i]).attr('class') == 'sociable')
+                        break;
+                    
+                    article += $5(contents[i]).text().trim();
+                    article += "\n";
+                }
+                
+                var jour = dateString.split(' ')[0];
+
+                if (jour.length === 1) {
+                    jour = '0' + jour;
+                }
+
+                var mois = listeMoisActu[dateString.split(' ')[1]],
+                    annee = dateString.split(' ')[2];
+                
+                var resultats = {};
+                resultats.title = title;
+                resultats.date = annee + '-' + mois + '-' + jour + ' ' + '00:00:00';
+                resultats.article = article;
+                callback(resultats);
+            })
+    });
+}
 
 

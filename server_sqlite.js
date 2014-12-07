@@ -59,6 +59,22 @@ app.get('/actus', function(req, res){
     });
 });
 
+app.post('/parsePage', function(req, res) {
+    console.log('url page : ' + req.body.url);
+    var url = req.body.url;
+    if(url.indexOf('en-images') != -1) {
+        console.log('Image Page');
+        
+        parser.parseDiaporama(url, function(resultats) {
+            res.send(resultats);
+        });   
+    } else {
+        parser.parseArticle(url, function(resultats){
+            res.send(resultats);
+        });   
+    }
+});
+
 app.post('/registerPush', function(req, res){
 	logger.info('New registration ');
     var notificationId = req.body.notification_id;
