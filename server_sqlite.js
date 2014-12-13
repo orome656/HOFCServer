@@ -40,21 +40,21 @@ var job = new CronJob('0 */15 * * * *', function(){
 
 app.get('/classement', function(req, res){
 	logger.info('Classement Request');
-    db.all('select * from classement', function (err, results) {
+    db.all('select * from classement order by points desc, diff desc', function (err, results) {
         res.send(results);
     });
 });
 
 app.get('/calendrier', function(req, res){
 	logger.info('Calendrier Request');
-    db.all('select * from calendrier', function (err, results) {
+    db.all('select * from calendrier order by date asc', function (err, results) {
         res.send(results);
     });
 });
 
 app.get('/actus', function(req, res){
 	logger.info('Actus Request');
-    db.all('select * from actus', function (err, results) {
+    db.all('select * from actus  order by date desc', function (err, results) {
         res.send(results);
     });
 });
