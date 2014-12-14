@@ -14,7 +14,7 @@ app.set('port', (process.env.PORT || 3000));
 
 var logger = new (winston.Logger)({
     transports: [
-        new (winston.transports.File)({ filename: './server.log', level: 'debug' })
+        new (winston.transports.File)({ filename: './server.log', level: 'debug', maxsize: 100, maxFiles:1 })
     ]
 });
 /**

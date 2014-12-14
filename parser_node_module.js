@@ -5,7 +5,7 @@ var notification = require('./send_notification.js')
 
 var logger_parser = new (winston_parser.Logger)({
     transports: [
-        new (winston_parser.transports.File)({ filename: './parser.log', level: 'debug' })
+        new (winston_parser.transports.File)({ filename: './parser.log', level: 'debug', maxsize: 100, maxFiles:1 })
     ]
 });
   
@@ -214,7 +214,7 @@ exports.updateDatabase = function(db) {
                             }
                             logger_parser.info('Updating Calendrier for match ' + equipe1 + ' - ' + equipe2);
                             if (results != null) {
-                                if(results.score1 == null && results.score2 == null) {
+                                if((results.score1 == null || results.score1 == "null") && (results.score2 == null || results.score2 == "null") && score1 != null && score2 != null) {
                                     var notifTitle = 'Nouveau Résultat';
                                     var notifMessage = null;
                                     if(equipe1 == HOFC_NAME && score1 > score2) {
@@ -228,6 +228,7 @@ exports.updateDatabase = function(db) {
                                     } else {
                                         notifMessage = 'Match nul entre le HOFC et ' + ((equipe1 == HOFC_NAME)? equipe2 : equipe1);
                                     }
+                                    console.log('Notification message : ' + notifMessage);
                                     notification.sendNotification(db, notifTitle, notifMessage);
                                 }
                                 db.run('UPDATE calendrier set date="' + annee + '-' + mois + '-' + jour + ' ' + heure + ':'
