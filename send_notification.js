@@ -4,7 +4,7 @@ exports.sendNotification = function(db, title, messageNotif) {
     db.serialize(function() {
         db.all("SELECT notification_id from notification_client", function(err, results){
             if(err) {
-                // TODO log error
+                console.log('Error while getting notifications clients : ' + err);
                 return;
             }
             
@@ -23,7 +23,7 @@ exports.sendNotification = function(db, title, messageNotif) {
                 }
             });
 
-            var sender = new gcm.Sender('insert Google Server API Key here'); //TODO
+            var sender = new gcm.Sender(process.env.ANDROID_SERVER_KEY); //TODO
             var notificationIds = [];
             for(var notif in results) {
                 notificationIds.push(results[notif].notification_id);   
