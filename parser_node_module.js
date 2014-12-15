@@ -118,6 +118,7 @@ exports.updateDatabase = function(db) {
                             client.query('select * from classement where nom LIKE "' + nom + '"',  function (err, results) {
                                 if (err) {
                                     console.log('Erreur ' + err);
+                                    nbLines--;
                                     return;
                                 }
                                 console.log('Updating Classement for team ' + nom);
@@ -125,9 +126,19 @@ exports.updateDatabase = function(db) {
                                     if(results.joue < joue) {
                                         notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' + place + ((place == 1) ? 'er' : 'eme'));
                                     }
-                                    client.query('UPDATE classement set points=' + points + ', joue=' + joue + ', gagne=' + victoire + ', nul=' + nul + ', perdu=' + defaite + ', bp=' + bp + ', bc=' + bc + ', diff=' + diff + ' WHERE nom LIKE "' + nom + '"', doAfterQuery);
+                                    client.query('UPDATE classement set points=' + points + ', joue=' + joue + ', gagne=' + victoire + ', nul=' + nul + ', perdu=' + defaite + ', bp=' + bp + ', bc=' + bc + ', diff=' + diff + ' WHERE nom LIKE "' + nom + '"', function(err, result){
+                                    nbLines--;
+                                    if(nbLines <= 0) {
+                                        done();
+                                    }
+                                });
                                 } else {
-                                    client.query('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ("' + nom + '",' + points + ',' + joue + ' , ' + victoire + ',' + nul + ',' + defaite + ', ' + bp + ',' + bc + ',' + diff + ')', doAfterQuery);
+                                    client.query('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ("' + nom + '",' + points + ',' + joue + ' , ' + victoire + ',' + nul + ',' + defaite + ', ' + bp + ',' + bc + ',' + diff + ')', function(err, result){
+                                    nbLines--;
+                                    if(nbLines <= 0) {
+                                        done();
+                                    }
+                                });
                                 }
                             });
                         }
@@ -202,6 +213,7 @@ exports.updateDatabase = function(db) {
                         client.query('select * from calendrier where equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', function (err, results) {
                             if (err) {
                                 console.log('Erreur ' + err);
+                                nbLines--;
                                 return;
                             }
                             console.log('Updating Calendrier for match ' + equipe1 + ' - ' + equipe2);
@@ -224,10 +236,20 @@ exports.updateDatabase = function(db) {
                                     notification.sendNotification(db, notifTitle, notifMessage);
                                 }
                                 client.query('UPDATE calendrier set date="' + annee + '-' + mois + '-' + jour + ' ' + heure + ':'
-                                        + minute + ':00' + '", score1=' + score1 + ', score2=' + score2 + ' WHERE equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', doAfterQuery);
+                                        + minute + ':00' + '", score1=' + score1 + ', score2=' + score2 + ' WHERE equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', function(err, result){
+                                    nbLines--;
+                                    if(nbLines <= 0) {
+                                        done();
+                                    }
+                                });
                             } else {
                                 client.query('insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ("' + annee + '-' + mois + '-' + jour + ' ' + heure + ':'
-                                        + minute + ':00' + '","' + equipe1 + '","' + equipe2 + '","' + score1 + '","' + score2 + '")', doAfterQuery);
+                                        + minute + ':00' + '","' + equipe1 + '","' + equipe2 + '","' + score1 + '","' + score2 + '")', function(err, result){
+                                    nbLines--;
+                                    if(nbLines <= 0) {
+                                        done();
+                                    }
+                                });
                             }
 
                         });
@@ -283,6 +305,7 @@ exports.updateDatabase = function(db) {
                         client.query('select * from actus where postId=' + postId, function (err, results) {
                             if (err) {
                                 console.log('Erreur ' + err);
+                                nbLines--;
                                 return;
                             }
                             if (results != null) {
@@ -291,7 +314,12 @@ exports.updateDatabase = function(db) {
 
                                 console.log('Updating actus postId = ' + postId + ' with parameters : ' + parameters);
 
-                                client.query(query, parameters, doAfterQuery);
+                                client.query(query, parameters, function(err, result){
+                                    nbLines--;
+                                    if(nbLines <= 0) {
+                                        done();
+                                    }
+                                });
                             } else {
                                 notification.sendNotification(db, 'Nouvel article sur HOFC.fr', title.text());
                                 var query = 'insert into actus (postId, titre, texte, url, image, date) VALUES ($1,$2,$3,$4,$5,$6)',
@@ -299,7 +327,12 @@ exports.updateDatabase = function(db) {
 
                                 console.log('Inserting actus postId = ' + postId + ' with parameters : ' + parameters);
 
-                                client.query(query, parameters, doAfterQuery);
+                                client.query(query, parameters, function(err, result){
+                                    nbLines--;
+                                    if(nbLines <= 0) {
+                                        done();
+                                    }
+                                });
                             }
                         });
                     });
