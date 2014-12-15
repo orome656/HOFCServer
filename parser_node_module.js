@@ -86,10 +86,10 @@ exports.updateDatabase = function(db) {
         http.get(optionsClassement, function(res) {
             var result = "";
             if (res.statusCode != 200) {
+                console.error('Classement get error. Result code ' + res.statusCode);
                 return;
             }
             res.on('data', function (data) {
-                console.log('Classement get error. Result code ' + res.statusCode);
                 result += data;
             });
 
@@ -133,7 +133,7 @@ exports.updateDatabase = function(db) {
                                     }
                                 });
                                 } else {
-                                    client.query('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ("' + nom + '",' + points + ',' + joue + ' , ' + victoire + ',' + nul + ',' + defaite + ', ' + bp + ',' + bc + ',' + diff + ')', function(err, result){
+                                    client.query("insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ('" + nom + "'," + points + "," + joue + " , " + victoire + "," + nul + "," + defaite + ", " + bp + "," + bc + "," + diff + ")", function(err, result){
                                     nbLines--;
                                     if(nbLines <= 0) {
                                         done();
@@ -157,7 +157,7 @@ exports.updateDatabase = function(db) {
         http.get(optionsCalendrier, function(res) {
           var result = "";
             if(res.statusCode != 200) {
-                console.log('Calendrier get error. Result code ' + res.statusCode);
+                console.error('Calendrier get error. Result code ' + res.statusCode);
                 return;
             }
             res.on('data', function(data) {
@@ -210,7 +210,7 @@ exports.updateDatabase = function(db) {
                             score2 = score.split('-')[1];
                         }
 
-                        client.query('select * from calendrier where equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', function (err, results) {
+                        client.query("select * from calendrier where equipe1 LIKE '" + equipe1 + "' AND equipe2 LIKE '" + equipe2 + "'", function (err, results) {
                             if (err) {
                                 console.log('Erreur ' + err);
                                 nbLines--;
@@ -266,7 +266,7 @@ exports.updateDatabase = function(db) {
         http.get(optionsActus, function(res) {
             var result = "";
             if(res.statusCode != 200) {
-                console.log('Actus get error. Result code ' + res.statusCode);
+                console.error('Actus get error. Result code ' + res.statusCode);
                 return;
             }
             res.on('data', function(data) {
