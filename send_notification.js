@@ -1,8 +1,8 @@
 var gcm = require('node-gcm');
 
 exports.sendNotification = function(db, title, messageNotif) {
-    db.serialize(function() {
-        db.all("SELECT notification_id from notification_client", function(err, results){
+    db.connect(process.env.DATABASE_URL ,function(err, client, done) {
+        client.query("SELECT notification_id from notification_client", function(err, results){
             if(err) {
                 console.log('Error while getting notifications clients : ' + err);
                 return;
@@ -23,9 +23,9 @@ exports.sendNotification = function(db, title, messageNotif) {
                 }
             });
 
-            var sender = new gcm.Sender(process.env.ANDROID_SERVER_KEY); //TODO
+            var sender = new gcm.Sender(process.env.ANDROID_SERVER_KEY);
             var notificationIds = [];
-            for(var notif in results) {
+            for(var notif in results.rows) {
                 notificationIds.push(results[notif].notification_id);   
             }
             
@@ -35,6 +35,7 @@ exports.sendNotification = function(db, title, messageNotif) {
             sender.send(message, notificationIds, notificationIds.length, function (err, result) {
                 console.log('sending notification with result : ' + result);
             });
+            done();
         })
     })
 }

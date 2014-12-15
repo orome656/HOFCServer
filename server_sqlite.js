@@ -6,17 +6,18 @@ var db = new sqlite3.Database('database_hofc.db');
 var CronJob = require('cron').CronJob
 var parser = require('./parser_node_module.js');
 var http = require('http');
+var pg = require('pg');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.set('port', (process.env.PORT || 3000));
 
 
-var creation_table_notification_query = "CREATE TABLE IF NOT EXISTS `notification_client` (`id` INTEGER PRIMARY KEY AUTOINCREMENT , `uuid` varchar(255) NOT NULL, `notification_id` varchar2(50) NOT NULL)";
+var creation_table_notification_query = "CREATE TABLE IF NOT EXISTS notification_client (id serial PRIMARY KEY , uuid varchar(255) NOT NULL, notification_id varchar(50) NOT NULL)";
 
 var job = new CronJob('0 */15 * * * *', function(){
       console.log('Update database start');
-      parser.updateDatabase(db);
+      parser.updateDatabase(pg);
   }, function () {
     
   },
@@ -25,23 +26,32 @@ var job = new CronJob('0 */15 * * * *', function(){
 
 app.get('/classement', function(req, res){
     console.log('Classement Request');
-    db.all('select * from classement order by points desc, diff desc', function (err, results) {
-        res.send(results);
-    });
+    pg.connect(process.env.DATABASE_URL, function(err, client, done){
+        client.query('select * from classement order by points desc, diff desc', function(err, results){
+            done();
+            res.send(results.rows);
+        })
+    })
 });
 
 app.get('/calendrier', function(req, res){
 	console.log('Calendrier Request');
-    db.all('select * from calendrier order by date asc', function (err, results) {
-        res.send(results);
-    });
+    pg.connect(process.env.DATABASE_URL, function(err, client, done){
+        client.query('select * from calendrier order by date asc', function(err, results){
+            done();
+            res.send(results.rows);
+        })
+    })
 });
 
 app.get('/actus', function(req, res){
 	console.log('Actus Request');
-    db.all('select * from actus  order by date desc', function (err, results) {
-        res.send(results);
-    });
+    pg.connect(process.env.DATABASE_URL, function(err, client, done){
+        client.query('select * from actus  order by date desc', function(err, results){
+            done();
+            res.send(results.rows);
+        })
+    })
 });
 
 app.post('/parsePage', function(req, res) {
@@ -64,18 +74,22 @@ app.post('/registerPush', function(req, res){
     var uuid = req.body.uuid;
 	console.log('New registration with notification id : ' + notificationId);
     if(notificationId && uuid) {
-        db.serialize(function () {
-            db.run(creation_table_notification_query);
-            db.get("SELECT * FROM notification_client where uuid='" + uuid +"'", function(err, result){
+        pg.connect(process.env.DATABASE_URL, function (err, client, done) {
+            client.query(creation_table_notification_query);
+            client.query("SELECT * FROM notification_client where uuid='" + uuid +"'", function(err, result){
                 if(err) {
                     console.log('Error ' + err);
                     return;
                 }
 
-                if(result != null) {
-                    db.run("UPDATE notification_client set notification_id='"+notificationId+"' WHERE uuid='"+uuid+"'");
+                if(result.rows.length > 0) {
+                    client.query("UPDATE notification_client set notification_id='"+notificationId+"' WHERE uuid='"+uuid+"'", function(){
+                        done();
+                    });
                 } else {
-                    db.run("INSERT INTO notification_client (notification_id, uuid) VALUES ('"+notificationId+"','"+uuid+"')");
+                    client.query("INSERT INTO notification_client (notification_id, uuid) VALUES ('"+notificationId+"','"+uuid+"')", function() {
+                        done();
+                    });
                 }
             });
         });
@@ -84,12 +98,18 @@ app.post('/registerPush', function(req, res){
 });
 
 app.listen(app.get('port'), function() {
-  console.log("Node app is running at localhost:" + app.get('port'));
+    console.log("Node app is running at localhost:" + app.get('port'));
+    pg.connect(process.env.DATABASE_URL ,function (err, client, done) {
+        client.query(creation_table_notification_query, function() {
+            console.log('Notification Table Created');
+            done();
+        });
+    });
 });
 
 // Keep alive app
 setInterval(function() {
-    http.get("https://quiet-wave-7010.herokuapp.com/calendrier", function(res) {
+    http.get("http://quiet-wave-7010.herokuapp.com/calendrier", function(res) {
         if (res.statusCode === 200) {
             console.log("Heroku Keep Alive Ping: Success");
         } else {
@@ -97,8 +117,5 @@ setInterval(function() {
         }
     }).on('error', function(e) {
         console.log("Heroku Keep Alive Ping: Error - " + err.message);
-        db.serialize(function () {
-            db.run(creation_table_notification_query);
-        });
     });
 }, 30 * 60 * 1000); // load every 30 minutes

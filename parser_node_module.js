@@ -29,9 +29,9 @@ var optionsActus = {
 /**
  * Query création des tables
  */
-var creation_table_classement_query = "CREATE TABLE IF NOT EXISTS `classement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT , `nom` varchar(255) NOT NULL, `points` int(11) NOT NULL, `joue` int(11) NOT NULL, `gagne` int(11) NOT NULL, `nul` int(11) NOT NULL, `perdu` int(11) NOT NULL, `bp` int(11) NOT NULL, `bc` int(11) NOT NULL, `diff` int(11) NOT NULL)";
-var creation_table_calendrier_query = "CREATE TABLE IF NOT EXISTS `calendrier` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `equipe1` varchar(255) NOT NULL, `score1` int(11) NOT NULL, `equipe2` varchar(255) NOT NULL, `score2` int(11) NOT NULL, `date` date DEFAULT NULL)";
-var creation_table_actus_query = "CREATE TABLE IF NOT EXISTS `actus` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `postId` int(11) DEFAULT NULL, `titre` varchar(255) DEFAULT NULL, `texte` text, `url` varchar(255) DEFAULT NULL, `image` varchar(255) DEFAULT NULL, `date` date DEFAULT NULL)";
+var creation_table_classement_query = "CREATE TABLE IF NOT EXISTS classement (id serial PRIMARY KEY , nom varchar(255) NOT NULL, points int(11) NOT NULL, joue int(11) NOT NULL, gagne int(11) NOT NULL, nul int(11) NOT NULL, perdu int(11) NOT NULL, bp int(11) NOT NULL, bc int(11) NOT NULL, diff int(11) NOT NULL)";
+var creation_table_calendrier_query = "CREATE TABLE IF NOT EXISTS calendrier (id serial PRIMARY KEY, equipe1 varchar(255) NOT NULL, score1 int(11) NOT NULL, equipe2 varchar(255) NOT NULL, score2 int(11) NOT NULL, date date DEFAULT NULL)";
+var creation_table_actus_query = "CREATE TABLE IF NOT EXISTS actus (id serial PRIMARY KEY, postId int(11) DEFAULT NULL, titre varchar(255) DEFAULT NULL, texte text, url varchar(255) DEFAULT NULL, image varchar(255) DEFAULT NULL, date date DEFAULT NULL)";
 
 /**
  *	Tableau permettant de convertir la chaine date récupérée en objet date
@@ -96,8 +96,8 @@ exports.updateDatabase = function(db) {
             res.on('end', function () {
                 console.log('End getting Classement Data at ' + new Date());
                 $ = cheerio.load(result);
-                db.serialize(function () {
-                    db.run(creation_table_classement_query);
+                db.connect(process.env.DATABASE_URL,function (err, client, done) {
+                    client.query(creation_table_classement_query);
                     var linesClassement = $("table.classement").children('tbody').children().filter(function (index) {
                         return ($(this).children() !== null && $(this).children().length > 3);
                     });
@@ -115,19 +115,19 @@ exports.updateDatabase = function(db) {
                                 bp = $(lineChildren[8]).text(),
                                 bc = $(lineChildren[9]).text(),
                                 diff = $(lineChildren[11]).text();
-                            db.get('select * from classement where nom LIKE "' + nom + '"',  function (err, results) {
+                            client.query('select * from classement where nom LIKE "' + nom + '"',  function (err, results) {
                                 if (err) {
                                     console.log('Erreur ' + err);
                                     return;
                                 }
                                 console.log('Updating Classement for team ' + nom);
-                                if (results != null) {
+                                if (results.rows.length > 0) {
                                     if(results.joue < joue) {
                                         notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' + place + ((place == 1) ? 'er' : 'eme'));
                                     }
-                                    db.run('UPDATE classement set points=' + points + ', joue=' + joue + ', gagne=' + victoire + ', nul=' + nul + ', perdu=' + defaite + ', bp=' + bp + ', bc=' + bc + ', diff=' + diff + ' WHERE nom LIKE "' + nom + '"', doAfterQuery);
+                                    client.query('UPDATE classement set points=' + points + ', joue=' + joue + ', gagne=' + victoire + ', nul=' + nul + ', perdu=' + defaite + ', bp=' + bp + ', bc=' + bc + ', diff=' + diff + ' WHERE nom LIKE "' + nom + '"', doAfterQuery);
                                 } else {
-                                    db.run('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ("' + nom + '",' + points + ',' + joue + ' , ' + victoire + ',' + nul + ',' + defaite + ', ' + bp + ',' + bc + ',' + diff + ')', doAfterQuery);
+                                    client.query('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ("' + nom + '",' + points + ',' + joue + ' , ' + victoire + ',' + nul + ',' + defaite + ', ' + bp + ',' + bc + ',' + diff + ')', doAfterQuery);
                                 }
                             });
                         }
@@ -156,8 +156,8 @@ exports.updateDatabase = function(db) {
             res.on('end', function() {
                 console.log('End getting Calendrier Data at ' + new Date());
                 $2 = cheerio.load(result);
-                db.serialize(function() {
-                    db.run(creation_table_calendrier_query);
+                db.connect(process.env.DATABASE_URL, function(err, client, done) {
+                    client.query(creation_table_calendrier_query);
                     var linesCalendar = $2("div.list_calendar").children('div'),
                         nbLines = linesCalendar.length;
                     console.log(nbLines);
@@ -199,7 +199,7 @@ exports.updateDatabase = function(db) {
                             score2 = score.split('-')[1];
                         }
 
-                        db.get('select * from calendrier where equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', function (err, results) {
+                        client.query('select * from calendrier where equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', function (err, results) {
                             if (err) {
                                 console.log('Erreur ' + err);
                                 return;
@@ -223,10 +223,10 @@ exports.updateDatabase = function(db) {
                                     console.log('Notification message : ' + notifMessage);
                                     notification.sendNotification(db, notifTitle, notifMessage);
                                 }
-                                db.run('UPDATE calendrier set date="' + annee + '-' + mois + '-' + jour + ' ' + heure + ':'
+                                client.query('UPDATE calendrier set date="' + annee + '-' + mois + '-' + jour + ' ' + heure + ':'
                                         + minute + ':00' + '", score1=' + score1 + ', score2=' + score2 + ' WHERE equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', doAfterQuery);
                             } else {
-                                db.run('insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ("' + annee + '-' + mois + '-' + jour + ' ' + heure + ':'
+                                client.query('insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ("' + annee + '-' + mois + '-' + jour + ' ' + heure + ':'
                                         + minute + ':00' + '","' + equipe1 + '","' + equipe2 + '","' + score1 + '","' + score2 + '")', doAfterQuery);
                             }
 
@@ -254,8 +254,8 @@ exports.updateDatabase = function(db) {
             res.on('end', function() {
                 console.log('End getting response actus at ' + new Date());
                 $3 = cheerio.load(result);
-                db.serialize(function() {
-                    db.run(creation_table_actus_query);
+                db.connect(process.env.DATABASE_URL, function(err, client, done) {
+                    client.query(creation_table_actus_query);
                     var linesActu = $3("#content").children('.post');
                     var nbLines = linesActu.length;
                     console.log('Actus to get ' + nbLines);
@@ -280,26 +280,26 @@ exports.updateDatabase = function(db) {
                         var mois = listeMoisActu[date.split(' ')[1]],
                             annee = date.split(' ')[2];
 
-                        db.get('select * from actus where postId=' + postId, function (err, results) {
+                        client.query('select * from actus where postId=' + postId, function (err, results) {
                             if (err) {
                                 console.log('Erreur ' + err);
                                 return;
                             }
                             if (results != null) {
-                                var query = 'update actus set titre=?, texte=?, url=?, image=?, date=? WHERE postId=?',
+                                var query = 'update actus set titre=$1, texte=$2, url=$3, image=$4, date=$5 WHERE postId=$6',
                                     parameters = [title.text(), texte, title.attr('href'), urlImage, annee + '-' + mois + '-' + jour + ' 00:00:00', postId];
 
                                 console.log('Updating actus postId = ' + postId + ' with parameters : ' + parameters);
 
-                                db.run(query, parameters, doAfterQuery);
+                                client.query(query, parameters, doAfterQuery);
                             } else {
                                 notification.sendNotification(db, 'Nouvel article sur HOFC.fr', title.text());
-                                var query = 'insert into actus (postId, titre, texte, url, image, date) VALUES (?,?,?,?,?,?)',
+                                var query = 'insert into actus (postId, titre, texte, url, image, date) VALUES ($1,$2,$3,$4,$5,$6)',
                                     parameters = [postId, title.text(), texte, title.attr('href'), urlImage, annee + '-' + mois + '-' + jour + ' 00:00:00'];
 
                                 console.log('Inserting actus postId = ' + postId + ' with parameters : ' + parameters);
 
-                                db.run(query, parameters, doAfterQuery);
+                                client.query(query, parameters, doAfterQuery);
                             }
                         });
                     });
