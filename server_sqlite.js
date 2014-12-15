@@ -27,8 +27,15 @@ var job = new CronJob('0 */15 * * * *', function(){
 app.get('/classement', function(req, res){
     console.log('Classement Request');
     pg.connect(process.env.DATABASE_URL, function(err, client, done){
+        if(err) {
+            console.error('Error while connecting to database', err);
+        }
         client.query('select * from classement order by points desc, diff desc', function(err, results){
             done();
+            if(err) {
+                console.error('Error while getting classement : ' + err);
+                return;
+            }
             res.send(results.rows);
         })
     })
@@ -37,8 +44,15 @@ app.get('/classement', function(req, res){
 app.get('/calendrier', function(req, res){
 	console.log('Calendrier Request');
     pg.connect(process.env.DATABASE_URL, function(err, client, done){
+        if(err) {
+            console.error('Error while connecting to database', err);
+        }
         client.query('select * from calendrier order by date asc', function(err, results){
             done();
+            if(err) {
+                console.error('Error while getting calendrier : ' + err);
+                return;
+            }
             res.send(results.rows);
         })
     })
@@ -47,8 +61,15 @@ app.get('/calendrier', function(req, res){
 app.get('/actus', function(req, res){
 	console.log('Actus Request');
     pg.connect(process.env.DATABASE_URL, function(err, client, done){
+        if(err) {
+            console.error('Error while connecting to database', err);
+        }
         client.query('select * from actus  order by date desc', function(err, results){
             done();
+            if(err) {
+                console.error('Error while getting actus : ' + err);
+                return;
+            }
             res.send(results.rows);
         })
     })
@@ -100,6 +121,9 @@ app.post('/registerPush', function(req, res){
 app.listen(app.get('port'), function() {
     console.log("Node app is running at localhost:" + app.get('port'));
     pg.connect(process.env.DATABASE_URL ,function (err, client, done) {
+        if(err) {
+            console.error('Error while connecting to database', err);
+        }
         client.query(creation_table_notification_query, function(err, result) {
             if(err) {
                 console.log('Error while creating notifications table : ' + err);
