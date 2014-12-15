@@ -1,13 +1,6 @@
 var http = require('http');
 var cheerio = require("cheerio");
-var winston_parser = require("winston");
 var notification = require('./send_notification.js')
-
-var logger_parser = new (winston_parser.Logger)({
-    transports: [
-        new (winston_parser.transports.File)({ filename: './parser.log', level: 'debug', maxsize: 100, maxFiles:1 })
-    ]
-});
   
 var HOFC_NAME = 'HORGUES ODOS F.C.';
 
@@ -82,16 +75,16 @@ var listeMoisActu = {
 var doAfterQuery = function (errors, resultats) {
     "use strict";
 	if (errors) {
-		logger_parser.error('Erreur de mise a jour ' + errors);
+		console.log('Erreur de mise a jour ' + errors);
 		return;
 	}
-	logger_parser.info('Mise a jour OK');
+	console.log('Mise a jour OK');
 }
-logger_parser.info('Parser start at ' + new Date());
+console.log('Parser start at ' + new Date());
 
 exports.updateDatabase = function(db) {
     if (optionsClassement.activated) {
-        logger_parser.info('Parser Classement Start');
+        console.log('Parser Classement Start');
         http.get(optionsClassement, function(res) {
             var result = "";
             if (res.statusCode != 200) {
@@ -102,7 +95,7 @@ exports.updateDatabase = function(db) {
             });
 
             res.on('end', function () {
-                logger_parser.info('End getting Classement Data at ' + new Date());
+                console.log('End getting Classement Data at ' + new Date());
                 $ = cheerio.load(result);
                 db.serialize(function () {
                     db.run(creation_table_classement_query);
@@ -125,10 +118,10 @@ exports.updateDatabase = function(db) {
                                 diff = $(lineChildren[11]).text();
                             db.get('select * from classement where nom LIKE "' + nom + '"',  function (err, results) {
                                 if (err) {
-                                    logger_parser.info('Erreur ' + err);
+                                    console.log('Erreur ' + err);
                                     return;
                                 }
-                                logger_parser.info('Updating Classement for team ' + nom);
+                                console.log('Updating Classement for team ' + nom);
                                 if (results != null) {
                                     if(results.joue < joue) {
                                         notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' + place + ((place == 1) ? 'er' : 'eme'));
@@ -144,17 +137,17 @@ exports.updateDatabase = function(db) {
             });
         }).on('error', function(e) {
             "use strict";
-            logger_parser.error("Got error: " + e.message);
+            console.log("Got error: " + e.message);
         });
     }
 
 
     if (optionsCalendrier.activated) {
-        logger_parser.info('Parser Calendrier Start');
+        console.log('Parser Calendrier Start');
         http.get(optionsCalendrier, function(res) {
           var result = "";
             if(res.statusCode != 200) {
-                logger_parser.info('Calendrier get error. Result code ' + res.statusCode);
+                console.log('Calendrier get error. Result code ' + res.statusCode);
                 return;
             }
             res.on('data', function(data) {
@@ -162,13 +155,13 @@ exports.updateDatabase = function(db) {
             });
 
             res.on('end', function() {
-                logger_parser.info('End getting Calendrier Data at ' + new Date());
+                console.log('End getting Calendrier Data at ' + new Date());
                 $2 = cheerio.load(result);
                 db.serialize(function() {
                     db.run(creation_table_calendrier_query);
                     var linesCalendar = $2("div.list_calendar").children('div'),
                         nbLines = linesCalendar.length;
-                    logger_parser.info(nbLines);
+                    console.log(nbLines);
                     $2(linesCalendar).each(function (index, line) {
                         var lineChildren = $2(line).children(),
                             date = $2(lineChildren[0]).text().trim(),
@@ -176,12 +169,12 @@ exports.updateDatabase = function(db) {
 
                         equipe1 = equipe1.replace(/\r?\n|\r/g,' ');
                         equipe1 = equipe1.replace(/ +/g,' ');
-                        logger_parser.info('equipe1 ' + equipe1);
+                        console.log('equipe1 ' + equipe1);
 
                         var equipe2 = $2($2(lineChildren[1]).children()[2]).text().trim();
                         equipe2 = equipe2.replace(/\r?\n|\r/g,' ');
                         equipe2 = equipe2.replace(/ +/g,' ');
-                        logger_parser.info('equipe2 ' + equipe2);
+                        console.log('equipe2 ' + equipe2);
 
                         var jourComplet = date.split('-')[0],
                             heureComplet = date.split('-')[1],
@@ -209,10 +202,10 @@ exports.updateDatabase = function(db) {
 
                         db.get('select * from calendrier where equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', function (err, results) {
                             if (err) {
-                                logger_parser.info('Erreur ' + err);
+                                console.log('Erreur ' + err);
                                 return;
                             }
-                            logger_parser.info('Updating Calendrier for match ' + equipe1 + ' - ' + equipe2);
+                            console.log('Updating Calendrier for match ' + equipe1 + ' - ' + equipe2);
                             if (results != null) {
                                 if((results.score1 == null || results.score1 == "null") && (results.score2 == null || results.score2 == "null") && score1 != null && score2 != null) {
                                     var notifTitle = 'Nouveau Résultat';
@@ -243,12 +236,12 @@ exports.updateDatabase = function(db) {
                 });
             });
         }).on('error', function(e) {
-          logger_parser.error("Got error: " + e.message);
+          console.log("Got error: " + e.message);
         });
     }
 
     if (optionsActus.activated) {
-        logger_parser.info('Parser actus start at ' + new Date());
+        console.log('Parser actus start at ' + new Date());
         http.get(optionsActus, function(res) {
             var result = "";
             if(res.statusCode != 200) {
@@ -259,16 +252,16 @@ exports.updateDatabase = function(db) {
             });
 
             res.on('end', function() {
-                logger_parser.info('End getting response actus at ' + new Date());
+                console.log('End getting response actus at ' + new Date());
                 $3 = cheerio.load(result);
                 db.serialize(function() {
                     db.run(creation_table_actus_query);
-                    logger_parser.info('Recup actu start');
+                    console.log('Recup actu start');
                     var linesActu = $3("#content").children('.post');
                     var nbLines = linesActu.length;
-                    logger_parser.info('Actus to get ' + nbLines);
+                    console.log('Actus to get ' + nbLines);
                     $3(linesActu).each(function(index, line){
-                        logger_parser.info('working on line :' + line);
+                        console.log('working on line :' + line);
                         var postId = $3(line).attr('id').split('-')[1]; 
                         /**
                          * Title : {
@@ -291,14 +284,14 @@ exports.updateDatabase = function(db) {
 
                         db.get('select * from actus where postId=' + postId, function (err, results) {
                             if (err) {
-                                logger_parser.info('Erreur ' + err);
+                                console.log('Erreur ' + err);
                                 return;
                             }
                             if (results != null) {
                                 var query = 'update actus set titre=?, texte=?, url=?, image=?, date=? WHERE postId=?',
                                     parameters = [title.text(), texte, title.attr('href'), urlImage, annee + '-' + mois + '-' + jour + ' 00:00:00', postId];
 
-                                logger_parser.info('Updating actus postId = ' + postId + ' with parameters : ' + parameters);
+                                console.log('Updating actus postId = ' + postId + ' with parameters : ' + parameters);
 
                                 db.run(query, parameters, doAfterQuery);
                             } else {
@@ -306,7 +299,7 @@ exports.updateDatabase = function(db) {
                                 var query = 'insert into actus (postId, titre, texte, url, image, date) VALUES (?,?,?,?,?,?)',
                                     parameters = [postId, title.text(), texte, title.attr('href'), urlImage, annee + '-' + mois + '-' + jour + ' 00:00:00'];
 
-                                logger_parser.info('Inserting actus postId = ' + postId + ' with parameters : ' + parameters);
+                                console.log('Inserting actus postId = ' + postId + ' with parameters : ' + parameters);
 
                                 db.run(query, parameters, doAfterQuery);
                             }
@@ -315,7 +308,7 @@ exports.updateDatabase = function(db) {
                 });
             });
         }).on('error', function(e) {
-          logger_parser.error("Got error: " + e.message);
+          console.log("Got error: " + e.message);
         });
     }
 }

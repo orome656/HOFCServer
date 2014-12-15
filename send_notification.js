@@ -33,7 +33,7 @@ exports.sendNotification = function(db, title, messageNotif) {
              * Params: message-literal, registrationIds-array, No. of retries, callback-function
              **/
             sender.send(message, notificationIds, notificationIds.length, function (err, result) {
-                console.log(result);
+                console.log('sending notification with result : ' + result);
             });
         })
     })

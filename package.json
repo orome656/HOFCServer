@@ -4,7 +4,6 @@
   "author": "Anthony Maladot",
   "dependencies": {
 	"cheerio": "0.17.0",
-	"winston": "0.7.3",
     "sqlite3": "2.2.4",
     "express": "4.0.0",
     "cron": "1.0.5",
