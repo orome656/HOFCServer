@@ -73,12 +73,10 @@ var listeMoisActu = {
  *
  */
 var doAfterQuery = function (errors, resultats) {
-    "use strict";
-	if (errors) {
+    if (errors) {
 		console.log('Erreur de mise a jour ' + errors);
 		return;
 	}
-	console.log('Mise a jour OK');
 }
 console.log('Parser start at ' + new Date());
 
@@ -91,6 +89,7 @@ exports.updateDatabase = function(db) {
                 return;
             }
             res.on('data', function (data) {
+                console.log('Classement get error. Result code ' + res.statusCode);
                 result += data;
             });
 
@@ -143,7 +142,7 @@ exports.updateDatabase = function(db) {
 
 
     if (optionsCalendrier.activated) {
-        console.log('Parser Calendrier Start');
+        console.log('Parser Calendrier Start at ' + new Date());
         http.get(optionsCalendrier, function(res) {
           var result = "";
             if(res.statusCode != 200) {
@@ -245,6 +244,7 @@ exports.updateDatabase = function(db) {
         http.get(optionsActus, function(res) {
             var result = "";
             if(res.statusCode != 200) {
+                console.log('Actus get error. Result code ' + res.statusCode);
                 return;
             }
             res.on('data', function(data) {
@@ -256,12 +256,10 @@ exports.updateDatabase = function(db) {
                 $3 = cheerio.load(result);
                 db.serialize(function() {
                     db.run(creation_table_actus_query);
-                    console.log('Recup actu start');
                     var linesActu = $3("#content").children('.post');
                     var nbLines = linesActu.length;
                     console.log('Actus to get ' + nbLines);
                     $3(linesActu).each(function(index, line){
-                        console.log('working on line :' + line);
                         var postId = $3(line).attr('id').split('-')[1]; 
                         /**
                          * Title : {
