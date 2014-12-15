@@ -116,6 +116,6 @@ setInterval(function() {
             console.log("Heroku Keep Alive Ping: Error - Status Code " + res.statusCode);
         }
     }).on('error', function(e) {
-        console.log("Heroku Keep Alive Ping: Error - " + err.message);
+        console.log("Heroku Keep Alive Ping: Error - " + e.message);
     });
 }, 30 * 60 * 1000); // load every 30 minutes
