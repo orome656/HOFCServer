@@ -235,16 +235,16 @@ exports.updateDatabase = function(db) {
                                     console.log('Notification message : ' + notifMessage);
                                     notification.sendNotification(db, notifTitle, notifMessage);
                                 }
-                                client.query('UPDATE calendrier set date="' + annee + '-' + mois + '-' + jour + ' ' + heure + ':'
-                                        + minute + ':00' + '", score1=' + score1 + ', score2=' + score2 + ' WHERE equipe1 LIKE "' + equipe1 + '" AND equipe2 LIKE "' + equipe2 + '"', function(err, result){
+                                client.query("UPDATE calendrier set date='" + annee + "-" + mois + "-" + jour + " " + heure + ":"
+                                        + minute + ":00" + "', score1=" + score1 + ", score2=" + score2 + " WHERE equipe1 LIKE '" + equipe1 + "' AND equipe2 LIKE '" + equipe2 + "'", function(err, result){
                                     nbLines--;
                                     if(nbLines <= 0) {
                                         done();
                                     }
                                 });
                             } else {
-                                client.query('insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ("' + annee + '-' + mois + '-' + jour + ' ' + heure + ':'
-                                        + minute + ':00' + '","' + equipe1 + '","' + equipe2 + '","' + score1 + '","' + score2 + '")', function(err, result){
+                                client.query("insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ('" + annee + "-" + mois + "-" + jour + " " + heure + ":"
+                                        + minute + ":00" + "','" + equipe1 + "','" + equipe2 + "','" + score1 + "','" + score2 + "')", function(err, result){
                                     nbLines--;
                                     if(nbLines <= 0) {
                                         done();
