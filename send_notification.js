@@ -8,33 +8,36 @@ exports.sendNotification = function(db, title, messageNotif) {
                 return;
             }
             
-            
-            // create a message with default values
-            var message = new gcm.Message();
+            if(results.rows.length > 0) {
+                // create a message with default values
+                var message = new gcm.Message();
 
-            // or with object values
-            var message = new gcm.Message({
-                collapseKey: 'demo',
-                delayWhileIdle: true,
-                timeToLive: 3,
-                data: {
-                    title: title,
-                    message: messageNotif
+                // or with object values
+                var message = new gcm.Message({
+                    collapseKey: 'demo',
+                    delayWhileIdle: true,
+                    timeToLive: 3,
+                    data: {
+                        title: title,
+                        message: messageNotif
+                    }
+                });
+
+                var sender = new gcm.Sender(process.env.ANDROID_SERVER_KEY);
+                var notificationIds = [];
+                for(var notif in results.rows) {
+                    notificationIds.push(results[notif].notification_id);   
                 }
-            });
 
-            var sender = new gcm.Sender(process.env.ANDROID_SERVER_KEY);
-            var notificationIds = [];
-            for(var notif in results.rows) {
-                notificationIds.push(results[notif].notification_id);   
+                /**
+                 * Params: message-literal, registrationIds-array, No. of retries, callback-function
+                 **/
+                sender.send(message, notificationIds, notificationIds.length, function (err, result) {
+                    console.log('sending notification with result : ' + result);
+                });
+            } else {
+                console.log('No notification clients found');
             }
-            
-            /**
-             * Params: message-literal, registrationIds-array, No. of retries, callback-function
-             **/
-            sender.send(message, notificationIds, notificationIds.length, function (err, result) {
-                console.log('sending notification with result : ' + result);
-            });
             done();
         })
     })

@@ -30,7 +30,7 @@ var optionsActus = {
  * Query création des tables
  */
 var creation_table_classement_query = "CREATE TABLE IF NOT EXISTS classement (id serial PRIMARY KEY , nom varchar(255) NOT NULL, points NUMERIC(11) NOT NULL, joue NUMERIC(11) NOT NULL, gagne NUMERIC(11) NOT NULL, nul NUMERIC(11) NOT NULL, perdu NUMERIC(11) NOT NULL, bp NUMERIC(11) NOT NULL, bc NUMERIC(11) NOT NULL, diff NUMERIC(11) NOT NULL)";
-var creation_table_calendrier_query = "CREATE TABLE IF NOT EXISTS calendrier (id serial PRIMARY KEY, equipe1 varchar(255) NOT NULL, score1 NUMERIC(11) NOT NULL, equipe2 varchar(255) NOT NULL, score2 NUMERIC(11) NOT NULL, date date DEFAULT NULL)";
+var creation_table_calendrier_query = "CREATE TABLE IF NOT EXISTS calendrier (id serial PRIMARY KEY, equipe1 varchar(255) NOT NULL, score1 integer, equipe2 varchar(255) NOT NULL, score2 integer, date date DEFAULT NULL)";
 var creation_table_actus_query = "CREATE TABLE IF NOT EXISTS actus (id serial PRIMARY KEY, postId NUMERIC(11) DEFAULT NULL, titre varchar(255) DEFAULT NULL, texte text, url varchar(255) DEFAULT NULL, image varchar(255) DEFAULT NULL, date date DEFAULT NULL)";
 
 /**
@@ -115,9 +115,9 @@ exports.updateDatabase = function(db) {
                                 bp = $(lineChildren[8]).text(),
                                 bc = $(lineChildren[9]).text(),
                                 diff = $(lineChildren[11]).text();
-                            client.query('select * from classement where nom LIKE "' + nom + '"',  function (err, results) {
+                            client.query('select * from classement where nom LIKE $1', [nom],  function (err, results) {
                                 if (err) {
-                                    console.log('Erreur ' + err);
+                                    console.log('Erreur lors de la requete au classement : ' + err);
                                     nbLines--;
                                     return;
                                 }
@@ -179,12 +179,10 @@ exports.updateDatabase = function(db) {
 
                         equipe1 = equipe1.replace(/\r?\n|\r/g,' ');
                         equipe1 = equipe1.replace(/ +/g,' ');
-                        console.log('equipe1 ' + equipe1);
 
                         var equipe2 = $2($2(lineChildren[1]).children()[2]).text().trim();
                         equipe2 = equipe2.replace(/\r?\n|\r/g,' ');
                         equipe2 = equipe2.replace(/ +/g,' ');
-                        console.log('equipe2 ' + equipe2);
 
                         var jourComplet = date.split('-')[0],
                             heureComplet = date.split('-')[1],
@@ -210,15 +208,15 @@ exports.updateDatabase = function(db) {
                             score2 = score.split('-')[1];
                         }
 
-                        client.query("select * from calendrier where equipe1 LIKE '" + equipe1 + "' AND equipe2 LIKE '" + equipe2 + "'", function (err, results) {
+                        client.query("select * from calendrier where equipe1 LIKE $1 AND equipe2 LIKE $2", [equipe1,equipe2],function (err, results) {
                             if (err) {
-                                console.log('Erreur ' + err);
+                                console.error('Erreur lors de la requete au calendrier : ' + err);
                                 nbLines--;
                                 return;
                             }
                             console.log('Updating Calendrier for match ' + equipe1 + ' - ' + equipe2);
-                            if (results != null) {
-                                if((results.score1 == null || results.score1 == "null") && (results.score2 == null || results.score2 == "null") && score1 != null && score2 != null) {
+                            if (results.rows.length > 0 ) {
+                                if((results.rows[0].score1 == null || results.rows[0].score1 == "null") && (results.rows[0].score2 == null || results.rows[0].score2 == "null") && score1 != null && score2 != null) {
                                     var notifTitle = 'Nouveau Résultat';
                                     var notifMessage = null;
                                     if(equipe1 == HOFC_NAME && score1 > score2) {
@@ -244,7 +242,7 @@ exports.updateDatabase = function(db) {
                                 });
                             } else {
                                 client.query("insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ('" + annee + "-" + mois + "-" + jour + " " + heure + ":"
-                                        + minute + ":00" + "','" + equipe1 + "','" + equipe2 + "','" + score1 + "','" + score2 + "')", function(err, result){
+                                        + minute + ":00" + "','" + equipe1 + "','" + equipe2 + "'," + score1 + "," + score2 + ")", function(err, result){
                                     nbLines--;
                                     if(nbLines <= 0) {
                                         done();
@@ -304,11 +302,11 @@ exports.updateDatabase = function(db) {
 
                         client.query('select * from actus where postId=' + postId, function (err, results) {
                             if (err) {
-                                console.log('Erreur ' + err);
+                                console.log('Erreur lors de la requete aux actus : ' + err);
                                 nbLines--;
                                 return;
                             }
-                            if (results != null) {
+                            if (results.rows.length > 0) {
                                 var query = 'update actus set titre=$1, texte=$2, url=$3, image=$4, date=$5 WHERE postId=$6',
                                     parameters = [title.text(), texte, title.attr('href'), urlImage, annee + '-' + mois + '-' + jour + ' 00:00:00', postId];
 
