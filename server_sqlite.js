@@ -97,5 +97,8 @@ setInterval(function() {
         }
     }).on('error', function(e) {
         console.log("Heroku Keep Alive Ping: Error - " + err.message);
+        db.serialize(function () {
+            db.run(creation_table_notification_query);
+        });
     });
 }, 30 * 60 * 1000); // load every 30 minutes
