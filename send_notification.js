@@ -26,7 +26,7 @@ exports.sendNotification = function(db, title, messageNotif) {
                 var sender = new gcm.Sender(process.env.ANDROID_SERVER_KEY);
                 var notificationIds = [];
                 for(var notif in results.rows) {
-                    notificationIds.push(results[notif].notification_id);   
+                    notificationIds.push(results.rows[notif].notification_id);   
                 }
 
                 /**
