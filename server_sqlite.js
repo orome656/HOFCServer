@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.set('port', (process.env.PORT || 3000));
 
 
-var creation_table_notification_query = "CREATE TABLE IF NOT EXISTS notification_client (id serial PRIMARY KEY , uuid varchar(255) NOT NULL, notification_id varchar(50) NOT NULL)";
+var creation_table_notification_query = "CREATE TABLE IF NOT EXISTS notification_client (id serial PRIMARY KEY , uuid varchar(255) NOT NULL, notification_id varchar(255) NOT NULL)";
 
 var job = new CronJob('0 */15 * * * *', function(){
       console.log('Update database start');
