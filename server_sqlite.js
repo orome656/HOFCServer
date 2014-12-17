@@ -114,6 +114,8 @@ app.post('/registerPush', function(req, res){
                 }
             });
         });
+    } else {
+        console.log('Missing one parameter. NotificationId='+ notificationId +', uuid=' + uuid);
     }
     res.send('0');
 });
