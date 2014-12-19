@@ -245,8 +245,7 @@ exports.updateDatabase = function(db) {
                                     } else {
                                         notifMessage = 'Match nul entre le HOFC et ' + ((equipe1 == HOFC_NAME)? equipe2 : equipe1);
                                     }
-                                    if(isDebug)
-                                        console.log('Notification message : ' + notifMessage);
+                                    console.log('Sending Notification with message : ' + notifMessage);
                                     notification.sendNotification(db, notifTitle, notifMessage);
                                 }
                                 client.query("UPDATE calendrier set date=$1, score1=$2, score2=$3 WHERE equipe1 LIKE $4 AND equipe2 LIKE $5", [formattedDate, score1, score2, equipe1, equipe2], function(err, result){
