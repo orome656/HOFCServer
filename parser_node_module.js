@@ -122,7 +122,7 @@ exports.updateDatabase = function(db) {
                                         notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' + place + ((place == 1) ? 'er' : 'eme'));
                                     }
                                     client.query('UPDATE classement set points=$1, joue=$2, gagne=$3, nul=$4, perdu=$5, bp=$6, bc=$7, diff=$8 WHERE nom LIKE $9', 
-                                                 [points, jour, victoire, nul, defaite, bp, bc, diff, nom], 
+                                                 [points, joue, victoire, nul, defaite, bp, bc, diff, nom], 
                                                  function(err, result){
                                         nbLines--;
                                         if(nbLines <= 0) {
