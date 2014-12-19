@@ -33,7 +33,9 @@ exports.sendNotification = function(db, title, messageNotif) {
                  * Params: message-literal, registrationIds-array, No. of retries, callback-function
                  **/
                 sender.send(message, notificationIds, notificationIds.length, function (err, result) {
-                    console.log('sending notification with result : ' + result);
+                    if(process.env.NODE_ENV == 'DEV') {
+                        console.log('sending notification with result : ' + JSON.stringify(result));
+                    }
                 });
             } else {
                 console.log('No notification clients found');

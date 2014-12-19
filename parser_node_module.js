@@ -69,20 +69,11 @@ var listeMoisActu = {
         "décembre": "12"
     };
 
-/**
- *
- */
-var doAfterQuery = function (errors, resultats) {
-    if (errors) {
-		console.log('Erreur de mise a jour ' + errors);
-		return;
-	}
-}
-console.log('Parser start at ' + new Date());
-
 exports.updateDatabase = function(db) {
+    var isDebug = (process.env.NODE_ENV == "DEV");
     if (optionsClassement.activated) {
-        console.log('Parser Classement Start');
+        if(isDebug)
+            console.log('Parser Classement Start');
         http.get(optionsClassement, function(res) {
             var result = "";
             if (res.statusCode != 200) {
@@ -94,7 +85,9 @@ exports.updateDatabase = function(db) {
             });
 
             res.on('end', function () {
-                console.log('End getting Classement Data at ' + new Date());
+                if(isDebug)
+                    console.log('End getting Classement Data at ' + new Date());
+                
                 $ = cheerio.load(result);
                 db.connect(process.env.DATABASE_URL,function (err, client, done) {
                     client.query(creation_table_classement_query);
@@ -105,6 +98,7 @@ exports.updateDatabase = function(db) {
                     $(linesClassement).each(function (index, line) {
                         var lineChildren = $(line).children();
                         if (lineChildren != null && lineChildren.length > 3) {
+                            
                             var place = $(lineChildren[0]).text().trim(),
                                 nom = $(lineChildren[1]).text().trim(),
                                 points = $(lineChildren[2]).text(),
@@ -115,6 +109,7 @@ exports.updateDatabase = function(db) {
                                 bp = $(lineChildren[8]).text(),
                                 bc = $(lineChildren[9]).text(),
                                 diff = $(lineChildren[11]).text();
+                            
                             client.query('select * from classement where nom LIKE $1', [nom],  function (err, results) {
                                 if (err) {
                                     console.log('Erreur lors de la requete au classement : ' + err);
@@ -123,22 +118,26 @@ exports.updateDatabase = function(db) {
                                 }
                                 console.log('Updating Classement for team ' + nom);
                                 if (results.rows.length > 0) {
-                                    if(results.joue < joue) {
+                                    if(results.rows[0].joue < joue) {
                                         notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' + place + ((place == 1) ? 'er' : 'eme'));
                                     }
-                                    client.query('UPDATE classement set points=' + points + ', joue=' + joue + ', gagne=' + victoire + ', nul=' + nul + ', perdu=' + defaite + ', bp=' + bp + ', bc=' + bc + ', diff=' + diff + ' WHERE nom LIKE "' + nom + '"', function(err, result){
-                                    nbLines--;
-                                    if(nbLines <= 0) {
-                                        done();
-                                    }
-                                });
+                                    client.query('UPDATE classement set points=$1, joue=$2, gagne=$3, nul=$4, perdu=$5, bp=$6, bc=$7, diff=$8 WHERE nom LIKE $9', 
+                                                 [points, jour, victoire, nul, defaite, bp, bc, diff, nom], 
+                                                 function(err, result){
+                                        nbLines--;
+                                        if(nbLines <= 0) {
+                                            done();
+                                        }
+                                    });
                                 } else {
-                                    client.query("insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ('" + nom + "'," + points + "," + joue + " , " + victoire + "," + nul + "," + defaite + ", " + bp + "," + bc + "," + diff + ")", function(err, result){
-                                    nbLines--;
-                                    if(nbLines <= 0) {
-                                        done();
-                                    }
-                                });
+                                    client.query("insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", 
+                                                 [nom, points, joue, victoire, nul, defaite, bp, bc, diff], 
+                                                 function(err, result){
+                                        nbLines--;
+                                        if(nbLines <= 0) {
+                                            done();
+                                        }
+                                    });
                                 }
                             });
                         }
@@ -146,14 +145,15 @@ exports.updateDatabase = function(db) {
                 });
             });
         }).on('error', function(e) {
-            "use strict";
             console.log("Got error: " + e.message);
         });
     }
 
 
     if (optionsCalendrier.activated) {
-        console.log('Parser Calendrier Start at ' + new Date());
+        if(isDebug)
+            console.log('Parser Calendrier Start at ' + new Date());
+        
         http.get(optionsCalendrier, function(res) {
           var result = "";
             if(res.statusCode != 200) {
@@ -165,13 +165,18 @@ exports.updateDatabase = function(db) {
             });
 
             res.on('end', function() {
-                console.log('End getting Calendrier Data at ' + new Date());
+                if(isDebug)
+                    console.log('End getting Calendrier Data at ' + new Date());
+                
                 $2 = cheerio.load(result);
                 db.connect(process.env.DATABASE_URL, function(err, client, done) {
                     client.query(creation_table_calendrier_query);
                     var linesCalendar = $2("div.list_calendar").children('div'),
                         nbLines = linesCalendar.length;
-                    console.log(nbLines);
+                    
+                    if(isDebug)
+                        console.log('Calendrier Entries : ' + nbLines);
+                    
                     $2(linesCalendar).each(function (index, line) {
                         var lineChildren = $2(line).children(),
                             date = $2(lineChildren[0]).text().trim(),
@@ -204,17 +209,20 @@ exports.updateDatabase = function(db) {
                             score2 = null;
 
                         if (score.indexOf('-') != -1) {
-                            score1 = score.split('-')[0];
-                            score2 = score.split('-')[1];
+                            score1 = parseInt(score.split('-')[0]);
+                            score2 = parseInt(score.split('-')[1]);
                         }
-
+                        
+                        var formattedDate = annee + "-" + mois + "-" + jour + " " + heure + ":" + minute + ":00";
+                        
                         client.query("select * from calendrier where equipe1 LIKE $1 AND equipe2 LIKE $2", [equipe1,equipe2],function (err, results) {
                             if (err) {
                                 console.error('Erreur lors de la requete au calendrier : ' + err);
                                 nbLines--;
                                 return;
                             }
-                            console.log('Updating Calendrier for match ' + equipe1 + ' - ' + equipe2);
+                            if(isDebug)
+                                console.log('Updating Calendrier for match ' + equipe1 + ' - ' + equipe2);
                             if (results.rows.length > 0 ) {
                                 if((results.rows[0].score1 == null || results.rows[0].score1 == "null") && (results.rows[0].score2 == null || results.rows[0].score2 == "null") && score1 != null && score2 != null) {
                                     var notifTitle = 'Nouveau Résultat';
@@ -230,19 +238,18 @@ exports.updateDatabase = function(db) {
                                     } else {
                                         notifMessage = 'Match nul entre le HOFC et ' + ((equipe1 == HOFC_NAME)? equipe2 : equipe1);
                                     }
-                                    console.log('Notification message : ' + notifMessage);
+                                    if(isDebug)
+                                        console.log('Notification message : ' + notifMessage);
                                     notification.sendNotification(db, notifTitle, notifMessage);
                                 }
-                                client.query("UPDATE calendrier set date='" + annee + "-" + mois + "-" + jour + " " + heure + ":"
-                                        + minute + ":00" + "', score1=" + score1 + ", score2=" + score2 + " WHERE equipe1 LIKE '" + equipe1 + "' AND equipe2 LIKE '" + equipe2 + "'", function(err, result){
+                                client.query("UPDATE calendrier set date=$1, score1=$2, score2=$3 WHERE equipe1 LIKE $4 AND equipe2 LIKE $5", [formattedDate, score1, score2, equipe1, equipe2], function(err, result){
                                     nbLines--;
                                     if(nbLines <= 0) {
                                         done();
                                     }
                                 });
                             } else {
-                                client.query("insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ('" + annee + "-" + mois + "-" + jour + " " + heure + ":"
-                                        + minute + ":00" + "','" + equipe1 + "','" + equipe2 + "'," + score1 + "," + score2 + ")", function(err, result){
+                                client.query("insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ($1, $2, $3, $4, $5)", [formattedDate, equipe1, equipe2, score1, score2], function(err, result){
                                     nbLines--;
                                     if(nbLines <= 0) {
                                         done();
@@ -260,7 +267,8 @@ exports.updateDatabase = function(db) {
     }
 
     if (optionsActus.activated) {
-        console.log('Parser actus start at ' + new Date());
+        if(isDebug)
+            console.log('Parser actus start at ' + new Date());
         http.get(optionsActus, function(res) {
             var result = "";
             if(res.statusCode != 200) {
@@ -272,13 +280,15 @@ exports.updateDatabase = function(db) {
             });
 
             res.on('end', function() {
-                console.log('End getting response actus at ' + new Date());
+                if(isDebug)
+                    console.log('End getting response actus at ' + new Date());
                 $3 = cheerio.load(result);
                 db.connect(process.env.DATABASE_URL, function(err, client, done) {
                     client.query(creation_table_actus_query);
                     var linesActu = $3("#content").children('.post');
                     var nbLines = linesActu.length;
-                    console.log('Actus to get ' + nbLines);
+                    if(isDebug)
+                        console.log('Actus to get ' + nbLines);
                     $3(linesActu).each(function(index, line){
                         var postId = $3(line).attr('id').split('-')[1]; 
                         /**
@@ -309,8 +319,9 @@ exports.updateDatabase = function(db) {
                             if (results.rows.length > 0) {
                                 var query = 'update actus set titre=$1, texte=$2, url=$3, image=$4, date=$5 WHERE postId=$6',
                                     parameters = [title.text(), texte, title.attr('href'), urlImage, annee + '-' + mois + '-' + jour + ' 00:00:00', postId];
-
-                                console.log('Updating actus postId = ' + postId + ' with parameters : ' + parameters);
+                                
+                                if(isDebug)
+                                    console.log('Updating actus postId = ' + postId + ' with parameters : ' + JSON.stringify(parameters));
 
                                 client.query(query, parameters, function(err, result){
                                     nbLines--;
@@ -322,8 +333,9 @@ exports.updateDatabase = function(db) {
                                 notification.sendNotification(db, 'Nouvel article sur HOFC.fr', title.text());
                                 var query = 'insert into actus (postId, titre, texte, url, image, date) VALUES ($1,$2,$3,$4,$5,$6)',
                                     parameters = [postId, title.text(), texte, title.attr('href'), urlImage, annee + '-' + mois + '-' + jour + ' 00:00:00'];
-
-                                console.log('Inserting actus postId = ' + postId + ' with parameters : ' + parameters);
+                                
+                                if(isDebug)
+                                    console.log('Inserting actus postId = ' + postId + ' with parameters : ' + JSON.stringify(parameters));
 
                                 client.query(query, parameters, function(err, result){
                                     nbLines--;
