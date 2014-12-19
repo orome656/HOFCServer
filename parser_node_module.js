@@ -116,7 +116,8 @@ exports.updateDatabase = function(db) {
                                     nbLines--;
                                     return;
                                 }
-                                console.log('Updating Classement for team ' + nom);
+                                if(isDebug)
+                                    console.log('Updating Classement for team ' + nom);
                                 if (results.rows.length > 0) {
                                     if(results.rows[0].joue < joue) {
                                         notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' + place + ((place == 1) ? 'er' : 'eme'));
@@ -224,7 +225,9 @@ exports.updateDatabase = function(db) {
                             if(isDebug)
                                 console.log('Updating Calendrier for match ' + equipe1 + ' - ' + equipe2);
                             if (results.rows.length > 0 ) {
-                                if((results.rows[0].score1 == null || results.rows[0].score1 == "null") && (results.rows[0].score2 == null || results.rows[0].score2 == "null") && score1 != null && score2 != null) {
+                                if((results.rows[0].score1 == null || results.rows[0].score1 == "null" || results.rows[0].score1 == "") && 
+                                   (results.rows[0].score2 == null || results.rows[0].score2 == "null" || results.rows[0].score2 == "") && 
+                                    score1 != null && score2 != null) {
                                     var notifTitle = 'Nouveau Résultat';
                                     var notifMessage = null;
                                     if(equipe1 == HOFC_NAME && score1 > score2) {
