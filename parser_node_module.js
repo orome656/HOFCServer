@@ -212,6 +212,10 @@ exports.updateDatabase = function(db) {
                         if (score.indexOf('-') != -1) {
                             score1 = parseInt(score.split('-')[0]);
                             score2 = parseInt(score.split('-')[1]);
+                            if(isNaN(score1))
+                                score1 = null;
+                            if(isNaN(score2))
+                                score2 = null;
                         }
                         
                         var formattedDate = annee + "-" + mois + "-" + jour + " " + heure + ":" + minute + ":00";
