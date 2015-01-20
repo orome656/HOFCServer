@@ -119,7 +119,7 @@ exports.updateDatabase = function(db) {
                                 if(isDebug)
                                     console.log('Updating Classement for team ' + nom);
                                 if (results.rows.length > 0) {
-                                    if(results.rows[0].joue < joue) {
+                                    if(results.rows[0].nom == HOFC_NAME && results.rows[0].joue < joue) {
                                         notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' + place + ((place == 1) ? 'er' : 'eme'));
                                     }
                                     client.query('UPDATE classement set points=$1, joue=$2, gagne=$3, nul=$4, perdu=$5, bp=$6, bc=$7, diff=$8 WHERE nom LIKE $9', 
