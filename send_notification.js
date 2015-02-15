@@ -1,10 +1,16 @@
 var gcm = require('node-gcm');
 
 exports.sendNotification = function(db, title, messageNotif) {
+    if(process.env.NODE_ENV == 'DEV') {
+        console.log('Ready to send notification with params :[' +db+ ', ' +title+', '+ messageNotif + ']');
+    }
     db.connect(process.env.DATABASE_URL ,function(err, client, done) {
-        client.query("SELECT notification_id from notification_client", function(err, results){
+        if(err) {
+            console.log('Error while contacting database ' + err);
+        }
+        client.query("SELECT notification_id from notification_client", function(error, results){
             if(err) {
-                console.log('Error while getting notifications clients : ' + err);
+                console.log('Error while getting notifications clients : ' + error);
                 return;
             }
             
