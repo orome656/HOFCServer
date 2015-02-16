@@ -36,6 +36,7 @@ app.get('/classement', function(req, res){
                 console.error('Error while getting classement : ' + err);
                 return;
             }
+            res.set('Content-Type', 'application/json; charset=utf-8');
             res.send(results.rows);
         })
     })
@@ -53,6 +54,7 @@ app.get('/calendrier', function(req, res){
                 console.error('Error while getting calendrier : ' + err);
                 return;
             }
+            res.set('Content-Type', 'application/json; charset=utf-8');
             res.send(results.rows);
         })
     })
@@ -70,6 +72,7 @@ app.get('/actus', function(req, res){
                 console.error('Error while getting actus : ' + err);
                 return;
             }
+            res.set('Content-Type', 'application/json; charset=utf-8');
             res.send(results.rows);
         })
     })
