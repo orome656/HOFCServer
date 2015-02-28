@@ -1,8 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
-var sqlite3 = require("sqlite3").verbose();
-var db = new sqlite3.Database('database_hofc.db');
 var CronJob = require('cron').CronJob
 var parser = require('./parser_node_module.js');
 var http = require('http');
