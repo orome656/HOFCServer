@@ -185,11 +185,17 @@ exports.updateDatabase = function(db) {
 
                         equipe1 = equipe1.replace(/\r?\n|\r/g,' ');
                         equipe1 = equipe1.replace(/ +/g,' ');
-
+                        var equipe1Complet = equipe1;
+                        if(equipe1.indexOf('Pénalité') != -1) {
+                            equipe1 = equipe1.replace('Pénalité', '').trim();
+                        }
                         var equipe2 = $2($2(lineChildren[1]).children()[2]).text().trim();
                         equipe2 = equipe2.replace(/\r?\n|\r/g,' ');
                         equipe2 = equipe2.replace(/ +/g,' ');
-
+                        var equipe2Complet = equipe2;
+                        if(equipe2.indexOf('Pénalité') != -1) {
+                            equipe2 = equipe2.replace('Pénalité', '').trim();
+                        }
                         var jourComplet = date.split('-')[0],
                             heureComplet = date.split('-')[1],
                             jour = jourComplet.split(' ')[1],
@@ -220,14 +226,14 @@ exports.updateDatabase = function(db) {
                         
                         var formattedDate = annee + "-" + mois + "-" + jour + " " + heure + ":" + minute + ":00";
                         
-                        client.query("select * from calendrier where equipe1 LIKE $1 AND equipe2 LIKE $2", [equipe1,equipe2],function (err, results) {
+                        client.query("select * from calendrier where equipe1 LIKE $1 AND equipe2 LIKE $2", ['%'+equipe1+'%','%'+equipe2+'%'],function (err, results) {
                             if (err) {
                                 console.error('Erreur lors de la requete au calendrier : ' + err);
                                 nbLines--;
                                 return;
                             }
                             if(isDebug)
-                                console.log('Updating Calendrier for match ' + equipe1 + ' - ' + equipe2);
+                                console.log('Updating Calendrier for match ' + equipe1Complet + ' - ' + equipe2Complet);
                             if (results.rows.length > 0 ) {
                                 if((results.rows[0].score1 == null) && 
                                    (results.rows[0].score2 == null) && 
@@ -248,14 +254,14 @@ exports.updateDatabase = function(db) {
                                     console.log('Sending Notification with message : ' + notifMessage);
                                     notification.sendNotification(db, notifTitle, notifMessage);
                                 }
-                                client.query("UPDATE calendrier set date=$1, score1=$2, score2=$3 WHERE equipe1 LIKE $4 AND equipe2 LIKE $5", [formattedDate, score1, score2, equipe1, equipe2], function(err, result){
+                                client.query("UPDATE calendrier set date=$1, score1=$2, score2=$3, equipe1=$4, equipe2=$5 WHERE equipe1 LIKE $6 AND equipe2 LIKE $7", [formattedDate, score1, score2, equipe1Complet, equipe2Complet,'%'+equipe1+'%','%'+equipe2+'%'], function(err, result){
                                     nbLines--;
                                     if(nbLines <= 0) {
                                         done();
                                     }
                                 });
                             } else {
-                                client.query("insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ($1, $2, $3, $4, $5)", [formattedDate, equipe1, equipe2, score1, score2], function(err, result){
+                                client.query("insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ($1, $2, $3, $4, $5)", [formattedDate, equipe1Complet, equipe2Complet, score1, score2], function(err, result){
                                     nbLines--;
                                     if(nbLines <= 0) {
                                         done();
