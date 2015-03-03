@@ -85,6 +85,8 @@ app.post('/parsePage', function(req, res) {
         });   
     } else {
         parser.parseArticle(url, function(resultats){
+            
+            res.set('Content-Type', 'application/json; charset=utf-8');
             res.send(resultats);
         });   
     }
