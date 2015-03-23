@@ -26,6 +26,15 @@ var optionsActus = {
     activated: true
 };
 
+var optionsAgendaPathBase = '/la-vie-des-clubs/177005/agenda';
+var oprtionsAgenda = {
+    host: 'www.fff.fr',
+    port: 80,
+    path: '/la-vie-des-clubs/177005/agenda',
+    activated: true
+    
+}
+
 /**
  * Query création des tables
  */
@@ -432,6 +441,77 @@ exports.parseArticle = function(url, callback) {
                 callback(resultats);
             })
     });
+}
+
+exports.parseAgenda = function(semaine, callback) {
+    if(semaine != null) {
+        oprtionsAgenda.path = optionsAgendaPathBase + '/semaine-' + semaine;
+    } else {
+        oprtionsAgenda.path = optionsAgendaPathBase;
+    }
+    console.log(oprtionsAgenda.path);
+    http.get(oprtionsAgenda, function(res) {
+        var result = "";
+        var i = 0;
+        if(res.statusCode != 200) {
+            console.error('Agenda get error. Result code ' + res.statusCode);
+            callback(res.statusCode);
+            return;
+        }
+        res.on('data', function(data) {
+            result += data;
+        });
+        res.on('end', function() {
+            var returnedValue = [];
+            $2 = cheerio.load(result);
+            
+            var linesCalendar = $2("div.list_calendar").children('h3'),
+                nbLines = linesCalendar.length;
+            if(nbLines == 0) {
+                callback([]);   
+            }
+            $2(linesCalendar).each(function (index, line) {
+                var title = $2(line).text().trim();
+                var match = $2(line).next();
+                var lineChildren = $2(match).children(),
+                            date = $2(lineChildren[0]).text().trim(),
+                            equipe1 = $2($2(lineChildren[1]).children()[0]).text().trim();
+
+                var equipe2 = $2($2(lineChildren[1]).children()[2]).text().trim();
+                var jourComplet = date.split('-')[0],
+                    heureComplet = date.split('-')[1],
+                    jour = jourComplet.split(' ')[1],
+                    mois = listeMois[jourComplet.split(' ')[2].toUpperCase()],
+                    annee = jourComplet.split(' ')[3],
+                    heure = "00",
+                    minute = "00";
+
+                if(jour.length == 1) jour = '0' + jour;
+
+                if(heureComplet) {
+                    heure = heureComplet.split(':')[0];
+                    minute = heureComplet.split(':')[1];
+                }
+
+                var score = $2($2(lineChildren[1]).children()[1]).text().trim(),
+                    score1 = null,
+                    score2 = null;
+
+                if (score.indexOf('-') != -1) {
+                    score1 = parseInt(score.split('-')[0]);
+                    score2 = parseInt(score.split('-')[1]);
+                    if(isNaN(score1))
+                        score1 = null;
+                    if(isNaN(score2))
+                        score2 = null;
+                }
+                var array = {equipe1:equipe1, equipe2: equipe2, title: title, date: annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00', score1: score1, score2: score2};
+                returnedValue.push(array);
+                i++;
+                if(i == nbLines) callback(returnedValue);
+            })                          
+        })
+    })
 }
 
 

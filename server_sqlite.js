@@ -123,11 +123,32 @@ app.post('/registerPush', function(req, res){
     res.send('0');
 });
 
+
+app.get('/agenda', function(req, res){
+    parser.parseAgenda(null, function(result){
+        res.send(result);
+    })
+})
+
+app.post('/agenda', function(req, res){
+    parser.parseAgenda(req.body.semaine, function(result){
+        if(isNaN(result)) {
+            res.send(result);    
+        } else if(result == 404) {
+            res.send(-1);   
+        } else {
+            res.send(-2);
+        }
+        
+    })
+})
+
 app.listen(app.get('port'), function() {
     console.log("Node app is running at localhost:" + app.get('port'));
     pg.connect(process.env.DATABASE_URL ,function (err, client, done) {
         if(err) {
             console.error('Error while connecting to database', err);
+            return; 
         }
         client.query(creation_table_notification_query, function(err, result) {
             if(err) {
