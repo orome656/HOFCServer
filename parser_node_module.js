@@ -480,7 +480,7 @@ exports.parseAgenda = function(semaine, callback) {
                 var equipe2 = $2($2(lineChildren[1]).children()[2]).text().trim();
                 var jourComplet = date.split('-')[0],
                     heureComplet = date.split('-')[1],
-                    jour = jourComplet.split(' ')[1],
+                    jour = jourComplet.split(' ')[1].trim(),
                     mois = listeMois[jourComplet.split(' ')[2].toUpperCase()],
                     annee = jourComplet.split(' ')[3],
                     heure = "00",
@@ -489,7 +489,7 @@ exports.parseAgenda = function(semaine, callback) {
                 if(jour.length == 1) jour = '0' + jour;
 
                 if(heureComplet) {
-                    heure = heureComplet.split(':')[0];
+                    heure = heureComplet.split(':')[0].trim();
                     minute = heureComplet.split(':')[1];
                 }
 
