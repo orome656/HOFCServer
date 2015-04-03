@@ -130,8 +130,8 @@ app.get('/agenda', function(req, res){
     })
 })
 
-app.post('/agenda', function(req, res){
-    parser.parseAgenda(req.body.semaine, function(result){
+app.get('/agenda/:semaine', function(req, res){
+    parser.parseAgenda(req.params.semaine, function(result){
         if(isNaN(result)) {
             res.send(result);    
         } else if(result == 404) {
