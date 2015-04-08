@@ -5,6 +5,7 @@ var CronJob = require('cron').CronJob
 var parser = require('./parser_node_module.js');
 var http = require('http');
 var pg = require('pg');
+var notification = require('./send_notification.js');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -141,7 +142,19 @@ app.get('/agenda/:semaine', function(req, res){
         }
         
     })
-})
+});
+
+app.get('/dev/notification/:title/:message', function(req, res){
+    var isDebug = (process.env.NODE_ENV == "DEV");
+    if(isDebug) {
+        notification.sendNotification(pg, req.params.title, req.params.message);
+        res.send(0);
+    } else {
+        res.status(404)        // HTTP status 404: NotFound
+           .send('Not found');   
+    }
+    
+});
 
 app.listen(app.get('port'), function() {
     console.log("Node app is running at localhost:" + app.get('port'));
