@@ -21,8 +21,6 @@ exports.sendNotification = function(db, title, messageNotif) {
                 // or with object values
                 var message = new gcm.Message({
                     collapseKey: 'demo',
-                    delayWhileIdle: false,
-                    timeToLive: 3,
                     data: {
                         title: title,
                         message: messageNotif
