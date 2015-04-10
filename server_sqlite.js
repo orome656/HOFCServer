@@ -127,6 +127,7 @@ app.post('/registerPush', function(req, res){
 
 app.get('/agenda', function(req, res){
     parser.parseAgenda(null, function(result){
+        res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(result);
     })
 })
@@ -134,6 +135,7 @@ app.get('/agenda', function(req, res){
 app.get('/agenda/:semaine', function(req, res){
     parser.parseAgenda(req.params.semaine, function(result){
         if(isNaN(result)) {
+            res.set('Content-Type', 'application/json; charset=utf-8');
             res.send(result);    
         } else if(result == 404) {
             res.send(-1);   
