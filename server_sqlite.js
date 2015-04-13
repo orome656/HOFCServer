@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var app = express();
 var CronJob = require('cron').CronJob
 var parser = require('./parser_node_module.js');
+var parserdistrict = require('./parser_district_node_module.js');
 var http = require('http');
 var pg = require('pg');
 var notification = require('./send_notification.js');
@@ -20,7 +21,7 @@ var job = new CronJob('0 */15 * * * *', function(){
   }, function () {
     
   },
-  true // Start the job right now 
+  true // Start the job right now
 );
 
 app.get('/classement', function(req, res){
@@ -146,6 +147,25 @@ app.get('/agenda/:semaine', function(req, res){
     })
 });
 
+app.get('/agendadistrict/:semaine', function(req,res) {
+    try {
+        parserdistrict.parseAgenda(req.params.semaine, function(result){
+            if(isNaN(result)) {
+                res.set('Content-Type', 'application/json; charset=utf-8');
+                res.send(result);
+            } else if(result == 404) {
+                res.send(-1);
+            } else {
+                res.send(-2);
+            }
+
+        })
+    } catch(e) {
+        console.log(e);
+        res.send(-3);
+    }
+})
+
 app.get('/dev/notification/:title/:message', function(req, res){
     var isDebug = (process.env.NODE_ENV == "DEV");
     if(isDebug) {
@@ -153,7 +173,7 @@ app.get('/dev/notification/:title/:message', function(req, res){
         res.send(0);
     } else {
         res.status(404)        // HTTP status 404: NotFound
-           .send('Not found');   
+           .send('Not found');
     }
     
 });
