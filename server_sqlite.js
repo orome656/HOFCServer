@@ -178,6 +178,12 @@ app.get('/agendadistrict/:semaine', function(req,res) {
         res.send(-3);
     }
 });
+app.get('/matchinfos/:id', function(req, res) {
+    parser.parseMatchInfos(req.params.id, function(result) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(result);
+    });
+});
 
 app.get('/matchinfosdistrict/:id', function(req, res) {
     parserdistrict.parseMatchInfos(req.params.id, function(result) {

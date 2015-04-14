@@ -26,11 +26,20 @@ var optionsActus = {
     activated: true
 };
 
-var optionsAgendaPathBase = '/la-vie-des-clubs/177005/agenda';
-var oprtionsAgenda = {
+var optionsAgendaPathBase = 'http://www.fff.fr/la-vie-des-clubs/177005/agenda';
+var optionsAgenda = {
     host: 'www.fff.fr',
     port: 80,
     path: '/la-vie-des-clubs/177005/agenda',
+    activated: true
+    
+}
+
+var optionsMatchInfosPathBase = '/match/fff/{id}/detail';
+var optionsMatchInfos = {
+    host: 'www.fff.fr',
+    port: 80,
+    path: '/match/fff/16806038/detail',
     activated: true
     
 }
@@ -454,12 +463,12 @@ exports.parseArticle = function(url, callback) {
 **/
 exports.parseAgenda = function(semaine, callback) {
     if(semaine != null) {
-        oprtionsAgenda.path = optionsAgendaPathBase + '/semaine-' + semaine;
+        optionsAgenda.path = optionsAgendaPathBase + '/semaine-' + semaine;
     } else {
-        oprtionsAgenda.path = optionsAgendaPathBase;
+        optionsAgenda.path = optionsAgendaPathBase;
     }
-    console.log(oprtionsAgenda.path);
-    http.get(oprtionsAgenda, function(res) {
+    console.log(optionsAgenda.path);
+    http.get(optionsAgenda, function(res) {
         var result = "";
         var i = 0;
         if(res.statusCode != 200) {
@@ -477,7 +486,7 @@ exports.parseAgenda = function(semaine, callback) {
             var linesCalendar = $2("div.list_calendar").children('h3'),
                 nbLines = linesCalendar.length;
             if(nbLines == 0) {
-                callback([]);   
+                callback([]);
             }
             $2(linesCalendar).each(function (index, line) {
                 var title = $2(line).text().trim();
@@ -514,7 +523,10 @@ exports.parseAgenda = function(semaine, callback) {
                     if(isNaN(score2))
                         score2 = null;
                 }
-                var array = {equipe1:equipe1, equipe2: equipe2, title: title, date: annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00', score1: score1, score2: score2};
+                
+                var infosId = lineChildren.last().children('a').attr('data-target');
+                
+                var array = {equipe1:equipe1, equipe2: equipe2, title: title, date: annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00', score1: score1, score2: score2, infos: infosId};
                 returnedValue.push(array);
                 i++;
                 if(i == nbLines) callback(returnedValue);
@@ -523,4 +535,36 @@ exports.parseAgenda = function(semaine, callback) {
     })
 }
 
-
+exports.parseMatchInfos = function(id, callback) {
+    optionsMatchInfos.path = optionsMatchInfosPathBase.replace('{id}', id);
+    var request = http.get(optionsMatchInfos, function(res) {
+        var result = "";
+        var i = 0;
+        if(res.statusCode != 200) {
+            console.error('Match Infos get error. Result code ' + res.statusCode);
+            callback(res.statusCode);
+            return;
+        }
+        res.on('data', function(data) {
+            result += data;
+        });
+        res.on('end', function() {
+            $2 = cheerio.load(result);
+            var childs = $2('.info_inner').children('p');
+            var adresseNodes = childs.first().contents();
+            var nom = adresseNodes.eq(0).text().trim() + adresseNodes.eq(1).text().trim();
+            var adresse = adresseNodes.eq(3).text().trim();
+            var ville = adresseNodes.eq(5).text().trim();
+            
+            var arbitresNode = $2('.info_inner').children('p').last().children().slice(1);
+            
+            var arbitres = [];
+            
+            arbitresNode.each(function(index,line) {
+                arbitres.push($2(line).text());
+            })
+            
+            callback({nom:nom, adresse:adresse, ville:ville, arbitres:arbitres});
+        });
+    });
+}
