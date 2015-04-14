@@ -177,7 +177,14 @@ app.get('/agendadistrict/:semaine', function(req,res) {
         console.log(e);
         res.send(-3);
     }
-})
+});
+
+app.get('/matchinfosdistrict/:id', function(req, res) {
+    parserdistrict.parseMatchInfos(req.params.id, function(result) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(result);
+    });
+});
 
 app.get('/dev/notification/:title/:message', function(req, res){
     var isDebug = (process.env.NODE_ENV == "DEV");

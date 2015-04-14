@@ -19,11 +19,20 @@ var optionsCalendrier = {
     activated: true
 };
 
-var optionsAgendaPathBase = 'http://district-foot-65.fff.fr/competitions/php/club/club_agenda.php?cl_no=177005&deb_semaine=';
+var optionsAgendaPathBase = '/competitions/php/club/club_agenda.php?cl_no=177005&deb_semaine=';
 var optionsAgenda = {
     host: 'district-foot-65.fff.fr',
     port: 80,
     path: '/competitions/php/club/club_agenda.php?cl_no=177005&deb_semaine=',
+    activated: true
+    
+}
+
+var optionsMatchInfosPathBase = '/competitions/php/competition/competition_match_detail_v2.php?o=1&t=1&ma_no=';
+var optionsMatchInfos = {
+    host: 'district-foot-65.fff.fr',
+    port: 80,
+    path: '/competitions/php/competition/competition_match_detail_v2.php?o=1&t=1&ma_no=',
     activated: true
     
 }
@@ -152,6 +161,10 @@ exports.parseAgenda = function(semaine, callback) {
                 var score = node.find('.score').children('strong').text();
                 var score1 = null;
                 var score2 = null;
+                var html = node.children('.voirtout').html();
+                console.log(html);
+                if(html)
+                    var infos = /det_match\(this,&apos;([0-9]+)/.exec(html)[1];
                 if(date == null || date.length == 0) {
                     i++;
                     if(i == nbLines) callback(returnedValue);
@@ -178,7 +191,7 @@ exports.parseAgenda = function(semaine, callback) {
                     score1 = score.split('-')[0].trim();
                     score2 = score.split('-')[1].trim();
                 }
-                var array = {equipe1:equipe1, equipe2: equipe2, title: title, date: annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00', score1: score1, score2: score2};
+                var array = {equipe1:equipe1, equipe2: equipe2, title: title, date: annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00', score1: score1, score2: score2, infos:infos};
                 returnedValue.push(array);
                 i++;
                 if(i == nbLines) callback(returnedValue);
@@ -192,4 +205,40 @@ exports.parseAgenda = function(semaine, callback) {
     })
 }
 
-
+exports.parseMatchInfos = function(id, callback) {
+    optionsMatchInfos.path = optionsMatchInfosPathBase + id;
+    var request = http.get(optionsMatchInfos, function(res) {
+        var result = "";
+        var i = 0;
+        if(res.statusCode != 200) {
+            console.error('Agenda get error. Result code ' + res.statusCode);
+            callback(res.statusCode);
+            return;
+        }
+        res.on('data', function(data) {
+            result += data;
+        });
+        
+        res.on('end', function() {
+            $2 = cheerio.load(result);
+            var adresseContent = $2('.w350').children('div').first().find('.s90').contents();
+            console.log(adresseContent[0].textContent);
+            var nom = $2(adresseContent[0]).text();
+            var adresse = $2(adresseContent[2]).text();
+            var ville = $2(adresseContent[4]).text();
+            
+            var arbitreContent = $2('.w350').children('div').last().find('.s90').children();
+            var arbitres = [];
+            arbitreContent.each(function(index,line) {
+                arbitres.push($2(line).text());
+            })
+            
+            callback({nom:nom, adresse:adresse, ville:ville, arbitres:arbitres});
+        });
+    });
+    
+    request.on('error', function(e) {
+        console.log(e);
+        callback(-3);
+    })
+}
