@@ -401,6 +401,9 @@ exports.parseDiaporama = function(url, callback) {
     });
 }
 
+/**
+* @param url URL de l'article a parser sur le site http://www.HOFC.fr/
+**/
 exports.parseArticle = function(url, callback) {
     http.get(url, function(res) {
         
@@ -445,6 +448,10 @@ exports.parseArticle = function(url, callback) {
     });
 }
 
+/**
+* @param semaine Chaine de caractère au format YYYY-MM-DD
+* @param callback Callback a appeler à la fin de la récupération
+**/
 exports.parseAgenda = function(semaine, callback) {
     if(semaine != null) {
         oprtionsAgenda.path = optionsAgendaPathBase + '/semaine-' + semaine;
@@ -511,7 +518,7 @@ exports.parseAgenda = function(semaine, callback) {
                 returnedValue.push(array);
                 i++;
                 if(i == nbLines) callback(returnedValue);
-            })                          
+            })
         })
     })
 }

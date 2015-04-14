@@ -137,9 +137,9 @@ app.get('/agenda/:semaine', function(req, res){
     parser.parseAgenda(req.params.semaine, function(result){
         if(isNaN(result)) {
             res.set('Content-Type', 'application/json; charset=utf-8');
-            res.send(result);    
+            res.send(result);
         } else if(result == 404) {
-            res.send(-1);   
+            res.send(-1);
         } else {
             res.send(-2);
         }
@@ -147,9 +147,22 @@ app.get('/agenda/:semaine', function(req, res){
     })
 });
 
+/**
+* @param semaine Chaine de caractère au format YYYY-MM-DD
+**/
 app.get('/agendadistrict/:semaine', function(req,res) {
     try {
-        parserdistrict.parseAgenda(req.params.semaine, function(result){
+        var date = new Date(req.params.semaine);
+        var day = date.getDate();
+        if(day < 9) {
+            day = '0'+day;
+        }
+        var month = date.getMonth() + 1;
+        if(month < 9) {
+            month = '0'+month;
+        }
+        var year = date.getFullYear() + '';
+        parserdistrict.parseAgenda(day+month+year, function(result){
             if(isNaN(result)) {
                 res.set('Content-Type', 'application/json; charset=utf-8');
                 res.send(result);
