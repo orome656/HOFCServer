@@ -11,7 +11,7 @@ var notification = require('./send_notification.js');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.set('port', (process.env.PORT || 3000));
-
+app.use(express.static('web'));
 
 var creation_table_notification_query = "CREATE TABLE IF NOT EXISTS notification_client (id serial PRIMARY KEY , uuid varchar(255) NOT NULL, notification_id varchar(255) NOT NULL)";
 
