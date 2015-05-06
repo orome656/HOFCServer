@@ -1,6 +1,6 @@
 var http = require('http');
 var cheerio = require("cheerio");
-var notification = require('./send_notification.js')
+var notification = require('../notifications/send_notification.js')
   
 var HOFC_NAME = 'HORGUES ODOS F.C.';
 
@@ -108,6 +108,10 @@ exports.updateDatabase = function(db) {
                 
                 $ = cheerio.load(result);
                 db.connect(process.env.DATABASE_URL,function (err, client, done) {
+                    if(err) {
+                        console.error(err);
+                        return;
+                    }
                     client.query(creation_table_classement_query);
                     var linesClassement = $("table.classement").children('tbody').children().filter(function (index) {
                         return ($(this).children() !== null && $(this).children().length > 3);
@@ -191,6 +195,10 @@ exports.updateDatabase = function(db) {
                 
                 $2 = cheerio.load(result);
                 db.connect(process.env.DATABASE_URL, function(err, client, done) {
+                    if(err) {
+                        console.error(err);
+                        return;
+                    }
                     client.query(creation_table_calendrier_query);
                     var linesCalendar = $2("div.list_calendar").children('div'),
                         nbLines = linesCalendar.length;
@@ -316,6 +324,10 @@ exports.updateDatabase = function(db) {
                     console.log('End getting response actus at ' + new Date());
                 $3 = cheerio.load(result);
                 db.connect(process.env.DATABASE_URL, function(err, client, done) {
+                    if(err) {
+                        console.error(err);
+                        return;
+                    }
                     client.query(creation_table_actus_query);
                     var linesActu = $3("#content").children('.post');
                     var nbLines = linesActu.length;

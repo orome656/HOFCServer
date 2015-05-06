@@ -2,11 +2,11 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var CronJob = require('cron').CronJob
-var parser = require('./parser_node_module.js');
-var parserdistrict = require('./parser_district_node_module.js');
+var parser = require('./parsers/parser_node_module.js');
+var parserdistrict = require('./parsers/parser_district_node_module.js');
 var http = require('http');
 var pg = require('pg');
-var notification = require('./send_notification.js');
+var notification = require('./notifications/send_notification.js');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

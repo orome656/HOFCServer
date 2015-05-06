@@ -1,7 +1,7 @@
 var http = require('http');
 var cheerio = require("cheerio");
-var notification = require('./send_notification.js')
-var constants = require('./constants.js');
+var notification = require('../notifications/send_notification.js')
+var constants = require('../constants.js');
 var HOFC_NAME = constants.constants.HOFC_NAME;
 
 // Paramétrage url
