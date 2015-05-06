@@ -171,12 +171,12 @@ exports.parseAgenda = function(semaine, callback) {
                     return;
                 }
                 
-                var dateString = date.split('-')[0];
+                var dateString = date.split('-')[0].replace(/ +(?= )/g,'');
                 var timeString = date.split('-')[1].trim();
                 
-                var jour = dateString.split(' ')[2];
-                var mois = listeMoisActu[dateString.split(' ')[3]];
-                var annee = dateString.split(' ')[4];
+                var jour = dateString.split(' ')[1];
+                var mois = listeMoisActu[dateString.split(' ')[2]];
+                var annee = dateString.split(' ')[3];
                 
                 var heure = timeString.split('H')[0];
                 var minute = timeString.split('H')[1];
