@@ -184,20 +184,7 @@ app.get('/dev/notification/:title/:message', function(req, res){
 
 app.listen(app.get('port'), function() {
     console.log("Node app is running at localhost:" + app.get('port'));
-    pg.connect(process.env.DATABASE_URL ,function (err, client, done) {
-        if(err) {
-            console.error('Error while connecting to database', err);
-            return; 
-        }
-        client.query(creation_table_notification_query, function(err, result) {
-            if(err) {
-                console.log('Error while creating notifications table : ' + err);
-            } else {
-                console.log('Notification Table Created');   
-            }
-            done();
-        });
-    });
+    database.init();
 });
 
 // Keep alive app
