@@ -1,3 +1,5 @@
+/// <reference path="typings/express.d.ts" />
+
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
@@ -7,12 +9,16 @@ var parserdistrict = require('./parsers/parser_district_node_module.js');
 var http = require('http');
 var pg = require('pg');
 var notification = require('./notifications/send_notification.js');
+var database = require('./database/postgres.js');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.set('port', (process.env.PORT || 3000));
 app.use(express.static('web'));
-
+app.use(function(req, res, next) {
+    console.log('Request on URL ' + req.url + ' with method ' + req.method);
+    next();
+});
 var creation_table_notification_query = "CREATE TABLE IF NOT EXISTS notification_client (id serial PRIMARY KEY , uuid varchar(255) NOT NULL, notification_id varchar(255) NOT NULL)";
 
 var job = new CronJob('0 */15 * * * *', function(){
@@ -25,57 +31,30 @@ var job = new CronJob('0 */15 * * * *', function(){
 );
 
 app.get('/classement', function(req, res){
-    console.log('Classement Request');
-    pg.connect(process.env.DATABASE_URL, function(err, client, done){
-        if(err) {
-            console.error('Error while connecting to database', err);
-        }
-        client.query('select * from classement order by points desc, diff desc', function(err, results){
-            done();
-            if(err) {
-                console.error('Error while getting classement : ' + err);
-                return;
-            }
-            res.set('Content-Type', 'application/json; charset=utf-8');
-            res.send(results.rows);
-        })
-    })
+    database.getRankingInfos(function(/**array */results) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(results);
+    }, function(err) {
+        console.error('Error while connecting to database', err);
+    });
 });
 
 app.get('/calendrier', function(req, res){
-	console.log('Calendrier Request');
-    pg.connect(process.env.DATABASE_URL, function(err, client, done){
-        if(err) {
-            console.error('Error while connecting to database', err);
-        }
-        client.query('select * from calendrier order by date asc', function(err, results){
-            done();
-            if(err) {
-                console.error('Error while getting calendrier : ' + err);
-                return;
-            }
-            res.set('Content-Type', 'application/json; charset=utf-8');
-            res.send(results.rows);
-        })
-    })
+    database.getCalendarInfos(function(/**array */results) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(results);
+    }, function(err) {
+        console.error('Error while connecting to database', err);
+    });
 });
 
 app.get('/actus', function(req, res){
-	console.log('Actus Request');
-    pg.connect(process.env.DATABASE_URL, function(err, client, done){
-        if(err) {
-            console.error('Error while connecting to database', err);
-        }
-        client.query('select * from actus  order by date desc', function(err, results){
-            done();
-            if(err) {
-                console.error('Error while getting actus : ' + err);
-                return;
-            }
-            res.set('Content-Type', 'application/json; charset=utf-8');
-            res.send(results.rows);
-        })
-    })
+    database.getActusInfos(function(/**array */results) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(results);
+    }, function(err) {
+        console.error('Error while connecting to database', err);
+    });
 });
 
 app.post('/parsePage', function(req, res) {
@@ -95,7 +74,6 @@ app.post('/parsePage', function(req, res) {
 });
 
 app.post('/registerPush', function(req, res){
-	console.log('New registration ');
     var notificationId = req.body.notification_id;
     var uuid = req.body.uuid;
 	console.log('New registration with notification id : ' + notificationId);
@@ -224,7 +202,8 @@ app.listen(app.get('port'), function() {
 
 // Keep alive app
 setInterval(function() {
-    http.get("http://quiet-wave-7010.herokuapp.com/calendrier", function(res) {
+    //http.get("http://quiet-wave-7010.herokuapp.com/calendrier", function(res) {
+      http.get(process.env.KEEP_ALIVE_URL, function(res) {
         if (res.statusCode === 200) {
             console.log("Heroku Keep Alive Ping: Success");
         } else {
