@@ -1,1 +1,1 @@
-web: node server_sqlite.js
+web: node server.js

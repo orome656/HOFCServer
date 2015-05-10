@@ -1,9 +1,15 @@
+/// <reference path="../typings/pg.d.ts" />
+'use strict';
 var pg = require('pg');
 var constants = require('../constants.js');
 
 
 var pgQuery = function(/**string */text, /**array */values, /**function */cb) {
 	pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+		if(err) {
+			console.log('Error while connecting to database ' + err);
+			return;
+		}
 		client.query(text, values, function(err, result) {
 			done();
 			cb(err, result);
@@ -13,34 +19,27 @@ var pgQuery = function(/**string */text, /**array */values, /**function */cb) {
 
 /**
  * Permet d'initialiser les tables de la base de données
+ * @return {void}
  */
 exports.init = function() {
 	pgQuery(constants.database.creation_table_notification_query, null, function(err) {
 		if(err) {
 			console.log('Error creating notification table');
-		} else {
-			
 		}
 	});
 	pgQuery(constants.database.creation_table_classement_query, null, function(err) {
 		if(err) {
 			console.log('Error creating classement table');
-		} else {
-			
 		}
 	});
 	pgQuery(constants.database.creation_table_calendrier_query, null, function(err) {
 		if(err) {
 			console.log('Error creating calendrier table');
-		} else {
-			
 		}
 	});
 	pgQuery(constants.database.creation_table_actus_query, null, function(err) {
 		if(err) {
 			console.log('Error creating actus table');
-		} else {
-			
 		}
 	});
 };
@@ -55,9 +54,144 @@ exports.init = function() {
  * 			- score2
  * 			- equipe2
  * 			- date
+ * 			- equipe1Complet
+ * 			- equipe2Complet
  */
 exports.insertCalendarLine = function (/* object */ match) {
-	//TODO
+	pgQuery('insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ($1, $2, $3, $4, $5)',
+			[match.date, match.equipe1Complet, match.equipe2Complet, match.score1, match.score2], 
+			function(err/**, results*/) {
+				if(err) {
+					console.error('Fail inserting match informations');
+				}
+			}
+	);
+};
+
+
+/**
+ * Permet d'insérer une ligne dans la table classement
+ * 
+ * @param {object} team details de l'équipe a insérer en base
+ * 		  L'objet contient les éléments suivant
+ * 			- points
+ * 			- joue
+ * 			- victoire
+ * 			- nul
+ * 			- defaite
+ * 			- bp
+ * 			- bc
+ * 			- diff
+ * 			- nom
+ */
+exports.insertRankingLine = function (/* object */ team) {
+	pgQuery('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+			[team.nom, team.points, team.joue, team.victoire, team.nul, team.defaite, team.bp, team.bc, team.diff],
+			function(err/**, results*/){
+				if(err) {
+					console.log('Fail inserting ranking data');
+				}
+			}
+	);
+};
+
+
+/**
+ * Permet d'insérer une ligne dans la table actus
+ * 
+ * @param {object} actu détails de l'actualité a insérer en base
+ * 		  L'objet contient les éléments suivant
+ * 			- postId
+ * 			- title
+ * 			- texte
+ * 			- link
+ * 			- image
+ * 			- date
+ */
+exports.insertActusLine = function (/* object */ actu) {
+	pgQuery('insert into actus (postId, titre, texte, url, image, date) VALUES ($1,$2,$3,$4,$5,$6)',
+			[actu.postId, actu.title, actu.texte, actu.link, actu.image, actu.date], 
+			function (err/**, results*/) {
+				if(err) {
+					console.log('Fail inserting actus data');
+				}
+			}
+	);
+};
+
+/**
+ * Permet de mettre a jour une ligne dans la table calendrier
+ * 
+ * @param {object} match details du match a insérer en base
+ * 		  L'objet contient les éléments suivant
+ * 			- equipe1
+ * 			- score1
+ * 			- score2
+ * 			- equipe2
+ * 			- date
+ * 			- equipe1Complet
+ * 			- equipe2Complet
+ */
+exports.updateCalendarLine = function (/* object */ match) {
+	pgQuery('UPDATE calendrier set date=$1, score1=$2, score2=$3, equipe1=$4, equipe2=$5 WHERE equipe1 LIKE $6 AND equipe2 LIKE $7',
+			[match.date, match.score1, match.score2, match.equipe1Complet, match.equipe2Complet, '%'+match.equipe1+'%', '%'+match.equipe2+'%' ], 
+			function(err/**, results*/) {
+				if(err) {
+					console.log('Fail updating match informations');
+				}
+			}
+	);
+};
+
+
+/**
+ * Permet de mettre a jour une ligne dans la table classement
+ * 
+ * @param {object} team details de l'équipe a insérer en base
+ * 		  L'objet contient les éléments suivant
+ * 			- points
+ * 			- joue
+ * 			- victoire
+ * 			- nul
+ * 			- defaite
+ * 			- bp
+ * 			- bc
+ * 			- diff
+ * 			- nom
+ */
+exports.updateRankingLine = function (/* object */ team) {
+	pgQuery('UPDATE classement set points=$1, joue=$2, gagne=$3, nul=$4, perdu=$5, bp=$6, bc=$7, diff=$8 WHERE nom LIKE $9',
+			[team.points, team.joue, team.victoire, team.nul, team.defaite, team.bp, team.bc, team.diff, team.nom],
+			function(err/**, results*/){
+				if(err) {
+					console.log('Fail updating ranking data');
+				}
+			}
+	);
+};
+
+
+/**
+ * Permet de mettre a jour une ligne dans la table actus
+ * 
+ * @param {object} actu détails de l'actualité a insérer en base
+ * 		  L'objet contient les éléments suivant
+ * 			- postId
+ * 			- title
+ * 			- texte
+ * 			- link
+ * 			- image
+ * 			- date
+ */
+exports.updateActusLine = function (/* object */ actu) {
+	pgQuery('update actus set titre=$1, texte=$2, url=$3, image=$4, date=$5 WHERE postId=$6',
+			[actu.title, actu.texte, actu.link, actu.image, actu.date, actu.postId], 
+			function (err/**, results*/) {
+				if(err) {
+					console.log('Fail inserting actus data');
+				}
+			}
+	);
 };
 
 /**
@@ -66,7 +200,7 @@ exports.insertCalendarLine = function (/* object */ match) {
  * @param {function} fail
  * @return array
  */
-exports.getCalendarInfos = function(success, fail) {
+exports.getCalendarInfos = function(/**function */success, /**function */fail) {
 	pgQuery('select * from calendrier order by date asc', null, function(err, results) {
 		if(err) {
 			fail(err);
@@ -99,7 +233,7 @@ exports.getRankingInfos = function(/**function */success, /**function */fail) {
  * @param {function} fail
  * @return {array} Liste des actualités
  */
-exports.getActusInfos = function(success, fail) {
+exports.getActusInfos = function(/**function */success, /**function */fail) {
 	pgQuery('select * from actus order by date desc', null, function(err, results) {
 		if(err) {
 			fail(err);
@@ -125,7 +259,7 @@ exports.insertNotificationId = function(/**string */notificationId, /**string */
             return;
         }
         if(result.rows.length > 0) {
-			pgQuery("UPDATE notification_client set notification_id='"+notificationId+"' WHERE uuid='"+uuid+"'", null, function(err, results) {
+			pgQuery("UPDATE notification_client set notification_id=$1 WHERE uuid=$2", [notificationId, uuid], function(err/**, results*/) {
 				if(err) {
 					fail(err);
 				} else {
@@ -133,7 +267,7 @@ exports.insertNotificationId = function(/**string */notificationId, /**string */
 				}
 			});
         } else {
-			pgQuery("INSERT INTO notification_client (notification_id, uuid) VALUES ('"+notificationId+"','"+uuid+"')", null, function(err, results) {
+			pgQuery("INSERT INTO notification_client (notification_id, uuid) VALUES ($1, $2)", [notificationId, uuid], function(err/**, results*/) {
 				if(err) {
 					fail(err);
 				} else {
@@ -141,5 +275,75 @@ exports.insertNotificationId = function(/**string */notificationId, /**string */
 				}
 			});
         }
+	});
+};
+
+/**
+ * Permet de sélectionner les informations d'une equipe par son nom dans 
+ * la table classement
+ * @param {string} nom Nom de l'équipe a récupérer
+ * @param {function} success
+ * @param {function} fail
+ * @return {object} Informations de l'équipe
+ */
+exports.getRankByName = function(/**string */nom, /**function */success, /**function */fail) {
+	pgQuery('select * from classement where nom LIKE $1', [nom], function(err, results) {
+		if(err) {
+			fail(err);
+		} else {
+			success(results.rows);
+		}
+	});
+};
+
+/**
+ * Permet de sélectionner les informations d'un match par son nom dans 
+ * la table classement
+ * @param {string} equipe1 Nom de l'équipe a domicile
+ * @param {string} equipe2 Nom de l'équipe a l'extérieur
+ * @param {function} success
+ * @param {function} fail
+ * @return {object} Informations sur le match
+ */
+exports.getMatchByName = function(/**string */equipe1, /** string*/equipe2, /**function */success, /**function */fail) {
+	pgQuery('select * from calendrier where equipe1 LIKE $1 AND equipe2 LIKE $2', ['%'+equipe1+'%', '%'+equipe2+'%'], function(err, results) {
+		if(err) {
+			fail(err);
+		} else {
+			success(results.rows);
+		}
+	});
+};
+
+/**
+ * Permet de sélectionner les informations d'un match par son nom dans 
+ * la table classement
+ * @param {string} id Id de l'actualité
+ * @param {function} success
+ * @param {function} fail
+ * @return {object} Informations sur le match
+ */
+exports.getActuById = function(/**string */id, /**function */success, /**function */fail) {
+	pgQuery('select * from actus where postId=$1', [id], function(err, results) {
+		if(err) {
+			fail(err);
+		} else {
+			success(results.rows);
+		}
+	});
+};
+
+/**
+ * Permet de récupérer les id des clients aux notifications
+ * @param {function} success callback de succes
+ * @param {function} fail callback d'erreur
+ */
+exports.getNotificationClients = function(success, fail) {
+	pgQuery("SELECT notification_id from notification_client", null, function(err, result) {
+		if(err) {
+			fail(err);
+		} else {
+			success(result.rows);
+		}
 	});
 };

@@ -1,582 +1,421 @@
-var http = require('http');
+/// <reference path="../typings/node-0.10.d.ts" />
+/*jslint node: true */
+'use strict';
 var cheerio = require("cheerio");
-var notification = require('../notifications/send_notification.js')
-  
-var HOFC_NAME = 'HORGUES ODOS F.C.';
+var notification = require('../notifications/send_notification.js');
+var constants = require('../constants.js');
+var constants_fff = require('../constants/constants_fff.js');
+var database = require('../database/postgres.js');
+var utils = require('../utils/utils.js');  
+
+var HOFC_NAME = constants.constants.HOFC_NAME;
 
 // Paramétrage url
-var optionsClassement = {
-    host: 'www.fff.fr',
-    port: 80,
-    path: '/championnats/fff/district-hautes-pyrenees/2014/305257-excellence/phase-1/poule-1/derniers-resultats',
-    activated: true
-};
+var optionsClassement = constants_fff.downloadOptions.classement;
 
-var optionsCalendrier = {
-    host: 'www.fff.fr',
-    port: 80,
-    path: '/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/305257/phase-1/groupe-1',
-    activated: true
-};
+var optionsCalendrier = constants_fff.downloadOptions.calendrier;
 
-var optionsActus = {
-    host: 'www.hofc.fr',
-    port: 80,
-    path: '/category/seniors/',
-    activated: true
-};
+var optionsActus = constants_fff.downloadOptions.actus;
 
-var optionsAgendaPathBase = 'http://www.fff.fr/la-vie-des-clubs/177005/agenda';
-var optionsAgenda = {
-    host: 'www.fff.fr',
-    port: 80,
-    path: '/la-vie-des-clubs/177005/agenda',
-    activated: true
-    
-}
+var optionsAgendaPathBase = constants_fff.downloadOptions.agendaBase;
+var optionsAgenda = constants_fff.downloadOptions.agenda;
 
-var optionsMatchInfosPathBase = '/match/fff/{id}/detail';
-var optionsMatchInfos = {
-    host: 'www.fff.fr',
-    port: 80,
-    path: '/match/fff/16806038/detail',
-    activated: true
-    
-}
-
-/**
- * Query création des tables
- */
-var creation_table_classement_query = "CREATE TABLE IF NOT EXISTS classement (id serial PRIMARY KEY , nom varchar(255) NOT NULL, points NUMERIC(11) NOT NULL, joue NUMERIC(11) NOT NULL, gagne NUMERIC(11) NOT NULL, nul NUMERIC(11) NOT NULL, perdu NUMERIC(11) NOT NULL, bp NUMERIC(11) NOT NULL, bc NUMERIC(11) NOT NULL, diff NUMERIC(11) NOT NULL)";
-var creation_table_calendrier_query = "CREATE TABLE IF NOT EXISTS calendrier (id serial PRIMARY KEY, equipe1 varchar(255) NOT NULL, score1 integer, equipe2 varchar(255) NOT NULL, score2 integer, date timestamp without time zone DEFAULT NULL)";
-var creation_table_actus_query = "CREATE TABLE IF NOT EXISTS actus (id serial PRIMARY KEY, postId NUMERIC(11) DEFAULT NULL, titre varchar(255) DEFAULT NULL, texte text, url varchar(255) DEFAULT NULL, image varchar(255) DEFAULT NULL, date date DEFAULT NULL)";
+var optionsMatchInfosPathBase = constants_fff.downloadOptions.matchInfosBase;
+var optionsMatchInfos = constants_fff.downloadOptions.matchInfos;
 
 /**
  *	Tableau permettant de convertir la chaine date récupérée en objet date
  */
-var listeMois = {
-        "JANVIER": "01",
-        "FÉVRIER": "02",
-        "MARS": "03",
-        "AVRIL": "04",
-        "MAI": "05",
-        "JUIN": "06",
-        "JUILLET": "07",
-        "AOUT": "08",
-        "SEPTEMBRE": "09",
-        "OCTOBRE": "10",
-        "NOVEMBRE": "11",
-        "DÉCEMBRE": "12"
-    };
+var listeMois = constants.constants.listeMois;
 
 /**
  *	Tableau permettant de convertir la chaine date récupérée en objet date pour les actus
  */
-var listeMoisActu = {
-        "janvier": "01",
-        "février": "02",
-        "mars": "03",
-        "avril": "04",
-        "mai": "05",
-        "juin": "06",
-        "juillet": "07",
-        "août": "08",
-        "septembre": "09",
-        "octobre": "10",
-        "novembre": "11",
-        "décembre": "12"
-    };
+var listeMoisActu = constants.constants.listeMoisActu;
 
-exports.updateDatabase = function(db) {
-    var isDebug = (process.env.NODE_ENV == "DEV");
+/**
+ * Permet de télécharger les données d'un site
+ */
+var downloadData = utils.downloadData;
+
+exports.updateDatabase = function() {
     if (optionsClassement.activated) {
-        if(isDebug)
-            console.log('Parser Classement Start');
-        http.get(optionsClassement, function(res) {
-            var result = "";
-            if (res.statusCode != 200) {
-                console.error('Classement get error. Result code ' + res.statusCode);
-                return;
-            }
-            res.on('data', function (data) {
-                result += data;
-            });
-
-            res.on('end', function () {
-                if(isDebug)
-                    console.log('End getting Classement Data at ' + new Date());
-                
-                $ = cheerio.load(result);
-                db.connect(process.env.DATABASE_URL,function (err, client, done) {
-                    if(err) {
-                        console.error(err);
-                        return;
-                    }
-                    client.query(creation_table_classement_query);
-                    var linesClassement = $("table.classement").children('tbody').children().filter(function (index) {
-                        return ($(this).children() !== null && $(this).children().length > 3);
-                    });
-                    var nbLines = linesClassement.length;
-                    $(linesClassement).each(function (index, line) {
-                        var lineChildren = $(line).children();
-                        if (lineChildren != null && lineChildren.length > 3) {
-                            
-                            var place = $(lineChildren[0]).text().trim(),
-                                nom = $(lineChildren[1]).text().trim(),
-                                points = $(lineChildren[2]).text(),
-                                joue = $(lineChildren[3]).text(),
-                                victoire = $(lineChildren[4]).text(),
-                                nul = $(lineChildren[5]).text(),
-                                defaite = $(lineChildren[6]).text(),
-                                bp = $(lineChildren[8]).text(),
-                                bc = $(lineChildren[9]).text(),
-                                diff = $(lineChildren[11]).text();
-                            
-                            client.query('select * from classement where nom LIKE $1', [nom],  function (err, results) {
-                                if (err) {
-                                    console.log('Erreur lors de la requete au classement : ' + err);
-                                    nbLines--;
-                                    return;
-                                }
-                                if(isDebug)
-                                    console.log('Updating Classement for team ' + nom);
-                                if (results.rows.length > 0) {
-                                    /*
-                                    if(results.rows[0].nom == HOFC_NAME && results.rows[0].joue < joue) {
-                                        notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' + place + ((place == 1) ? 'er' : 'eme'));
-                                    }
-                                    */
-                                    client.query('UPDATE classement set points=$1, joue=$2, gagne=$3, nul=$4, perdu=$5, bp=$6, bc=$7, diff=$8 WHERE nom LIKE $9', 
-                                                 [points, joue, victoire, nul, defaite, bp, bc, diff, nom], 
-                                                 function(err, result){
-                                        nbLines--;
-                                        if(nbLines <= 0) {
-                                            done();
-                                        }
-                                    });
-                                } else {
-                                    client.query("insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", 
-                                                 [nom, points, joue, victoire, nul, defaite, bp, bc, diff], 
-                                                 function(err, result){
-                                        nbLines--;
-                                        if(nbLines <= 0) {
-                                            done();
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-                });
-            });
-        }).on('error', function(e) {
-            console.log("Got error: " + e.message);
-        });
+        updateRankingData();
     }
 
 
     if (optionsCalendrier.activated) {
-        if(isDebug)
-            console.log('Parser Calendrier Start at ' + new Date());
-        
-        http.get(optionsCalendrier, function(res) {
-          var result = "";
-            if(res.statusCode != 200) {
-                console.error('Calendrier get error. Result code ' + res.statusCode);
-                return;
-            }
-            res.on('data', function(data) {
-                result += data;
-            });
-
-            res.on('end', function() {
-                if(isDebug)
-                    console.log('End getting Calendrier Data at ' + new Date());
-                
-                $2 = cheerio.load(result);
-                db.connect(process.env.DATABASE_URL, function(err, client, done) {
-                    if(err) {
-                        console.error(err);
-                        return;
-                    }
-                    client.query(creation_table_calendrier_query);
-                    var linesCalendar = $2("div.list_calendar").children('div'),
-                        nbLines = linesCalendar.length;
-                    
-                    if(isDebug)
-                        console.log('Calendrier Entries : ' + nbLines);
-                    
-                    $2(linesCalendar).each(function (index, line) {
-                        var lineChildren = $2(line).children(),
-                            date = $2(lineChildren[0]).text().trim(),
-                            equipe1 = $2($2(lineChildren[1]).children()[0]).text().trim();
-
-                        equipe1 = equipe1.replace(/\r?\n|\r/g,' ');
-                        equipe1 = equipe1.replace(/ +/g,' ');
-                        var equipe1Complet = equipe1;
-                        if(equipe1.indexOf('Pénalité') != -1) {
-                            equipe1 = equipe1.replace('Pénalité', '').trim();
-                        }
-                        var equipe2 = $2($2(lineChildren[1]).children()[2]).text().trim();
-                        equipe2 = equipe2.replace(/\r?\n|\r/g,' ');
-                        equipe2 = equipe2.replace(/ +/g,' ');
-                        var equipe2Complet = equipe2;
-                        if(equipe2.indexOf('Pénalité') != -1) {
-                            equipe2 = equipe2.replace('Pénalité', '').trim();
-                        }
-                        var jourComplet = date.split('-')[0],
-                            heureComplet = date.split('-')[1],
-                            jour = jourComplet.split(' ')[1],
-                            mois = listeMois[jourComplet.split(' ')[2].toUpperCase()],
-                            annee = jourComplet.split(' ')[3],
-                            heure = "00",
-                            minute = "00";
-
-                        if(jour.length == 1) jour = '0' + jour;
-
-                        if(heureComplet) {
-                            heure = heureComplet.split(':')[0];
-                            minute = heureComplet.split(':')[1];
-                        }
-
-                        var score = $2($2(lineChildren[1]).children()[1]).text().trim(),
-                            score1 = null,
-                            score2 = null;
-
-                        if (score.indexOf('-') != -1) {
-                            score1 = parseInt(score.split('-')[0]);
-                            score2 = parseInt(score.split('-')[1]);
-                            if(isNaN(score1))
-                                score1 = null;
-                            if(isNaN(score2))
-                                score2 = null;
-                        }
-                        
-                        var formattedDate = annee + "-" + mois + "-" + jour + " " + heure + ":" + minute + ":00";
-                        
-                        client.query("select * from calendrier where equipe1 LIKE $1 AND equipe2 LIKE $2", ['%'+equipe1+'%','%'+equipe2+'%'],function (err, results) {
-                            if (err) {
-                                console.error('Erreur lors de la requete au calendrier : ' + err);
-                                nbLines--;
-                                return;
-                            }
-                            if(isDebug)
-                                console.log('Updating Calendrier for match ' + equipe1Complet + ' - ' + equipe2Complet);
-                            if (results.rows.length > 0 ) {
-                                if((results.rows[0].score1 == null) && 
-                                   (results.rows[0].score2 == null) && 
-                                    score1 != null && score2 != null) {
-                                    var notifTitle = 'Nouveau Résultat';
-                                    var notifMessage = null;
-                                    if(equipe1 == HOFC_NAME && score1 > score2) {
-                                        notifMessage = 'Victoire du HOFC (' + score1+ '-' + score2 +') face à ' + equipe2;
-                                    } else if (equipe2 == HOFC_NAME && score2 > score1) {
-                                        notifMessage = 'Victoire du HOFC (' + score1+ '-' + score2 +') face à ' + equipe1;
-                                    } else if(equipe1 == HOFC_NAME && score1 < score2) {
-                                        notifMessage = 'Défaite du HOFC (' + score1+ '-' + score2 +') face à ' + equipe2;
-                                    } else if (equipe2 == HOFC_NAME && score2 < score1) {
-                                        notifMessage = 'Défaite du HOFC (' + score1+ '-' + score2 +') face à ' + equipe1;
-                                    } else {
-                                        notifMessage = 'Match nul entre le HOFC et ' + ((equipe1 == HOFC_NAME)? equipe2 : equipe1);
-                                    }
-                                    console.log('Sending Notification with message : ' + notifMessage);
-                                    notification.sendNotification(db, notifTitle, notifMessage);
-                                }
-                                client.query("UPDATE calendrier set date=$1, score1=$2, score2=$3, equipe1=$4, equipe2=$5 WHERE equipe1 LIKE $6 AND equipe2 LIKE $7", [formattedDate, score1, score2, equipe1Complet, equipe2Complet,'%'+equipe1+'%','%'+equipe2+'%'], function(err, result){
-                                    nbLines--;
-                                    if(nbLines <= 0) {
-                                        done();
-                                    }
-                                });
-                            } else {
-                                client.query("insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ($1, $2, $3, $4, $5)", [formattedDate, equipe1Complet, equipe2Complet, score1, score2], function(err, result){
-                                    nbLines--;
-                                    if(nbLines <= 0) {
-                                        done();
-                                    }
-                                });
-                            }
-
-                        });
-                    });
-                });
-            });
-        }).on('error', function(e) {
-          console.log("Got error: " + e.message);
-        });
+        updateCalendarData();        
     }
 
     if (optionsActus.activated) {
-        if(isDebug)
-            console.log('Parser actus start at ' + new Date());
-        http.get(optionsActus, function(res) {
-            var result = "";
-            if(res.statusCode != 200) {
-                console.error('Actus get error. Result code ' + res.statusCode);
-                return;
-            }
-            res.on('data', function(data) {
-                result += data;
-            });
-
-            res.on('end', function() {
-                if(isDebug)
-                    console.log('End getting response actus at ' + new Date());
-                $3 = cheerio.load(result);
-                db.connect(process.env.DATABASE_URL, function(err, client, done) {
-                    if(err) {
-                        console.error(err);
-                        return;
-                    }
-                    client.query(creation_table_actus_query);
-                    var linesActu = $3("#content").children('.post');
-                    var nbLines = linesActu.length;
-                    if(isDebug)
-                        console.log('Actus to get ' + nbLines);
-                    $3(linesActu).each(function(index, line){
-                        var postId = $3(line).attr('id').split('-')[1]; 
-                        /**
-                         * Title : {
-                         *      href: url de l'actu
-                         *      text: titre de l'actu
-                         * }
-                         */
-                        var title = $3(line).children('.title').children().children(),
-                            date = $3(line).children('.postmeta').children('span').text(),
-                            urlImage = $3(line).children('.entry').children('a').children().attr('src'),
-                            texte = $3(line).children('.entry').children('p').text(),
-                            jour = date.split(' ')[0];
-
-                        if (jour.length === 1) {
-                            jour = '0' + jour;
-                        }
-
-                        var mois = listeMoisActu[date.split(' ')[1]],
-                            annee = date.split(' ')[2];
-
-                        client.query('select * from actus where postId=' + postId, function (err, results) {
-                            if (err) {
-                                console.log('Erreur lors de la requete aux actus : ' + err);
-                                nbLines--;
-                                return;
-                            }
-                            if (results.rows.length > 0) {
-                                var query = 'update actus set titre=$1, texte=$2, url=$3, image=$4, date=$5 WHERE postId=$6',
-                                    parameters = [title.text(), texte, title.attr('href'), urlImage, annee + '-' + mois + '-' + jour + ' 00:00:00', postId];
-                                
-                                if(isDebug)
-                                    console.log('Updating actus postId = ' + postId + ' with parameters : ' + JSON.stringify(parameters));
-
-                                client.query(query, parameters, function(err, result){
-                                    nbLines--;
-                                    if(nbLines <= 0) {
-                                        done();
-                                    }
-                                });
-                            } else {
-                                notification.sendNotification(db, 'Nouvel article sur HOFC.fr', title.text());
-                                var query = 'insert into actus (postId, titre, texte, url, image, date) VALUES ($1,$2,$3,$4,$5,$6)',
-                                    parameters = [postId, title.text(), texte, title.attr('href'), urlImage, annee + '-' + mois + '-' + jour + ' 00:00:00'];
-                                
-                                if(isDebug)
-                                    console.log('Inserting actus postId = ' + postId + ' with parameters : ' + JSON.stringify(parameters));
-
-                                client.query(query, parameters, function(err, result){
-                                    nbLines--;
-                                    if(nbLines <= 0) {
-                                        done();
-                                    }
-                                });
-                            }
-                        });
-                    });
-                });
-            });
-        }).on('error', function(e) {
-          console.log("Got error: " + e.message);
-        });
+        updateActusData();
     }
-}
+};
 
-exports.parseDiaporama = function(url, callback) {
-    http.get(url, function(res) {
+var updateCalendarData = function() {
+    downloadData(optionsCalendrier, function(result) {
+        var $2 = cheerio.load(result);
+        var linesCalendar = $2("div.list_calendar").children('div');
         
-            var result = "";
-            if(res.statusCode != 200) {
+        $2(linesCalendar).each(function (index, line) {
+            var match = parseCalendarLine(line);
+            database.getMatchByName(match.equipe1, match.equipe2, function (results) {
+                if (results.length > 0 ) {
+                    /**
+                     * Mise a jour des informations
+                     */
+                    if((results[0].score1 === null) && 
+                       (results[0].score2 === null) && 
+                        match.score1 !== null && match.score2 !== null) {
+                        var notifTitle = 'Nouveau Résultat';
+                        var notifMessage = null;
+                        if(match.equipe1 === HOFC_NAME && match.score1 > match.score2) {
+                            notifMessage = 'Victoire du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe2;
+                        } else if (match.equipe2 === HOFC_NAME && match.score2 > match.score1) {
+                            notifMessage = 'Victoire du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe1;
+                        } else if(match.equipe1 === HOFC_NAME && match.score1 < match.score2) {
+                            notifMessage = 'Défaite du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe2;
+                        } else if (match.equipe2 === HOFC_NAME && match.score2 < match.score1) {
+                            notifMessage = 'Défaite du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe1;
+                        } else {
+                            notifMessage = 'Match nul entre le HOFC et ' + ((match.equipe1 === HOFC_NAME)? match.equipe2 : match.equipe1);
+                        }
+                        console.log('Sending Notification with message : ' + notifMessage);
+                        notification.sendNotification(notifTitle, notifMessage);
+                    }
+                    database.updateCalendarLine(match);
+                } else {
+                    /**
+                     * Insertion d'une nouvelle ligne
+                     */
+                    database.insertCalendarLine(match);
+                }
+
+            });
+        });
+    });
+};
+
+var updateRankingData = function() {
+    downloadData(optionsClassement, function(result) {
+        var $ = cheerio.load(result);
+        var linesClassement = $("table.classement").children('tbody').children().filter(function (index) {
+            return ($(this).children() !== null && $(this).children().length > 3);
+        });
+        $(linesClassement).each(function (index, line) {
+            var team = parseClassementLine(line);
+            if(team === null) {
                 return;
             }
-            res.on('data', function(data) {
-                result += data;
+            database.getRankByName(team.nom, function(results) {
+                if(results !== null && results.length > 0) {
+                    // Mise a jour des informatons de classement
+                    /*
+                    if(results.nom == HOFC_NAME && results.joue < joue) {
+                        notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' + place + ((place == 1) ? 'er' : 'eme'));
+                    }
+                    */
+                    database.updateRankingLine(team);
+                } else {
+                    // Nouvelle équipe dans le classement
+                    database.insertRankingLine(team);
+                }
+            }, function(err) {
+                if(err) {
+                    console.log('Error while updating ranking data ' + err);
+                }    
             });
-
-            res.on('end', function() { 
-                // do parse
-                $4 = cheerio.load(result);
-                var photos = $4('.ngg-gallery-thumbnail-box a');
-                var resultats = [];
-                $4('.ngg-gallery-thumbnail-box a').each(function(index, line) {
-                    resultats.push($4(line).attr('href'));
-                });
-                callback(resultats);
-            })
+        });
     });
-}
+};
+
+var updateActusData = function() {
+    downloadData(optionsActus, function(result) {
+        var $3 = cheerio.load(result);
+        var linesActu = $3("#content").children('.post');
+        
+        $3(linesActu).each(function(index, line){
+            var actus = parseActuLine(line);
+            database.getActuById(actus.postId, function (res) {
+                
+                if (res.length > 0) {
+            
+                    database.updateActusLine(actus);
+                } else {
+                    notification.sendNotification('Nouvel article sur HOFC.fr', actus.title);
+                    database.insertActusLine(actus);
+                }
+            });
+        });
+    });
+};
+
+var parseClassementLine = function(/**string */ line) {
+    var $ = cheerio.load(line);
+    var lineChildren = $(line).children();
+    if (lineChildren !== null && lineChildren.length > 3) {
+        
+        var nom = $(lineChildren[1]).text().trim(),
+            points = $(lineChildren[2]).text(),
+            joue = $(lineChildren[3]).text(),
+            victoire = $(lineChildren[4]).text(),
+            nul = $(lineChildren[5]).text(),
+            defaite = $(lineChildren[6]).text(),
+            bp = $(lineChildren[8]).text(),
+            bc = $(lineChildren[9]).text(),
+            diff = $(lineChildren[11]).text();
+        return {points: points, joue:joue, victoire:victoire, nul:nul, defaite:defaite, bp:bp, bc:bc, diff:diff, nom:nom};
+    } else {
+        return null;
+    }
+};
 
 /**
+ * Parse une ligne de calendrier
+ * @param {string} ligne html des infos du match
+ * @return {object} Informations sur le match
+ */
+var parseCalendarLine = function(/**string */line) {
+    var $2 = cheerio.load(line);
+    var lineChildren = $2(line).children(),
+        date = $2(lineChildren[0]).text().trim(),
+        equipe1 = $2($2(lineChildren[1]).children()[0]).text().trim();
+
+    equipe1 = equipe1.replace(/\r?\n|\r/g,' ');
+    equipe1 = equipe1.replace(/ +/g,' ');
+    var equipe1Complet = equipe1;
+    if(equipe1.indexOf('Pénalité') !== -1) {
+        equipe1 = equipe1.replace('Pénalité', '').trim();
+    }
+    var equipe2 = $2($2(lineChildren[1]).children()[2]).text().trim();
+    equipe2 = equipe2.replace(/\r?\n|\r/g,' ');
+    equipe2 = equipe2.replace(/ +/g,' ');
+    var equipe2Complet = equipe2;
+    if(equipe2.indexOf('Pénalité') !== -1) {
+        equipe2 = equipe2.replace('Pénalité', '').trim();
+    }
+    var jourComplet = date.split('-')[0],
+        heureComplet = date.split('-')[1],
+        jour = jourComplet.split(' ')[1],
+        mois = listeMois[jourComplet.split(' ')[2].toUpperCase()],
+        annee = jourComplet.split(' ')[3],
+        heure = "00",
+        minute = "00";
+
+    if(jour.length === 1) {
+        jour = '0' + jour;    
+    }
+
+    if(heureComplet) {
+        heure = heureComplet.split(':')[0];
+        minute = heureComplet.split(':')[1];
+    }
+
+    var score = $2($2(lineChildren[1]).children()[1]).text().trim(),
+        score1 = null,
+        score2 = null;
+
+    if (score.indexOf('-') !== -1) {
+        score1 = parseInt(score.split('-')[0]);
+        score2 = parseInt(score.split('-')[1]);
+        if(isNaN(score1)) {
+            score1 = null;
+        }
+        if(isNaN(score2)) {
+            score2 = null;
+        }
+    }
+    
+    var formattedDate = annee + "-" + mois + "-" + jour + " " + heure + ":" + minute + ":00";
+    return {equipe1:equipe1, equipe2:equipe2, equipe1Complet:equipe1Complet, equipe2Complet:equipe2Complet,
+            date:formattedDate, score1:score1, score2:score2};
+};
+
+/**
+ * Permet de parser un article d'actu
+ * @param {string} ligne html de l'élément
+ * @return {object} Informations de l'actualité
+ */
+var parseActuLine = function(/**string */line) {
+    var $ = cheerio.load(line);
+    var postId = $(line).attr('id').split('-')[1]; 
+    /**
+     * Title : {
+     *      href: url de l'actu
+     *      text: titre de l'actu
+     * }
+     */
+    var title = $(line).children('.title').children().children(),
+        date = $(line).children('.postmeta').children('span').text(),
+        urlImage = $(line).children('.entry').children('a').children().attr('src'),
+        texte = $(line).children('.entry').children('p').text(),
+        jour = date.split(' ')[0];
+
+    if (jour.length === 1) {
+        jour = '0' + jour;
+    }
+
+    var mois = listeMoisActu[date.split(' ')[1]],
+        annee = date.split(' ')[2];
+    
+    return {postId:postId, title:title.text(), urlImage:urlImage, url:title.attr('href'), texte:texte, date:annee + '-' + mois + '-' + jour + ' 00:00:00'};
+};
+
+/**
+ * Parse la liste des images d'un diaporama
+ * @param {string} url URL a du diaporama
+ * @param {function} callback appelé lorsde la fin du traitement
+ */
+exports.parseDiaporama = function(url, callback) {
+    downloadData(url, function(result) { 
+        // do parse
+        var $4 = cheerio.load(result);
+        var resultats = [];
+        $4('.ngg-gallery-thumbnail-box a').each(function(index, line) {
+            resultats.push($4(line).attr('href'));
+        });
+        callback(resultats);
+    });
+};
+
+/**
+* Récupère le contenu d'un article du HOFC
 * @param url URL de l'article a parser sur le site http://www.HOFC.fr/
 **/
 exports.parseArticle = function(url, callback) {
-    http.get(url, function(res) {
-        
-            var result = "";
-            if(res.statusCode != 200) {
-                return;
+    downloadData(url, function(result) { 
+        // do parse
+        var $5 = cheerio.load(result);
+        var title = $5('.post .title').text().trim();
+        var dateString = $5('.post .postmeta').text().trim();
+        var contents = $5('.post .entry').children();
+        var article="";
+        for(var i=0; i< contents.length;i++) {
+            if($5(contents[i]).attr('class') === 'sociable') {
+                break;
             }
-            res.on('data', function(data) {
-                result += data;
-            });
+            
+            article += $5(contents[i]).text().trim();
+            article += "\n";
+        }
+        
+        var jour = dateString.split(' ')[0];
 
-            res.on('end', function() { 
-                // do parse
-                $5 = cheerio.load(result);
-                var title = $5('.post .title').text().trim();
-                var dateString = $5('.post .postmeta').text().trim();
-                var contents = $5('.post .entry').children();
-                var article="";
-                for(var i=0; i< contents.length;i++) {
-                    if($5(contents[i]).attr('class') == 'sociable')
-                        break;
-                    
-                    article += $5(contents[i]).text().trim();
-                    article += "\n";
-                }
-                
-                var jour = dateString.split(' ')[0];
+        if (jour.length === 1) {
+            jour = '0' + jour;
+        }
 
-                if (jour.length === 1) {
-                    jour = '0' + jour;
-                }
-
-                var mois = listeMoisActu[dateString.split(' ')[1]],
-                    annee = dateString.split(' ')[2];
-                
-                var resultats = {};
-                resultats.title = title;
-                resultats.date = annee + '-' + mois + '-' + jour + ' ' + '00:00:00';
-                resultats.article = article;
-                callback(resultats);
-            })
+        var mois = listeMoisActu[dateString.split(' ')[1]],
+            annee = dateString.split(' ')[2];
+        
+        var resultats = {};
+        resultats.title = title;
+        resultats.date = annee + '-' + mois + '-' + jour + ' ' + '00:00:00';
+        resultats.article = article;
+        callback(resultats);
     });
-}
+};
 
 /**
+ * Parse l'agenda d'une semaine
 * @param semaine Chaine de caractère au format YYYY-MM-DD
 * @param callback Callback a appeler à la fin de la récupération
 **/
 exports.parseAgenda = function(semaine, callback) {
-    if(semaine != null) {
+    if(semaine !== null) {
         optionsAgenda.path = optionsAgendaPathBase + '/semaine-' + semaine;
     } else {
         optionsAgenda.path = optionsAgendaPathBase;
     }
-    console.log(optionsAgenda.path);
-    http.get(optionsAgenda, function(res) {
-        var result = "";
+    downloadData(optionsAgenda, function(result) {
         var i = 0;
-        if(res.statusCode != 200) {
-            console.error('Agenda get error. Result code ' + res.statusCode);
-            callback(res.statusCode);
-            return;
+        var returnedValue = [];
+        var $2 = cheerio.load(result);
+        
+        var linesCalendar = $2("div.list_calendar").children('h3'),
+            nbLines = linesCalendar.length;
+        if(nbLines === 0) {
+            callback([]);
         }
-        res.on('data', function(data) {
-            result += data;
-        });
-        res.on('end', function() {
-            var returnedValue = [];
-            $2 = cheerio.load(result);
-            
-            var linesCalendar = $2("div.list_calendar").children('h3'),
-                nbLines = linesCalendar.length;
-            if(nbLines == 0) {
-                callback([]);
+        $2(linesCalendar).each(function (index, line) {
+            var title = $2(line).text().trim();
+            var match = $2(line).next();
+            var lineChildren = $2(match).children(),
+                        date = $2(lineChildren[0]).text().trim(),
+                        equipe1 = $2($2(lineChildren[1]).children()[0]).text().trim();
+
+            var equipe2 = $2($2(lineChildren[1]).children()[2]).text().trim();
+            var jourComplet = date.split('-')[0],
+                heureComplet = date.split('-')[1],
+                jour = jourComplet.split(' ')[1].trim(),
+                mois = listeMois[jourComplet.split(' ')[2].toUpperCase()],
+                annee = jourComplet.split(' ')[3],
+                heure = "00",
+                minute = "00";
+
+            if(jour.length === 1) {
+                jour = '0' + jour;
             }
-            $2(linesCalendar).each(function (index, line) {
-                var title = $2(line).text().trim();
-                var match = $2(line).next();
-                var lineChildren = $2(match).children(),
-                            date = $2(lineChildren[0]).text().trim(),
-                            equipe1 = $2($2(lineChildren[1]).children()[0]).text().trim();
+            if(heureComplet) {
+                heure = heureComplet.split(':')[0].trim();
+                minute = heureComplet.split(':')[1];
+            }
 
-                var equipe2 = $2($2(lineChildren[1]).children()[2]).text().trim();
-                var jourComplet = date.split('-')[0],
-                    heureComplet = date.split('-')[1],
-                    jour = jourComplet.split(' ')[1].trim(),
-                    mois = listeMois[jourComplet.split(' ')[2].toUpperCase()],
-                    annee = jourComplet.split(' ')[3],
-                    heure = "00",
-                    minute = "00";
+            var score = $2($2(lineChildren[1]).children()[1]).text().trim(),
+                score1 = null,
+                score2 = null;
 
-                if(jour.length == 1) jour = '0' + jour;
-
-                if(heureComplet) {
-                    heure = heureComplet.split(':')[0].trim();
-                    minute = heureComplet.split(':')[1];
+            if (score.indexOf('-') !== -1) {
+                score1 = parseInt(score.split('-')[0]);
+                score2 = parseInt(score.split('-')[1]);
+                if(isNaN(score1)) {
+                    score1 = null;
                 }
-
-                var score = $2($2(lineChildren[1]).children()[1]).text().trim(),
-                    score1 = null,
+                if(isNaN(score2)) {
                     score2 = null;
-
-                if (score.indexOf('-') != -1) {
-                    score1 = parseInt(score.split('-')[0]);
-                    score2 = parseInt(score.split('-')[1]);
-                    if(isNaN(score1))
-                        score1 = null;
-                    if(isNaN(score2))
-                        score2 = null;
                 }
-                
-                var infosId = lineChildren.last().children('a').attr('data-target');
-                
-                var array = {equipe1:equipe1, equipe2: equipe2, title: title, date: annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00', score1: score1, score2: score2, infos: infosId};
-                returnedValue.push(array);
-                i++;
-                if(i == nbLines) callback(returnedValue);
-            })
-        })
-    })
-}
-
-exports.parseMatchInfos = function(id, callback) {
-    optionsMatchInfos.path = optionsMatchInfosPathBase.replace('{id}', id);
-    var request = http.get(optionsMatchInfos, function(res) {
-        var result = "";
-        var i = 0;
-        if(res.statusCode != 200) {
-            console.error('Match Infos get error. Result code ' + res.statusCode);
-            callback(res.statusCode);
-            return;
-        }
-        res.on('data', function(data) {
-            result += data;
-        });
-        res.on('end', function() {
-            $2 = cheerio.load(result);
-            var childs = $2('.info_inner').children('p');
-            var adresseNodes = childs.first().contents();
-            var nom = adresseNodes.eq(0).text().trim() + adresseNodes.eq(1).text().trim();
-            var adresse = adresseNodes.eq(3).text().trim();
-            var ville = adresseNodes.eq(5).text().trim();
+            }
             
-            var arbitresNode = $2('.info_inner').children('p').last().children().slice(1);
+            var infosId = lineChildren.last().children('a').attr('data-target');
             
-            var arbitres = [];
-            
-            arbitresNode.each(function(index,line) {
-                arbitres.push($2(line).text());
-            })
-            
-            callback({nom:nom, adresse:adresse, ville:ville, arbitres:arbitres});
+            var array = {equipe1:equipe1, equipe2: equipe2, title: title, date: annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00', score1: score1, score2: score2, infos: infosId};
+            returnedValue.push(array);
+            i++;
+            if(i === nbLines) {
+                callback(returnedValue);
+            }
         });
     });
-}
+};
+
+/**
+ * Récupére les informations sur un match
+ * @param {string} id Identifiant du match
+ * @param {function} callback fonction appelée lors de la fin du traitement
+ * 
+ */
+exports.parseMatchInfos = function(id, callback) {
+    console.log(optionsMatchInfosPathBase);
+    console.log(id);
+    optionsMatchInfos.path = optionsMatchInfosPathBase.replace('{id}', id);
+    console.log(optionsMatchInfos.host);
+    console.log(optionsMatchInfos.path);
+    downloadData(optionsMatchInfos, function(result) {
+        var $2 = cheerio.load(result);
+        var childs = $2('.info_inner').children('p');
+        var adresseNodes = childs.first().contents();
+        var nom = adresseNodes.eq(0).text().trim() + adresseNodes.eq(1).text().trim();
+        var adresse = adresseNodes.eq(3).text().trim();
+        var ville = adresseNodes.eq(5).text().trim();
+        
+        var arbitresNode = $2('.info_inner').children('p').last().children().slice(1);
+        
+        var arbitres = [];
+        
+        arbitresNode.each(function(index,line) {
+            arbitres.push($2(line).text());
+        });
+        callback({nom:nom, adresse:adresse, ville:ville, arbitres:arbitres});
+    });
+};
