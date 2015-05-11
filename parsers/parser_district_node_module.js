@@ -1,8 +1,11 @@
+/**
+ * Permet de récupérer les informations à partir du site district-foot-65.fff.fr
+ */
 /*jslint node: true */
 'use strict';
 var cheerio = require("cheerio");
 //var notification = require('../notifications/send_notification.js');
-var constants = require('../constants.js');
+var constants = require('../constants/constants.js');
 var constants_district = require('../constants/constants_district.js');
 var utils = require('../utils/utils.js');
 

@@ -26,9 +26,13 @@ gulp.task('browser-sync', ['nodemon'], function() {
 });
  
 gulp.task('nodemon', function (cb) {
+	var called = false;
 	return nodemon({
 	  script: 'server.js'
 	}).on('start', function () {
-      cb();
+		if(!called) {
+    		called = true;
+			cb();
+		}
   });
 });

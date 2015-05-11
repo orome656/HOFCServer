@@ -11,7 +11,7 @@ exports.downloadData = function(/**object */options, /**function */success, /**f
     http.get(options, function(res) {
             var result = "";
             if (res.statusCode !== 200) {
-                console.error('DownloadData error. Result code ' + res.statusCode);
+                console.error('[Download] : Result code ' + res.statusCode);
                 if(fail) {
                     fail(res);
                 }
@@ -22,11 +22,11 @@ exports.downloadData = function(/**object */options, /**function */success, /**f
             });
 
             res.on('end', function () {
-                console.log('End getting response on ' + options.path);
+                console.log('[Download] : End getting response on ' + options.path);
                 success(result);
             });
     }).on('error', function(e) {
-        console.log("Got error: " + e.message);
+        console.log('[Download] : Got error: ' + e.message);
         if(fail) {
             fail(e);
         }

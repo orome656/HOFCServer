@@ -1,3 +1,6 @@
+/**
+ * Contient l'ensemble des constantes communes a l'application
+ */
 /*jslint node: true */
 
 var HOFC_NAME = 'HORGUES ODOS F.C.';

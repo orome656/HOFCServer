@@ -1,9 +1,12 @@
+/**
+ * Permet de récupérer les informations à partir du site fff.fr
+ */
 /// <reference path="../typings/node-0.10.d.ts" />
 /*jslint node: true */
 'use strict';
 var cheerio = require("cheerio");
 var notification = require('../notifications/send_notification.js');
-var constants = require('../constants.js');
+var constants = require('../constants/constants.js');
 var constants_fff = require('../constants/constants_fff.js');
 var database = require('../database/postgres.js');
 var utils = require('../utils/utils.js');  
@@ -81,7 +84,7 @@ var updateCalendarData = function() {
                         } else {
                             notifMessage = 'Match nul entre le HOFC et ' + ((match.equipe1 === HOFC_NAME)? match.equipe2 : match.equipe1);
                         }
-                        console.log('Sending Notification with message : ' + notifMessage);
+                        console.log('[Parser FFF] : Sending Notification with message : ' + notifMessage);
                         notification.sendNotification(notifTitle, notifMessage);
                     }
                     database.updateCalendarLine(match);
@@ -100,7 +103,7 @@ var updateCalendarData = function() {
 var updateRankingData = function() {
     downloadData(optionsClassement, function(result) {
         var $ = cheerio.load(result);
-        var linesClassement = $("table.classement").children('tbody').children().filter(function (index) {
+        var linesClassement = $("table.classement").children('tbody').children().filter(function () {
             return ($(this).children() !== null && $(this).children().length > 3);
         });
         $(linesClassement).each(function (index, line) {
@@ -123,7 +126,7 @@ var updateRankingData = function() {
                 }
             }, function(err) {
                 if(err) {
-                    console.log('Error while updating ranking data ' + err);
+                    console.log('[Parser FFF] : Error while updating ranking data ' + err);
                 }    
             });
         });
@@ -396,11 +399,7 @@ exports.parseAgenda = function(semaine, callback) {
  * 
  */
 exports.parseMatchInfos = function(id, callback) {
-    console.log(optionsMatchInfosPathBase);
-    console.log(id);
     optionsMatchInfos.path = optionsMatchInfosPathBase.replace('{id}', id);
-    console.log(optionsMatchInfos.host);
-    console.log(optionsMatchInfos.path);
     downloadData(optionsMatchInfos, function(result) {
         var $2 = cheerio.load(result);
         var childs = $2('.info_inner').children('p');

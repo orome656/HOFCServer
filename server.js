@@ -23,41 +23,53 @@ app.use(function(req, res, next) {
 // On lance la tache de mise a jour de la base 
 // toute les 15min
 new CronJob('0 */15 * * * *', function(){
-      console.log('Update database start');
-      //parser.updateDatabase();
+      console.log('[Server] : Update database start');
+      parser.updateDatabase();
   }, function () {
     
   },
   true // Start the job right now
 );
 
+/**
+ * Permet de récupérer le classement de l'équipe
+ */
 app.get('/classement', function(req, res){
     database.getRankingInfos(function(/**array */results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(results);
     }, function(err) {
-        console.error('Error while connecting to database', err);
+        console.error('[Server] : Error while connecting to database', err);
     });
 });
 
+/**
+ * Permet de récupérer la liste des matchs de la saison avec les résultats des matchs
+ */
 app.get('/calendrier', function(req, res){
     database.getCalendarInfos(function(/**array */results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(results);
     }, function(err) {
-        console.error('Error while connecting to database', err);
+        console.error('[Server] : Error while connecting to database', err);
     });
 });
 
+/**
+ * Permet de récupérer la listes des actualités
+ */
 app.get('/actus', function(req, res){
     database.getActusInfos(function(/**array */results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(results);
     }, function(err) {
-        console.error('Error while connecting to database', err);
+        console.error('[Server] : Error while connecting to database', err);
     });
 });
 
+/**
+ * Permet de parser une page (récupération des textes ou des photos)
+ */
 app.post('/parsePage', function(req, res) {
     console.log('url page : ' + req.body.url);
     var url = req.body.url;
@@ -67,26 +79,30 @@ app.post('/parsePage', function(req, res) {
         });   
     } else {
         parser.parseArticle(url, function(resultats){
-            
             res.set('Content-Type', 'application/json; charset=utf-8');
             res.send(resultats);
         });   
     }
 });
 
+/**
+ * Permet de s'enregistrer aux notifications push
+ */
 app.post('/registerPush', function(req, res){
     var notificationId = req.body.notification_id;
     var uuid = req.body.uuid;
-	console.log('New registration with notification id : ' + notificationId);
+	console.log('[Server] : New registration -> {notification_id: ' + notificationId + ', uuid:' + uuid + '}');
     if(notificationId && uuid) {
         database.insertNotificationId(notificationId, uuid);
     } else {
-        console.log('Missing one parameter. NotificationId='+ notificationId +', uuid=' + uuid);
+        console.log('[Server] : Missing one parameter.');
     }
     res.send('0');
 });
 
-
+/**
+ * Permet de récupérer l'ensemble des matchs d'une semaine pour le club
+ */
 app.get('/agenda', function(req, res){
     parser.parseAgenda(null, function(result){
         res.set('Content-Type', 'application/json; charset=utf-8');
@@ -94,6 +110,9 @@ app.get('/agenda', function(req, res){
     });
 });
 
+/**
+ * Permet de récupérer l'ensemble des matchs d'une semaine pour le club
+ */
 app.get('/agenda/:semaine', function(req, res){
     parser.parseAgenda(req.params.semaine, function(result){
         if(isNaN(result)) {
@@ -113,12 +132,12 @@ app.get('/agenda/:semaine', function(req, res){
 app.get('/agendadistrict/:semaine', function(req,res) {
     try {
         var date = new Date(req.params.semaine);
-        var day = date.getDate();
-        if(day < 9) {
+        var day = date.getDate() + '';
+        if(day.length === 1) {
             day = '0'+day;
         }
-        var month = date.getMonth() + 1;
-        if(month < 9) {
+        var month = date.getMonth() + 1 + '';
+        if(month.length === 1) {
             month = '0'+month;
         }
         var year = date.getFullYear() + '';
@@ -137,6 +156,10 @@ app.get('/agendadistrict/:semaine', function(req,res) {
         res.send(-3);
     }
 });
+
+/**
+ * Permet de récupérer les informations sur un match (arbitres, lieu)
+ */
 app.get('/matchinfos/:id', function(req, res) {
     parser.parseMatchInfos(req.params.id, function(result) {
         res.set('Content-Type', 'application/json; charset=utf-8');
@@ -144,6 +167,10 @@ app.get('/matchinfos/:id', function(req, res) {
     });
 });
 
+
+/**
+ * Permet de récupérer les informations sur un match (arbitres, lieu)
+ */
 app.get('/matchinfosdistrict/:id', function(req, res) {
     parserdistrict.parseMatchInfos(req.params.id, function(result) {
         res.set('Content-Type', 'application/json; charset=utf-8');
@@ -151,20 +178,25 @@ app.get('/matchinfosdistrict/:id', function(req, res) {
     });
 });
 
+app.get('/keepalive', function(req, res) {
+    res.send('0');    
+});
+
+/**
+ * Permet de tester les notifications sur environnement de développement
+ */
 app.get('/dev/notification/:title/:message', function(req, res){
     var isDebug = (process.env.NODE_ENV === "DEV");
     if(isDebug) {
         notification.sendNotification(req.params.title, req.params.message);
         res.send(0);
     } else {
-        res.status(404)        // HTTP status 404: NotFound
-           .send('Not found');
+        res.status(404).send('Not found'); // HTTP status 404: NotFound
     }
-    
 });
 
 app.listen(app.get('port'), function() {
-    console.log("Node app is running at localhost:" + app.get('port'));
+    console.log('[Server] : Node app is running at localhost:' + app.get('port'));
     database.init();
 });
 
@@ -172,11 +204,11 @@ app.listen(app.get('port'), function() {
 setInterval(function() {
     http.get(process.env.KEEP_ALIVE_URL, function(res) {
         if (res.statusCode === 200) {
-            console.log("Heroku Keep Alive Ping: Success");
+            console.log("[Server] : Heroku Keep Alive Ping: Success");
         } else {
-            console.log("Heroku Keep Alive Ping: Error - Status Code " + res.statusCode);
+            console.log("[Server] : Heroku Keep Alive Ping: Error - Status Code " + res.statusCode);
         }
     }).on('error', function(e) {
-        console.log("Heroku Keep Alive Ping: Error - " + e.message);
+        console.log('[Server] : Heroku Keep Alive Ping: Error - ' + e.message);
     });
 }, 30 * 60 * 1000); // load every 30 minutes

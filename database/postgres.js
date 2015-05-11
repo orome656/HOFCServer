@@ -1,13 +1,18 @@
+/**
+ * Ce module permet l'utilisation d'une base de données PostgresSQL
+ * Elle contient l'ensemble des méthodes permettant l'insertion, 
+ * la mise a jour et la récupération des informations
+ */
 /// <reference path="../typings/pg.d.ts" />
 'use strict';
 var pg = require('pg');
-var constants = require('../constants.js');
+var constants = require('../constants/constants.js');
 
 
 var pgQuery = function(/**string */text, /**array */values, /**function */cb) {
 	pg.connect(process.env.DATABASE_URL, function(err, client, done) {
 		if(err) {
-			console.log('Error while connecting to database ' + err);
+			console.log('[Postgres] : Error while connecting to database -> ' + err);
 			return;
 		}
 		client.query(text, values, function(err, result) {
@@ -24,22 +29,22 @@ var pgQuery = function(/**string */text, /**array */values, /**function */cb) {
 exports.init = function() {
 	pgQuery(constants.database.creation_table_notification_query, null, function(err) {
 		if(err) {
-			console.log('Error creating notification table');
+			console.log('[Postgres] : Error creating notification table');
 		}
 	});
 	pgQuery(constants.database.creation_table_classement_query, null, function(err) {
 		if(err) {
-			console.log('Error creating classement table');
+			console.log('[Postgres] : Error creating classement table');
 		}
 	});
 	pgQuery(constants.database.creation_table_calendrier_query, null, function(err) {
 		if(err) {
-			console.log('Error creating calendrier table');
+			console.log('[Postgres] : Error creating calendrier table');
 		}
 	});
 	pgQuery(constants.database.creation_table_actus_query, null, function(err) {
 		if(err) {
-			console.log('Error creating actus table');
+			console.log('[Postgres] : Error creating actus table');
 		}
 	});
 };
@@ -62,7 +67,7 @@ exports.insertCalendarLine = function (/* object */ match) {
 			[match.date, match.equipe1Complet, match.equipe2Complet, match.score1, match.score2], 
 			function(err/**, results*/) {
 				if(err) {
-					console.error('Fail inserting match informations');
+					console.log('[Postgres] : Fail inserting match informations');
 				}
 			}
 	);
@@ -89,7 +94,7 @@ exports.insertRankingLine = function (/* object */ team) {
 			[team.nom, team.points, team.joue, team.victoire, team.nul, team.defaite, team.bp, team.bc, team.diff],
 			function(err/**, results*/){
 				if(err) {
-					console.log('Fail inserting ranking data');
+					console.log('[Postgres] : Fail inserting ranking data');
 				}
 			}
 	);
@@ -113,7 +118,7 @@ exports.insertActusLine = function (/* object */ actu) {
 			[actu.postId, actu.title, actu.texte, actu.link, actu.image, actu.date], 
 			function (err/**, results*/) {
 				if(err) {
-					console.log('Fail inserting actus data');
+					console.log('[Postgres] : Fail inserting actus data');
 				}
 			}
 	);
@@ -137,7 +142,7 @@ exports.updateCalendarLine = function (/* object */ match) {
 			[match.date, match.score1, match.score2, match.equipe1Complet, match.equipe2Complet, '%'+match.equipe1+'%', '%'+match.equipe2+'%' ], 
 			function(err/**, results*/) {
 				if(err) {
-					console.log('Fail updating match informations');
+					console.log('[Postgres] : Fail updating match informations');
 				}
 			}
 	);
@@ -164,7 +169,7 @@ exports.updateRankingLine = function (/* object */ team) {
 			[team.points, team.joue, team.victoire, team.nul, team.defaite, team.bp, team.bc, team.diff, team.nom],
 			function(err/**, results*/){
 				if(err) {
-					console.log('Fail updating ranking data');
+					console.log('[Postgres] : Fail updating ranking data');
 				}
 			}
 	);
@@ -188,7 +193,7 @@ exports.updateActusLine = function (/* object */ actu) {
 			[actu.title, actu.texte, actu.link, actu.image, actu.date, actu.postId], 
 			function (err/**, results*/) {
 				if(err) {
-					console.log('Fail inserting actus data');
+					console.log('[Postgres] : Fail updating actus data');
 				}
 			}
 	);
@@ -254,7 +259,7 @@ exports.insertNotificationId = function(/**string */notificationId, /**string */
 	pgQuery(constants.database.creation_table_notification_query);
 	pgQuery("SELECT * FROM notification_client where uuid='" + uuid +"'", null, function(err, result) {
 		if(err) {
-            console.log('Error while searching if uuid exist ' + err);
+            console.log('[Postgres] : Error while searching if uuid exist -> ' + err);
 			fail(err);
             return;
         }

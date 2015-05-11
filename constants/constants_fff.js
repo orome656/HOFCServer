@@ -1,3 +1,6 @@
+/**
+ * Contient les constantes spécifiques au site fff.fr
+ */
 /*jslint node: true */
 
 // Paramétrage url

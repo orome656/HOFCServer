@@ -1,3 +1,6 @@
+/**
+ * Contient les constantes spécifiques au site district-foot-65.fff.fr
+ */
 /*jslint node: true */
 
 // Paramétrage url

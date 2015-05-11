@@ -1,9 +1,18 @@
+/**
+ * Ce module permet l'envoi de notifications aux clients de l'application
+ */
 'use strict';
 var gcm = require('node-gcm');
 var database = require('../database/postgres.js');
 
-exports.sendNotification = function(title, messageNotif) {
-    //TODO Add Logs
+/**
+ * Permet d'envoyer une notification aux client de l'application
+ * @param {string} title Titre de la notification
+ * @param {string} messageNotif Message de la notification
+ * @return {void}
+ */
+exports.sendNotification = function(/**string */title, /**string */messageNotif) {
+    console.log('[Notifications] : Envoi d\'une notification -> {title:'+title+', message:'+messageNotif+'}');
     database.getNotificationClients(function(results) {
         if(results.length > 0) {
             var message = new gcm.Message({
@@ -27,11 +36,11 @@ exports.sendNotification = function(title, messageNotif) {
              **/
             sender.send(message, notificationIds, notificationIds.length, function (err, result) {
                 if(process.env.NODE_ENV === 'DEV') {
-                    console.log('sending notification with result : ' + JSON.stringify(result));
+                    console.log('[Notifications] : sending notification with result -> ' + JSON.stringify(result));
                 }
             });
         } else {
-            console.log('No notification clients found');
+            console.log('[Notifications] : No notification clients found');
         }
     });
 };
