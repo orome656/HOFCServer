@@ -41,6 +41,10 @@ var listeMoisActu = {
         "décembre": "12"
     };
 
+exports.errorCode = {
+    INTERNAL:-1
+};
+
 exports.constants = {
     HOFC_NAME: HOFC_NAME,
     listeMois: listeMois,

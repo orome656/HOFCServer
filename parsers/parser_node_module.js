@@ -269,8 +269,9 @@ var parseActuLine = function(/**string */line) {
  * Parse la liste des images d'un diaporama
  * @param {string} url URL a du diaporama
  * @param {function} callback appelé lorsde la fin du traitement
+ * @param {function} fail Callback d'erreur
  */
-exports.parseDiaporama = function(url, callback) {
+exports.parseDiaporama = function(url, callback, fail) {
     downloadData(url, function(result) { 
         // do parse
         var $4 = cheerio.load(result);
@@ -279,14 +280,18 @@ exports.parseDiaporama = function(url, callback) {
             resultats.push($4(line).attr('href'));
         });
         callback(resultats);
+    }, function(err) {
+        if(fail)
+            fail(err);
     });
 };
 
 /**
-* Récupère le contenu d'un article du HOFC
-* @param url URL de l'article a parser sur le site http://www.HOFC.fr/
-**/
-exports.parseArticle = function(url, callback) {
+ * Récupère le contenu d'un article du HOFC
+ * @param url URL de l'article a parser sur le site http://www.HOFC.fr/
+ * @param {function} fail Callback d'erreur
+ */
+exports.parseArticle = function(url, callback, fail) {
     downloadData(url, function(result) { 
         // do parse
         var $5 = cheerio.load(result);
@@ -317,6 +322,9 @@ exports.parseArticle = function(url, callback) {
         resultats.date = annee + '-' + mois + '-' + jour + ' ' + '00:00:00';
         resultats.article = article;
         callback(resultats);
+    }, function(err) {
+        if(fail)
+            fail(err);
     });
 };
 

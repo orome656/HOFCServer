@@ -10,11 +10,13 @@ var parserdistrict = require('./parsers/parser_district_node_module.js');
 var http = require('http');
 var notification = require('./notifications/send_notification.js');
 var database = require('./database/postgres.js');
+var constants = require('./constants/constants.js')
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.set('port', (process.env.PORT || 3000));
 app.use(express.static('web'));
+app.use('/out',express.static('out'));
 app.use(function(req, res, next) {
     console.log('Request on URL ' + req.url + ' with method ' + req.method);
     next();
@@ -25,10 +27,10 @@ app.use(function(req, res, next) {
 new CronJob('0 */15 * * * *', function(){
       console.log('[Server] : Update database start');
       parser.updateDatabase();
-  }, function () {
+    }, function () {
     
-  },
-  true // Start the job right now
+    },
+    true // Start the job right now
 );
 
 /**
@@ -40,6 +42,7 @@ app.get('/classement', function(req, res){
         res.send(results);
     }, function(err) {
         console.error('[Server] : Error while connecting to database', err);
+        res.send(constants.errorCode.INTERNAL);
     });
 });
 
@@ -52,6 +55,7 @@ app.get('/calendrier', function(req, res){
         res.send(results);
     }, function(err) {
         console.error('[Server] : Error while connecting to database', err);
+        res.send(constants.errorCode.INTERNAL);
     });
 });
 
@@ -64,6 +68,7 @@ app.get('/actus', function(req, res){
         res.send(results);
     }, function(err) {
         console.error('[Server] : Error while connecting to database', err);
+        res.send(constants.errorCode.INTERNAL);
     });
 });
 
@@ -76,11 +81,17 @@ app.post('/parsePage', function(req, res) {
     if(url.indexOf('en-images') !== -1) {
         parser.parseDiaporama(url, function(resultats) {
             res.send(resultats);
+        }, function(err) {
+            console.error('[Server] : Error while parsing diaporama', err);
+            res.send(constants.errorCode.INTERNAL);            
         });   
     } else {
         parser.parseArticle(url, function(resultats){
             res.set('Content-Type', 'application/json; charset=utf-8');
             res.send(resultats);
+        }, function(err) {
+            console.error('[Server] : Error while parsing article', err);
+            res.send(constants.errorCode.INTERNAL);            
         });   
     }
 });
@@ -93,11 +104,16 @@ app.post('/registerPush', function(req, res){
     var uuid = req.body.uuid;
 	console.log('[Server] : New registration -> {notification_id: ' + notificationId + ', uuid:' + uuid + '}');
     if(notificationId && uuid) {
-        database.insertNotificationId(notificationId, uuid);
+        database.insertNotificationId(notificationId, uuid, function() {
+            res.send(0);
+        }, function(err) {
+            console.error('[Server] : Error while registring notification id', err);
+            res.send(-3);            
+        });
     } else {
         console.log('[Server] : Missing one parameter.');
+        res.send(-3);
     }
-    res.send('0');
 });
 
 /**
