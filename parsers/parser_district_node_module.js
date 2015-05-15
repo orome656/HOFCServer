@@ -15,6 +15,8 @@ var optionsAgenda = constants_district.downloadOptions.agenda;
 var optionsMatchInfosPathBase = constants_district.downloadOptions.matchInfosBase;
 var optionsMatchInfos = constants_district.downloadOptions.matchInfosBase;
 
+var optionsCalendrierExcellencePathBase = constants_district.downloadOptions.calendrierExcellenceBase;
+var optionsCalendrierExcellence = constants_district.downloadOptions.calendrierExcellence;
 
 /**
  *	Tableau permettant de convertir la chaine date récupérée en objet date pour les actus
@@ -124,6 +126,79 @@ exports.parseMatchInfos = function(id, callback) {
         });
         
         callback({nom:nom, adresse:adresse, ville:ville, arbitres:arbitres});
+    }, function(e) {
+        console.log(e);
+        callback(-3);        
+    });
+};
+
+exports.parseJourneeExcellence = function(journee, callback) {
+    optionsCalendrierExcellence.path = optionsCalendrierExcellencePathBase + journee;
+    utils.downloadData(optionsCalendrierExcellence, function(result) {
+        var returnedValue = [];
+        var i = 0;
+        var $2 = cheerio.load(result);
+        var linesCalendar = $2('#refpop').children('.resultatmatch');
+        var nbLines = linesCalendar.length;
+        console.log('nbLines = ' + nbLines);
+        if(nbLines === 0) {
+            callback([]);
+        }
+        linesCalendar.each(function (index, item) {
+            
+            var node = $2(item);
+            var date = node.children('.dat').text();
+            var equipe1 = node.find('.team').first().text().trim().toUpperCase();
+            var equipe2 = node.find('.team').last().text().trim().toUpperCase();
+            var score = node.find('.score').children('strong').text();
+            var score1 = null;
+            var score2 = null;
+            var html = node.children('.voirtout').html();
+            console.log(date);
+            console.log(equipe1);
+            console.log(equipe2);
+            console.log(score);
+            var infos = null;
+            if(html) {
+                infos = /det_match\(this,&apos;([0-9]+)/.exec(html)[1];
+            }
+            if(date === null || date.length === 0) {
+                i++;
+                if(i === nbLines) {
+                    callback(returnedValue);
+                }
+                return;
+            }
+            
+            var dateString = date.split('-')[0].replace(/ +(?= )/g,'');
+            var timeString = date.split('-')[1].trim();
+            
+            var jour = dateString.split(' ')[1];
+            var mois = listeMoisActu[dateString.split(' ')[2]];
+            var annee = dateString.split(' ')[3];
+            
+            var heure = timeString.split('H')[0];
+            var minute = timeString.split('H')[1];
+            
+            if(equipe1 === null || equipe1.length === 0 || equipe2 === null || equipe2.length === 0) {
+                i++;
+                if(i === nbLines) {
+                    callback(returnedValue);
+                }
+                return;
+            }
+            
+            if(score) {
+                score1 = score.split('-')[0].trim();
+                score2 = score.split('-')[1].trim();
+            }
+            var array = {equipe1:equipe1, equipe2: equipe2, date: annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00', score1: score1, score2: score2, infos:infos};
+            returnedValue.push(array);
+            i++;
+            if(i === nbLines) {
+                callback(returnedValue);
+            }
+        });
     }, function(e) {
         console.log(e);
         callback(-3);        

@@ -43,6 +43,13 @@ var optionsMatchInfos = {
     
 };
 
+var optionsCalendrierExcellencePathBase = '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=305257&ph_no=1&gp_no=&sa_no=2014&pj_no=';
+var optionsCalendrierExcellence = {
+    host: 'district-foot-65.fff.fr',
+    port: 80,
+    path: '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=305257&ph_no=1&gp_no=&sa_no=2014&pj_no='
+};
+
 exports.downloadOptions = {
 	classement:optionsClassement,
 	calendrier:optionsCalendrier,
@@ -50,5 +57,7 @@ exports.downloadOptions = {
     agenda:optionsAgenda,
     agendaBase:optionsAgendaPathBase,
     matchInfos:optionsMatchInfos,
-    matchInfosBase:optionsMatchInfosPathBase
-}
+    matchInfosBase:optionsMatchInfosPathBase,
+    calendrierExcellence:optionsCalendrierExcellence,
+    calendrierExcellenceBase:optionsCalendrierExcellencePathBase
+};

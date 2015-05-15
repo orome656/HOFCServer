@@ -194,6 +194,13 @@ app.get('/matchinfosdistrict/:id', function(req, res) {
     });
 });
 
+app.get('/journee/:id', function (req, res) {
+    parserdistrict.parseJourneeExcellence(req.params.id, function(result) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(result);
+    });
+});
+
 app.get('/keepalive', function(req, res) {
     res.send('0');    
 });
