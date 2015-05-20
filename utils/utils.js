@@ -32,3 +32,14 @@ exports.downloadData = function(/**object */options, /**function */success, /**f
         }
     });
 };
+
+/**
+ * Permet de définir une propriété sur un objet en tant que writable
+ */
+exports.define = function(object, name, value) {
+    Object.defineProperty(object, name, {
+        value:      value,
+        enumerable: true,
+        writable: true
+    });
+};
