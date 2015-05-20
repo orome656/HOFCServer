@@ -201,6 +201,13 @@ app.get('/journee/:id', function (req, res) {
     });
 });
 
+/**
+ * Permet de réucpérer certains paramètres de l'application
+ */
+app.get('/params', function(req, res) {
+    res.send(constants.params);
+});
+
 app.get('/keepalive', function(req, res) {
     res.send('0');    
 });

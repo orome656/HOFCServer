@@ -45,6 +45,10 @@ exports.errorCode = {
     INTERNAL:-1
 };
 
+exports.params = {
+    SEASON_MATCHS_COUNT: 22
+}
+
 exports.constants = {
     HOFC_NAME: HOFC_NAME,
     listeMois: listeMois,
