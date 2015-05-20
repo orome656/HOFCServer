@@ -188,7 +188,7 @@ exports.parseJourneeExcellence = function(journee, callback) {
                 return;
             }
             
-            if(score) {
+            if(score && score.split('-').length === 2) {
                 score1 = score.split('-')[0].trim();
                 score2 = score.split('-')[1].trim();
             }
