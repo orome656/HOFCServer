@@ -35,11 +35,28 @@ exports.downloadData = function(/**object */options, /**function */success, /**f
 
 /**
  * Permet de définir une propriété sur un objet en tant que writable
+ * @param {object} object objet dans lequel définir la propriété
+ * @param {string} name nom de la propriété
+ * @param {object} value valeur de la propriété
  */
 exports.define = function(object, name, value) {
     Object.defineProperty(object, name, {
         value:      value,
         enumerable: true,
         writable: true
+    });
+};
+
+/**
+ * Permet de définir une propriété sur un objet en tant que read only
+ * @param {object} object objet dans lequel définir la propriété
+ * @param {string} name nom de la propriété
+ * @param {object} value valeur de la propriété
+ */
+exports.defineRO = function(object, name, value) {
+    Object.defineProperty(object, name, {
+        value:      value,
+        enumerable: true,
+        writable: false
     });
 };

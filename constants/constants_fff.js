@@ -2,6 +2,7 @@
  * Contient les constantes spécifiques au site fff.fr
  */
 /*jslint node: true */
+var utils = require('../utils/utils.js');
 
 // Paramétrage url
 var optionsClassement = {
@@ -25,23 +26,17 @@ var optionsActus = {
     activated: true
 };
 
-var optionsAgendaPathBase = 'http://www.fff.fr/la-vie-des-clubs/177005/agenda';
-var optionsAgenda = {
-    host: 'www.fff.fr',
-    port: 80,
-    path: '/la-vie-des-clubs/177005/agenda',
-    activated: true
-    
-}
+var optionsAgendaPathBase = '/la-vie-des-clubs/177005/agenda';
+var optionsAgenda = Object.create(null);
+utils.defineRO(optionsAgenda, 'host', 'www.fff.fr');
+utils.defineRO(optionsAgenda, 'port', 80);
+utils.define(optionsAgenda, 'path', '/la-vie-des-clubs/177005/agenda');
 
 var optionsMatchInfosPathBase = '/match/fff/{id}/detail';
-var optionsMatchInfos = {
-    host: 'www.fff.fr',
-    port: 80,
-    path: '/match/fff/16806038/detail',
-    activated: true
-    
-}
+var optionsMatchInfos = Object.create(null);
+utils.defineRO(optionsMatchInfos, 'host', 'www.fff.fr');
+utils.defineRO(optionsMatchInfos, 'port', 80);
+utils.define(optionsMatchInfos, 'path', '/match/fff/16806038/detail');
 
 exports.downloadOptions = {
 	classement:optionsClassement,
