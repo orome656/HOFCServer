@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "ES5",
+		"outDir": "./build/"
+	},
+	"files": [
+		"constants/constants.ts",
+		"constants/constants_district.ts",
+		"constants/constants_fff.ts",
+		"database/postgres.ts",
+		"models/actu.ts",
+		"models/article.ts",
+		"models/classementLine.ts",
+		"models/match.ts",
+		"models/matchInfos.ts",
+		"models/requestParams.ts",
+		"notifications/send_notification.ts",
+		"parsers/parser_district_node_module.ts",
+		"parsers/parser_node_module.ts",
+		"utils/utils.ts",
+		"server.ts"
+	]
+}

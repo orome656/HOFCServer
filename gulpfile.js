@@ -6,7 +6,34 @@ var gulp = require('gulp');
 var browserSync = require('browser-sync');
 var nodemon = require('gulp-nodemon');
 var jshint = require('gulp-jshint');
- 
+var tsc    = require('gulp-typescript');
+var sourcemaps = require('gulp-sourcemaps');
+ /*
+var paths = {
+    tscripts : { 
+        src : [
+            './server.ts',
+            'models/*.ts',
+            'constants/*.ts',
+            'database/*.ts',
+            'notifications/*.ts',
+            'parsers/*.ts',
+            'utils/*.ts'
+        ],
+        dest : './build/' 
+    }
+};
+*/
+ var paths = {
+    tscripts : { 
+        src : [
+            '**/*.ts',
+            '!node_modules/**',
+            '!typings/**'
+        ],
+        dest : './build/' 
+    }
+};
 gulp.task('default', ['browser-sync'], function () {
 });
  
@@ -36,3 +63,18 @@ gulp.task('nodemon', function (cb) {
 		}
   });
 });
+
+gulp.task('compile:typescript', function () {
+    return gulp
+        .src(paths.tscripts.src)
+        .pipe(tsc({
+			target: 'ES5',
+			module: "CommonJS",
+            removeComments: true,
+            base: './'
+        }))
+        .js
+        .pipe(gulp.dest(paths.tscripts.dest));
+});
+
+gulp.task('default', ['compile:typescript']);

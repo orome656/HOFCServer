@@ -1,16 +1,22 @@
-/// <reference path="typings/express.d.ts" />
+/// <reference path="typings/node/node.d.ts" />
+/// <reference path="typings/express/express.d.ts" />
+/// <reference path="typings/cron.d.ts" />
+/// <reference path="typings/body-parser/body-parser.d.ts" />
 /*jslint node: true */
 'use strict';
-var express = require('express');
-var bodyParser = require('body-parser');
+import express = require('express');
+import bodyParser = require('body-parser');
 var app = express();
-var CronJob = require('cron').CronJob;
-var parser = require('./parsers/parser_node_module.js');
-var parserdistrict = require('./parsers/parser_district_node_module.js');
-var http = require('http');
-var notification = require('./notifications/send_notification.js');
-var database = require('./database/postgres.js');
-var constants = require('./constants/constants.js')
+import cron = require('cron');
+var CronJob = cron.CronJob;
+import parser = require('./parsers/parser_node_module');
+import parserdistrict = require('./parsers/parser_district_node_module');
+import http = require('http');
+import notificationReq = require('./notifications/send_notification');
+var notification = notificationReq.Notification;
+import databaseReq = require('./database/postgres');
+var database = databaseReq.PostgresSQL;
+import constants = require('./constants/constants');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
