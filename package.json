@@ -1,6 +1,6 @@
 {
   "name": "HOFCServer",
-  "version": "0.0.1",
+  "version": "2.0",
   "author": "Anthony Maladot",
   "dependencies": {
 	  "cheerio": "0.17.0",
@@ -12,9 +12,10 @@
   },
   "devDependencies": {
     "gulp": "3.8.11",
-    "browser-sync": "2.7.1",
     "gulp-nodemon": "2.0.3",
     "gulp-jshint": "1.10.0",
+    "gulp-typescript": "2.7.5",
+    "browser-sync": "2.7.1",
     "jshint-stylish": "1.0.2"
   }
 }

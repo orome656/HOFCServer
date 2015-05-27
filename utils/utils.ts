@@ -1,4 +1,4 @@
-/// <reference path="../typings/node/node.d.ts" />
+/// <reference path="../typings/tsd.d.ts" />
 'use strict';
 import http = require('http');
 

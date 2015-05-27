@@ -3,8 +3,7 @@
  * Elle contient l'ensemble des méthodes permettant l'insertion, 
  * la mise a jour et la récupération des informations
  */
-/// <reference path="../typings/node/node.d.ts" />
-/// <reference path="../typings/pg/pg.d.ts" />
+/// <reference path="../typings/tsd.d.ts" />
 'use strict';
 import pg = require('pg');
 import constants = require('../constants/constants');

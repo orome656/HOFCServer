@@ -1,0 +1,30 @@
+{
+  "version": "v4",
+  "repo": "borisyankov/DefinitelyTyped",
+  "ref": "master",
+  "path": "typings",
+  "bundle": "typings/tsd.d.ts",
+  "installed": {
+    "node/node.d.ts": {
+      "commit": "70737c2a2496f7a13c4da63eb00081cad94d19f1"
+    },
+    "node-gcm/node-gcm.d.ts": {
+      "commit": "70737c2a2496f7a13c4da63eb00081cad94d19f1"
+    },
+    "cron/cron.d.ts": {
+      "commit": "70737c2a2496f7a13c4da63eb00081cad94d19f1"
+    },
+    "body-parser/body-parser.d.ts": {
+      "commit": "70737c2a2496f7a13c4da63eb00081cad94d19f1"
+    },
+    "pg/pg.d.ts": {
+      "commit": "70737c2a2496f7a13c4da63eb00081cad94d19f1"
+    },
+    "express/express.d.ts": {
+      "commit": "70737c2a2496f7a13c4da63eb00081cad94d19f1"
+    },
+    "gulp/gulp.d.ts": {
+      "commit": "70737c2a2496f7a13c4da63eb00081cad94d19f1"
+    }
+  }
+}

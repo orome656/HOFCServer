@@ -1,7 +1,7 @@
 /**
  * Ce module permet l'envoi de notifications aux clients de l'application
  */
-/// <reference path="../typings/node-gcm.d.ts" />
+/// <reference path="../typings/tsd.d.ts" />
 'use strict';
 import gcm = require('node-gcm');
 import databaseReq = require('../database/postgres');

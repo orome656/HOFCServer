@@ -1,4 +1,4 @@
-/// <reference path="./typings/gulp.d.ts" />
+/// <reference path="./typings/gulp/gulp.d.ts" />
 /*jslint node: true */
 'use strict';
  
@@ -7,7 +7,6 @@ var browserSync = require('browser-sync');
 var nodemon = require('gulp-nodemon');
 var jshint = require('gulp-jshint');
 var tsc    = require('gulp-typescript');
-var sourcemaps = require('gulp-sourcemaps');
  /*
 var paths = {
     tscripts : { 
@@ -52,10 +51,10 @@ gulp.task('browser-sync', ['nodemon'], function() {
 	});
 });
  
-gulp.task('nodemon', function (cb) {
+gulp.task('nodemon', ['compile:typescript', 'watch'],function (cb) {
 	var called = false;
 	return nodemon({
-	  script: 'server.js'
+	  script: 'build/server.js'
 	}).on('start', function () {
 		if(!called) {
     		called = true;
@@ -77,4 +76,8 @@ gulp.task('compile:typescript', function () {
         .pipe(gulp.dest(paths.tscripts.dest));
 });
 
-gulp.task('default', ['compile:typescript']);
+gulp.task('watch', function() {  
+    gulp.watch('**/*.ts', ['compile:typescript']);
+});
+
+//gulp.task('default', ['compile:typescript']);

@@ -1,7 +1,4 @@
-/// <reference path="typings/node/node.d.ts" />
-/// <reference path="typings/express/express.d.ts" />
-/// <reference path="typings/cron.d.ts" />
-/// <reference path="typings/body-parser/body-parser.d.ts" />
+/// <reference path="typings/tsd.d.ts" />
 /*jslint node: true */
 'use strict';
 import express = require('express');

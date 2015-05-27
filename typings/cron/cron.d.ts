@@ -24,3 +24,4 @@ declare module "cron" {
   export var CronTime: CronTimeStatic;
 
 }
+
