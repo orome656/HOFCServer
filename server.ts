@@ -14,7 +14,7 @@ var notification = notificationReq.Notification;
 import databaseReq = require('./database/postgres');
 var database = databaseReq.PostgresSQL;
 import constants = require('./constants/constants');
-import Logger = require('utils/logger');
+import Logger = require('./utils/logger');
 
 var logger = new Logger('Server');
 
@@ -22,7 +22,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.set('port', (process.env.PORT || 3000));
 app.use(express.static('web'));
-app.use('/out',express.static('out'));
 app.use(function(req, res, next) {
     console.log('Request on URL ' + req.url + ' with method ' + req.method);
     next();

@@ -31,6 +31,12 @@ var paths = {
             '!typings/**'
         ],
         dest : './build/' 
+    },
+    web : { 
+        src : [
+            'web/**'
+        ],
+        dest : './build/web/' 
     }
 };
 gulp.task('default', ['browser-sync'], function () {
@@ -45,13 +51,13 @@ gulp.task('jshint', function() {
 gulp.task('browser-sync', ['nodemon'], function() {
 	browserSync.init(null, {
 		proxy: "http://localhost:3000",
-        files: ["web/**/*.*"],
+        files: ["build/web/**/*.*"],
         browser: "google chrome",
         port: 3001,
 	});
 });
  
-gulp.task('nodemon', ['compile:typescript', 'watch'],function (cb) {
+gulp.task('nodemon', ['compile:typescript', 'watch', 'copy'],function (cb) {
 	var called = false;
 	return nodemon({
 	  script: 'build/server.js'
@@ -76,8 +82,13 @@ gulp.task('compile:typescript', function () {
         .pipe(gulp.dest(paths.tscripts.dest));
 });
 
+gulp.task('copy', function() {
+    gulp.src(paths.web.src).pipe(gulp.dest(paths.web.dest));
+});
+
 gulp.task('watch', function() {  
     gulp.watch('**/*.ts', ['compile:typescript']);
+    gulp.watch('web/**', ['copy']);
 });
 
 //gulp.task('default', ['compile:typescript']);

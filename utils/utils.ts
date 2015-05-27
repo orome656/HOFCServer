@@ -1,7 +1,7 @@
 /// <reference path="../typings/tsd.d.ts" />
 'use strict';
 import http = require('http');
-import Logger = require('logger');
+import Logger = require('./logger');
 
 export class Utils {
     /**
