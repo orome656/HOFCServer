@@ -18,7 +18,8 @@ var Actu = actuReq.Actu;
 import articleReq = require('../models/article');
 var Article = articleReq.Article;
 var HOFC_NAME = constants.constants.HOFC_NAME;
-
+import Logger = require('../utils/logger');
+var logger = new Logger('Parser FFF');
 // Paramétrage url
 var optionsClassement = constants_fff.Constants_FFF.classement;
 
@@ -89,7 +90,7 @@ class parser_node_module {
                             } else {
                                 notifMessage = 'Match nul entre le HOFC et ' + ((match.equipe1 === HOFC_NAME)? match.equipe2 : match.equipe1);
                             }
-                            console.log('[Parser FFF] : Sending Notification with message : ' + notifMessage);
+                            logger.info('Sending Notification with message : ' + notifMessage);
                             notification.sendNotification(notifTitle, notifMessage);
                         }
                         database.updateCalendarLine(match);
@@ -135,7 +136,7 @@ class parser_node_module {
                     }
                 }, function(err) {
                     if(err) {
-                        console.log('[Parser FFF] : Error while updating ranking data ' + err);
+                        logger.error('Error while updating ranking data ', err);
                     }    
                 });
             });

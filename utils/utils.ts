@@ -1,6 +1,7 @@
 /// <reference path="../typings/tsd.d.ts" />
 'use strict';
 import http = require('http');
+import Logger = require('logger');
 
 export class Utils {
     /**
@@ -11,10 +12,11 @@ export class Utils {
      * @return {void}
      */
     public static downloadData(/**object */options, /**function */success, /**function */fail): void {
+        var logger = new Logger('Download');
         http.get(options, function(res) {
                 var result = "";
                 if (res.statusCode !== 200) {
-                    console.error('[Download] : Result code ' + res.statusCode);
+                    logger.errorMessage('Result code ' + res.statusCode);
                     if(fail) {
                         fail(res);
                     }
@@ -25,11 +27,11 @@ export class Utils {
                 });
     
                 res.on('end', function () {
-                    console.log('[Download] : End getting response on ' + options.path);
+                    logger.errorMessage('End getting response on ' + options.path);
                     success(result);
                 });
         }).on('error', function(e) {
-            console.log('[Download] : Got error: ' + e.message);
+            logger.errorMessage('Got error: ' + e.message);
             if(fail) {
                 fail(e);
             }

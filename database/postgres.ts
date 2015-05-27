@@ -7,12 +7,13 @@
 'use strict';
 import pg = require('pg');
 import constants = require('../constants/constants');
-
+import Logger = require('../utils/logger');
+var logger = new Logger('Postgres');
 
 var pgQuery = function(/**string */text, /**array */values, /**function */cb) {
 	pg.connect(process.env.DATABASE_URL, function(err, client, done) {
 		if(err) {
-			console.log('[Postgres] : Error while connecting to database -> ' + err);
+			logger.error('Error while connecting to database', err);
 			return;
 		}
 		client.query(text, values, function(err, result) {
@@ -29,22 +30,22 @@ export class PostgresSQL {
 	public static init = function() {
 		pgQuery(constants.database.creation_table_notification_query, null, function(err) {
 			if(err) {
-				console.log('[Postgres] : Error creating notification table');
+				logger.errorMessage('Error creating notification table');
 			}
 		});
 		pgQuery(constants.database.creation_table_classement_query, null, function(err) {
 			if(err) {
-				console.log('[Postgres] : Error creating classement table');
+				logger.errorMessage('Error creating classement table');
 			}
 		});
 		pgQuery(constants.database.creation_table_calendrier_query, null, function(err) {
 			if(err) {
-				console.log('[Postgres] : Error creating calendrier table');
+				logger.errorMessage('Error creating calendrier table');
 			}
 		});
 		pgQuery(constants.database.creation_table_actus_query, null, function(err) {
 			if(err) {
-				console.log('[Postgres] : Error creating actus table');
+				logger.errorMessage('Error creating actus table');
 			}
 		});
 	};
@@ -67,7 +68,7 @@ export class PostgresSQL {
 				[match.date, match.equipe1Complet, match.equipe2Complet, match.score1, match.score2], 
 				function(err/**, results*/) {
 					if(err) {
-						console.log('[Postgres] : Fail inserting match informations');
+						logger.errorMessage('Fail inserting match informations');
 					}
 				}
 		);
@@ -94,7 +95,7 @@ export class PostgresSQL {
 				[team.nom, team.points, team.joue, team.victoire, team.nul, team.defaite, team.bp, team.bc, team.diff],
 				function(err/**, results*/){
 					if(err) {
-						console.log('[Postgres] : Fail inserting ranking data');
+						logger.errorMessage('Fail inserting ranking data');
 					}
 				}
 		);
@@ -118,7 +119,7 @@ export class PostgresSQL {
 				[actu.postId, actu.title, actu.texte, actu.link, actu.image, actu.date], 
 				function (err/**, results*/) {
 					if(err) {
-						console.log('[Postgres] : Fail inserting actus data');
+						logger.errorMessage('Fail inserting actus data');
 					}
 				}
 		);
@@ -142,7 +143,7 @@ export class PostgresSQL {
 				[match.date, match.score1, match.score2, match.equipe1Complet, match.equipe2Complet, '%'+match.equipe1+'%', '%'+match.equipe2+'%' ], 
 				function(err/**, results*/) {
 					if(err) {
-						console.log('[Postgres] : Fail updating match informations');
+						logger.errorMessage('Fail updating match informations');
 					}
 				}
 		);
@@ -169,7 +170,7 @@ export class PostgresSQL {
 				[team.points, team.joue, team.victoire, team.nul, team.defaite, team.bp, team.bc, team.diff, team.nom],
 				function(err/**, results*/){
 					if(err) {
-						console.log('[Postgres] : Fail updating ranking data');
+						logger.errorMessage('Fail updating ranking data');
 					}
 				}
 		);
@@ -193,7 +194,7 @@ export class PostgresSQL {
 				[actu.title, actu.texte, actu.link, actu.image, actu.date, actu.postId], 
 				function (err/**, results*/) {
 					if(err) {
-						console.log('[Postgres] : Fail updating actus data');
+						logger.errorMessage('Fail updating actus data');
 					}
 				}
 		);
@@ -259,7 +260,7 @@ export class PostgresSQL {
 		pgQuery(constants.database.creation_table_notification_query, null, null);
 		pgQuery("SELECT * FROM notification_client where uuid='" + uuid +"'", null, function(err, result) {
 			if(err) {
-	            console.log('[Postgres] : Error while searching if uuid exist -> ' + err);
+	            logger.error('Error while searching if uuid exist', err);
 				fail(err);
 	            return;
 	        }

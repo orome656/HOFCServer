@@ -14,6 +14,9 @@ var notification = notificationReq.Notification;
 import databaseReq = require('./database/postgres');
 var database = databaseReq.PostgresSQL;
 import constants = require('./constants/constants');
+import Logger = require('utils/logger');
+
+var logger = new Logger('Server');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -28,7 +31,7 @@ app.use(function(req, res, next) {
 // On lance la tache de mise a jour de la base 
 // toute les 15min
 new CronJob('0 */15 * * * *', function(){
-      console.log('[Server] : Update database start');
+      logger.info('Update database start');
       parser.updateDatabase();
     }, function () {
     
@@ -44,7 +47,7 @@ app.get('/classement', function(req, res){
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(results);
     }, function(err) {
-        console.error('[Server] : Error while connecting to database', err);
+        logger.error('Error while connecting to database', err);
         res.send(constants.errorCode.INTERNAL);
     });
 });
@@ -57,7 +60,7 @@ app.get('/calendrier', function(req, res){
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(results);
     }, function(err) {
-        console.error('[Server] : Error while connecting to database', err);
+        logger.error('Error while connecting to database', err);
         res.send(constants.errorCode.INTERNAL);
     });
 });
@@ -70,7 +73,7 @@ app.get('/actus', function(req, res){
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(results);
     }, function(err) {
-        console.error('[Server] : Error while connecting to database', err);
+        logger.error('Error while connecting to database', err);
         res.send(constants.errorCode.INTERNAL);
     });
 });
@@ -79,13 +82,13 @@ app.get('/actus', function(req, res){
  * Permet de parser une page (récupération des textes ou des photos)
  */
 app.post('/parsePage', function(req, res) {
-    console.log('url page : ' + req.body.url);
+    logger.debug('url page : ' + req.body.url);
     var url = req.body.url;
     if(url.indexOf('en-images') !== -1) {
         parser.parseDiaporama(url, function(resultats) {
             res.send(resultats);
         }, function(err) {
-            console.error('[Server] : Error while parsing diaporama', err);
+            logger.error('Error while parsing diaporama', err);
             res.send(constants.errorCode.INTERNAL);            
         });   
     } else {
@@ -93,7 +96,7 @@ app.post('/parsePage', function(req, res) {
             res.set('Content-Type', 'application/json; charset=utf-8');
             res.send(resultats);
         }, function(err) {
-            console.error('[Server] : Error while parsing article', err);
+            logger.error('Error while parsing article', err);
             res.send(constants.errorCode.INTERNAL);            
         });   
     }
@@ -105,16 +108,16 @@ app.post('/parsePage', function(req, res) {
 app.post('/registerPush', function(req, res){
     var notificationId = req.body.notification_id;
     var uuid = req.body.uuid;
-	console.log('[Server] : New registration -> {notification_id: ' + notificationId + ', uuid:' + uuid + '}');
+	logger.info('New registration -> {notification_id: ' + notificationId + ', uuid:' + uuid + '}');
     if(notificationId && uuid) {
         database.insertNotificationId(notificationId, uuid, function() {
             res.send(0);
         }, function(err) {
-            console.error('[Server] : Error while registring notification id', err);
+            logger.error('Error while registring notification id', err);
             res.send(-3);            
         });
     } else {
-        console.log('[Server] : Missing one parameter.');
+        logger.errorMessage('Missing one parameter.');
         res.send(-3);
     }
 });
@@ -229,7 +232,7 @@ app.get('/dev/notification/:title/:message', function(req, res){
 });
 
 app.listen(app.get('port'), function() {
-    console.log('[Server] : Node app is running at localhost:' + app.get('port'));
+    logger.info('Node app is running at localhost:' + app.get('port'));
     database.init();
 });
 
@@ -237,11 +240,11 @@ app.listen(app.get('port'), function() {
 setInterval(function() {
     http.get(process.env.KEEP_ALIVE_URL, function(res) {
         if (res.statusCode === 200) {
-            console.log("[Server] : Heroku Keep Alive Ping: Success");
+            logger.info("Heroku Keep Alive Ping: Success");
         } else {
-            console.log("[Server] : Heroku Keep Alive Ping: Error - Status Code " + res.statusCode);
+            logger.errorMessage("Heroku Keep Alive Ping: Error - Status Code " + res.statusCode);
         }
     }).on('error', function(e) {
-        console.log('[Server] : Heroku Keep Alive Ping: Error - ' + e.message);
+        logger.errorMessage('Heroku Keep Alive Ping: Error - ' + e.message);
     });
 }, 30 * 60 * 1000); // load every 30 minutes

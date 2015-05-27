@@ -19,6 +19,7 @@
 		"parsers/parser_district_node_module.ts",
 		"parsers/parser_node_module.ts",
 		"utils/utils.ts",
+		"utils/logger.ts",
 		"server.ts"
 	]
 }
