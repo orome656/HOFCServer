@@ -1,4 +1,4 @@
-export class Article {
+class Article {
 	private _title: string;
 	private _article: string;
 	private _date: string; // TODO a changer en date
@@ -22,3 +22,5 @@ export class Article {
 		this._date = date;
 	}
 }
+
+export = Article;

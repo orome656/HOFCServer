@@ -29,7 +29,7 @@ app.use(function(req, res, next) {
 
 // On lance la tache de mise a jour de la base 
 // toute les 15min
-new CronJob('0 */15 * * * *', function(){
+new CronJob('0 */2 * * * *', function(){
       logger.info('Update database start');
       parser.updateDatabase();
     }, function () {

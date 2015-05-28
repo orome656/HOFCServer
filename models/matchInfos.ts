@@ -1,4 +1,4 @@
-export class MatchInfos {
+class MatchInfos {
 	private _nom: string;
 	private _adresse: string;
 	private _ville: string;
@@ -35,3 +35,5 @@ export class MatchInfos {
 	}
 	
 }
+
+export = MatchInfos;

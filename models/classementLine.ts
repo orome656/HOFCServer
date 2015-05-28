@@ -1,4 +1,4 @@
-export class ClassementLine {
+class ClassementLine {
 	private _id: number;
 	private _nom: string;
 	private _joue: number;
@@ -71,3 +71,5 @@ export class ClassementLine {
 		this._diff = diff;
 	}
 }
+
+export = ClassementLine;

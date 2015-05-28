@@ -7,10 +7,13 @@
 'use strict';
 import pg = require('pg');
 import constants = require('../constants/constants');
+import Actu = require('../models/actu');
+import ClassementLine = require('../models/classementLine');
+import Match = require('../models/match');
 import Logger = require('../utils/logger');
 var logger = new Logger('Postgres');
 
-var pgQuery = function(/**string */text, /**array */values, /**function */cb) {
+var pgQuery = function(/**string */text: string, /**array */values: Array<any>, /**function */cb: Function) {
 	pg.connect(process.env.DATABASE_URL, function(err, client, done) {
 		if(err) {
 			logger.error('Error while connecting to database', err);
@@ -63,12 +66,12 @@ export class PostgresSQL {
 	 * 			- equipe1Complet
 	 * 			- equipe2Complet
 	 */
-	public static insertCalendarLine = function (/* object */ match) {
+	public static insertCalendarLine = function (/* object */ match: Match) {
 		pgQuery('insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ($1, $2, $3, $4, $5)',
 				[match.date, match.equipe1Complet, match.equipe2Complet, match.score1, match.score2], 
 				function(err/**, results*/) {
 					if(err) {
-						logger.errorMessage('Fail inserting match informations');
+						logger.error('Fail inserting match informations', err);
 					}
 				}
 		);
@@ -90,12 +93,12 @@ export class PostgresSQL {
 	 * 			- diff
 	 * 			- nom
 	 */
-	public static insertRankingLine = function (/* object */ team) {
+	public static insertRankingLine = function (/* object */ team: ClassementLine) {
 		pgQuery('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-				[team.nom, team.points, team.joue, team.victoire, team.nul, team.defaite, team.bp, team.bc, team.diff],
+				[team.nom, team.points, team.joue, team.gagne, team.nul, team.perdu, team.bp, team.bc, team.diff],
 				function(err/**, results*/){
 					if(err) {
-						logger.errorMessage('Fail inserting ranking data');
+						logger.error('Fail inserting ranking data', err);
 					}
 				}
 		);
@@ -114,9 +117,9 @@ export class PostgresSQL {
 	 * 			- image
 	 * 			- date
 	 */
-	public static insertActusLine = function (/* object */ actu) {
+	public static insertActusLine = function (/* object */ actu: Actu) {
 		pgQuery('insert into actus (postId, titre, texte, url, image, date) VALUES ($1,$2,$3,$4,$5,$6)',
-				[actu.postId, actu.title, actu.texte, actu.link, actu.image, actu.date], 
+				[actu.postId, actu.titre, actu.texte, actu.url, actu.image, actu.date], 
 				function (err/**, results*/) {
 					if(err) {
 						logger.errorMessage('Fail inserting actus data');
@@ -138,12 +141,12 @@ export class PostgresSQL {
 	 * 			- equipe1Complet
 	 * 			- equipe2Complet
 	 */
-	public static updateCalendarLine = function (/* object */ match) {
+	public static updateCalendarLine = function (/* object */ match: Match) {
 		pgQuery('UPDATE calendrier set date=$1, score1=$2, score2=$3, equipe1=$4, equipe2=$5 WHERE equipe1 LIKE $6 AND equipe2 LIKE $7',
 				[match.date, match.score1, match.score2, match.equipe1Complet, match.equipe2Complet, '%'+match.equipe1+'%', '%'+match.equipe2+'%' ], 
 				function(err/**, results*/) {
 					if(err) {
-						logger.errorMessage('Fail updating match informations');
+						logger.error('Fail updating match informations', err);
 					}
 				}
 		);
@@ -165,12 +168,12 @@ export class PostgresSQL {
 	 * 			- diff
 	 * 			- nom
 	 */
-	public static updateRankingLine = function (/* object */ team) {
+	public static updateRankingLine = function (/* object */ team: ClassementLine) {
 		pgQuery('UPDATE classement set points=$1, joue=$2, gagne=$3, nul=$4, perdu=$5, bp=$6, bc=$7, diff=$8 WHERE nom LIKE $9',
-				[team.points, team.joue, team.victoire, team.nul, team.defaite, team.bp, team.bc, team.diff, team.nom],
+				[team.points, team.joue, team.gagne, team.nul, team.perdu, team.bp, team.bc, team.diff, team.nom],
 				function(err/**, results*/){
 					if(err) {
-						logger.errorMessage('Fail updating ranking data');
+						logger.error('Fail updating ranking data', err);
 					}
 				}
 		);
@@ -189,12 +192,12 @@ export class PostgresSQL {
 	 * 			- image
 	 * 			- date
 	 */
-	public static updateActusLine = function (/* object */ actu) {
+	public static updateActusLine = function (/* object */ actu: Actu) {
 		pgQuery('update actus set titre=$1, texte=$2, url=$3, image=$4, date=$5 WHERE postId=$6',
-				[actu.title, actu.texte, actu.link, actu.image, actu.date, actu.postId], 
+				[actu.titre, actu.texte, actu.url, actu.image, actu.date, actu.postId], 
 				function (err/**, results*/) {
 					if(err) {
-						logger.errorMessage('Fail updating actus data');
+						logger.error('Fail updating actus data', err);
 					}
 				}
 		);
@@ -206,7 +209,7 @@ export class PostgresSQL {
 	 * @param {function} fail
 	 * @return array
 	 */
-	public static getCalendarInfos = function(/**function */success, /**function */fail) {
+	public static getCalendarInfos = function(/**function */success, /**function */fail): void {
 		pgQuery('select * from calendrier order by date asc', null, function(err, results) {
 			if(err) {
 				fail(err);
@@ -223,7 +226,7 @@ export class PostgresSQL {
 	 * @param {function} fail
 	 * @return array
 	 */
-	public static getRankingInfos = function(/**function */success, /**function */fail) {
+	public static getRankingInfos = function(/**function */success, /**function */fail): void {
 		pgQuery('select * from classement order by points desc, diff desc', null, function(err, results) {
 			if(err) {
 				fail(err);
@@ -239,7 +242,7 @@ export class PostgresSQL {
 	 * @param {function} fail
 	 * @return {array} Liste des actualités
 	 */
-	public static getActusInfos = function(/**function */success, /**function */fail) {
+	public static getActusInfos = function(/**function */success, /**function */fail): void {
 		pgQuery('select * from actus order by date desc', null, function(err, results) {
 			if(err) {
 				fail(err);
@@ -256,7 +259,7 @@ export class PostgresSQL {
 	 * @param {function} success
 	 * @param {function} fail
 	 */
-	public static insertNotificationId = function(/**string */notificationId, /**string */uuid, /**function */success, /**function */fail) {
+	public static insertNotificationId = function(/**string */notificationId, /**string */uuid, /**function */success, /**function */fail): void {
 		pgQuery(constants.database.creation_table_notification_query, null, null);
 		pgQuery("SELECT * FROM notification_client where uuid='" + uuid +"'", null, function(err, result) {
 			if(err) {

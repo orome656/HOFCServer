@@ -13,10 +13,10 @@ import databaseReq = require('../database/postgres');
 var database = databaseReq.PostgresSQL
 import utilsReq = require('../utils/utils');  
 var Utils = utilsReq.Utils;
-import actuReq = require('../models/actu');
-var Actu = actuReq.Actu;
-import articleReq = require('../models/article');
-var Article = articleReq.Article;
+import Actu = require('../models/actu');
+import Article = require('../models/article');
+import ClassementLine = require('../models/classementLine');
+import Match = require('../models/match');
 var HOFC_NAME = constants.constants.HOFC_NAME;
 import Logger = require('../utils/logger');
 var logger = new Logger('Parser FFF');
@@ -68,7 +68,7 @@ class parser_node_module {
             var linesCalendar = $2("div.list_calendar").children('div');
             
             $2(linesCalendar).each(function (index, line) {
-                var match = this.parseCalendarLine(line);
+                var match: Match = parser_node_module.parseCalendarLine(line);
                 database.getMatchByName(match.equipe1, match.equipe2, function (results) {
                     if (results.length > 0 ) {
                         /**
@@ -117,7 +117,7 @@ class parser_node_module {
                 return ($(this).children() !== null && $(this).children().length > 3);
             });
             $(linesClassement).each(function (index, line) {
-                var team = this.parseClassementLine(line);
+                var team = parser_node_module.parseClassementLine(line);
                 if(team === null) {
                     return;
                 }
@@ -151,14 +151,14 @@ class parser_node_module {
             var linesActu = $3("#content").children('.post');
             
             $3(linesActu).each(function(index, line){
-                var actus = this.parseActuLine(line);
+                var actus = parser_node_module.parseActuLine(line);
                 database.getActuById(actus.postId, function (res) {
                     
                     if (res.length > 0) {
                 
                         database.updateActusLine(actus);
                     } else {
-                        notification.sendNotification('Nouvel article sur HOFC.fr', actus.title);
+                        notification.sendNotification('Nouvel article sur HOFC.fr', actus.titre);
                         database.insertActusLine(actus);
                     }
                 }, function(err) {
@@ -170,7 +170,7 @@ class parser_node_module {
         });
     }
     
-    public static parseClassementLine(/**string */ line) { // Ajouter le type de retour
+    public static parseClassementLine(/**string */ line): ClassementLine { // Ajouter le type de retour
         var $ = cheerio.load(line);
         var lineChildren = $(line).children();
         if (lineChildren !== null && lineChildren.length > 3) {
@@ -184,7 +184,18 @@ class parser_node_module {
                 bp = $(lineChildren[8]).text(),
                 bc = $(lineChildren[9]).text(),
                 diff = $(lineChildren[11]).text();
-            return {points: points, joue:joue, victoire:victoire, nul:nul, defaite:defaite, bp:bp, bc:bc, diff:diff, nom:nom};
+                
+            var classementLine = new ClassementLine();
+            classementLine.nom = nom;
+            classementLine.points = points;
+            classementLine.joue = joue;
+            classementLine.gagne = victoire;
+            classementLine.nul = nul;
+            classementLine.perdu = defaite;
+            classementLine.bp = bp;
+            classementLine.bc = bc;
+            classementLine.diff = diff;
+            return classementLine;
         } else {
             return null;
         }
@@ -195,7 +206,7 @@ class parser_node_module {
      * @param {string} ligne html des infos du match
      * @return {object} Informations sur le match
      */
-    public static parseCalendarLine(/**string */line) { // TODO ajouter le type de retour
+    public static parseCalendarLine(/**string */line): Match { // TODO ajouter le type de retour
         var $2 = cheerio.load(line);
         var lineChildren = $2(line).children(),
             date = $2(lineChildren[0]).text().trim(),
@@ -247,8 +258,15 @@ class parser_node_module {
         }
         
         var formattedDate = annee + "-" + mois + "-" + jour + " " + heure + ":" + minute + ":00";
-        return {equipe1:equipe1, equipe2:equipe2, equipe1Complet:equipe1Complet, equipe2Complet:equipe2Complet,
-                date:formattedDate, score1:score1, score2:score2};
+        var match = new Match();
+        match.equipe1 = equipe1;
+        match.equipe2 = equipe2;
+        match.equipe1Complet = equipe1Complet;
+        match.equipe2Complet = equipe2Complet;
+        match.date = formattedDate;
+        match.score1 = score1;
+        match.score2 = score2;
+        return match;
     }
     
     /**
@@ -256,7 +274,7 @@ class parser_node_module {
      * @param {string} ligne html de l'élément
      * @return {object} Informations de l'actualité
      */
-    public static parseActuLine(/**string */line) { // TODO ajouter le type de retour
+    public static parseActuLine(/**string */line): Actu { // TODO ajouter le type de retour
         var $ = cheerio.load(line);
         var postId = $(line).attr('id').split('-')[1]; 
         /**
@@ -277,8 +295,14 @@ class parser_node_module {
     
         var mois = listeMoisActu[date.split(' ')[1]],
             annee = date.split(' ')[2];
-        
-        return {postId:postId, title:title.text(), urlImage:urlImage, url:title.attr('href'), texte:texte, date:annee + '-' + mois + '-' + jour + ' 00:00:00'};
+        var actu = new Actu();
+        actu.date = annee + '-' + mois + '-' + jour + ' 00:00:00';
+        actu.postId = postId;
+        actu.image = urlImage;
+        actu.texte = texte;
+        actu.url = title.attr('href');
+        actu.titre = title.text();
+        return actu;
     }
     
     /**

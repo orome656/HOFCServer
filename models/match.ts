@@ -1,6 +1,8 @@
-export class Match {
+class Match {
 	private _equipe1: string;
 	private _equipe2: string;
+	private _equipe1Complet: string;
+	private _equipe2Complet: string;
 	private _score1: number;
 	private _score2: number;
 	private _date: string; // TODO: Voir pour changer en Date
@@ -16,6 +18,18 @@ export class Match {
 	} 
 	set equipe2(equipe2: string) {
 		this._equipe2 = equipe2;
+	} 
+	get equipe1Complet(): string {
+		return this._equipe1Complet;
+	}
+	set equipe1Complet(equipe1Complet: string) {
+		this._equipe1Complet = equipe1Complet;
+	}
+	get equipe2Complet(): string {
+		return this._equipe2Complet;
+	} 
+	set equipe2Complet(equipe2Complet: string) {
+		this._equipe2Complet = equipe2Complet;
 	} 
 	get score1(): number {
 		return this._score1;
@@ -43,3 +57,5 @@ export class Match {
 	} 
 	
 }
+
+export = Match;

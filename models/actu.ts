@@ -1,4 +1,4 @@
-export class Actu {
+class Actu {
 	private _id: number;
 	private _postId: string;
 	private _titre: string;
@@ -49,3 +49,5 @@ export class Actu {
 		this._date = date;
 	}
 }
+
+export = Actu;
