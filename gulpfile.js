@@ -32,6 +32,13 @@ var paths = {
         ],
         dest : './build/' 
     },
+    conf: {
+        src: [
+            'package.json',
+            'Procfile'
+        ],
+        dest: './build/'
+    },
     web : { 
         src : [
             'web/**'
@@ -84,6 +91,15 @@ gulp.task('compile:typescript', function () {
 
 gulp.task('copy', function() {
     gulp.src(paths.web.src).pipe(gulp.dest(paths.web.dest));
+});
+
+
+gulp.task('copyConf', function() {
+    gulp.src(paths.conf.src).pipe(gulp.dest(paths.conf.dest));
+});
+
+gulp.task('build', ['copy', 'compile:typescript', 'copyConf'], function() {
+    
 });
 
 gulp.task('watch', function() {  
