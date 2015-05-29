@@ -9,10 +9,8 @@ var CronJob = cron.CronJob;
 import parser = require('./parsers/parser_node_module');
 import parserdistrict = require('./parsers/parser_district_node_module');
 import http = require('http');
-import notificationReq = require('./notifications/send_notification');
-var notification = notificationReq.Notification;
-import databaseReq = require('./database/postgres');
-var database = databaseReq.PostgresSQL;
+import notification = require('./notifications/send_notification');
+import database = require('./database/postgres');
 import constants = require('./constants/constants');
 import Logger = require('./utils/logger');
 
@@ -29,7 +27,7 @@ app.use(function(req, res, next) {
 
 // On lance la tache de mise a jour de la base 
 // toute les 15min
-new CronJob('0 */2 * * * *', function(){
+new CronJob('0 */15 * * * *', function(){
       logger.info('Update database start');
       parser.updateDatabase();
     }, function () {

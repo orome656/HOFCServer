@@ -45,10 +45,12 @@ var optionsMatchInfos = new RequestParamsEditable(
     '/match/fff/{id}/detail'
 );
 
-export module Constants_FFF {
+module Constants_FFF {
 	export var classement = optionsClassement
 	export var calendrier = optionsCalendrier
 	export var actus = optionsActus
     export var agenda = optionsAgenda
     export var matchInfos = optionsMatchInfos
 }
+
+export = Constants_FFF;

@@ -3,7 +3,7 @@
 import http = require('http');
 import Logger = require('./logger');
 
-export class Utils {
+class Utils {
     /**
      * Permet de télécharger les données d'un site
      * @param {object} options Parametre pour http.get
@@ -38,3 +38,5 @@ export class Utils {
         });
     }
 }
+
+export = Utils;

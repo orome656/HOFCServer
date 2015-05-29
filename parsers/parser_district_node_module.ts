@@ -6,17 +6,16 @@
 var cheerio = require("cheerio");
 //var notification = require('../notifications/send_notification.js');
 import constants = require('../constants/constants');
-import constants_district = require('../constants/constants_district');
-import utilsReq = require('../utils/utils');
-var Utils = utilsReq.Utils;
-var optionsAgendaPathBase = constants_district.Constants_District.agenda.basePath;
-var optionsAgenda = constants_district.Constants_District.agenda;
+import Constants_District = require('../constants/constants_district');
+import Utils = require('../utils/utils');
+var optionsAgendaPathBase = Constants_District.agenda.basePath;
+var optionsAgenda = Constants_District.agenda;
 
-var optionsMatchInfosPathBase = constants_district.Constants_District.matchInfos.basePath;
-var optionsMatchInfos = constants_district.Constants_District.matchInfos;
+var optionsMatchInfosPathBase = Constants_District.matchInfos.basePath;
+var optionsMatchInfos = Constants_District.matchInfos;
 
-var optionsCalendrierExcellencePathBase = constants_district.Constants_District.calendrierExcellence.basePath;
-var optionsCalendrierExcellence = constants_district.Constants_District.calendrierExcellence;
+var optionsCalendrierExcellencePathBase = Constants_District.calendrierExcellence.basePath;
+var optionsCalendrierExcellence = Constants_District.calendrierExcellence;
 
 /**
  *	Tableau permettant de convertir la chaine date récupérée en objet date pour les actus

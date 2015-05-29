@@ -184,4 +184,4 @@ var PostgresSQL = (function () {
     };
     return PostgresSQL;
 })();
-exports.PostgresSQL = PostgresSQL;
+module.exports = PostgresSQL;

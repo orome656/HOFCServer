@@ -25,7 +25,7 @@ var pgQuery = function(/**string */text: string, /**array */values: Array<any>, 
 		});
 	});
 };
-export class PostgresSQL {
+class PostgresSQL {
 	/**
 	 * Permet d'initialiser les tables de la base de données
 	 * @return {void}
@@ -210,7 +210,7 @@ export class PostgresSQL {
 	 * @return array
 	 */
 	public static getCalendarInfos = function(/**function */success, /**function */fail): void {
-		pgQuery('select * from calendrier order by date asc', null, function(err, results) {
+		pgQuery('select * from calendrier order by date asc', null, function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
@@ -227,7 +227,7 @@ export class PostgresSQL {
 	 * @return array
 	 */
 	public static getRankingInfos = function(/**function */success, /**function */fail): void {
-		pgQuery('select * from classement order by points desc, diff desc', null, function(err, results) {
+		pgQuery('select * from classement order by points desc, diff desc', null, function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
@@ -243,7 +243,7 @@ export class PostgresSQL {
 	 * @return {array} Liste des actualités
 	 */
 	public static getActusInfos = function(/**function */success, /**function */fail): void {
-		pgQuery('select * from actus order by date desc', null, function(err, results) {
+		pgQuery('select * from actus order by date desc', null, function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
@@ -296,7 +296,7 @@ export class PostgresSQL {
 	 * @return {object} Informations de l'équipe
 	 */
 	public static getRankByName = function(/**string */nom, /**function */success, /**function */fail) {
-		pgQuery('select * from classement where nom LIKE $1', [nom], function(err, results) {
+		pgQuery('select * from classement where nom LIKE $1', [nom], function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
@@ -315,7 +315,7 @@ export class PostgresSQL {
 	 * @return {object} Informations sur le match
 	 */
 	public static getMatchByName = function(/**string */equipe1, /** string*/equipe2, /**function */success, /**function */fail) {
-		pgQuery('select * from calendrier where equipe1 LIKE $1 AND equipe2 LIKE $2', ['%'+equipe1+'%', '%'+equipe2+'%'], function(err, results) {
+		pgQuery('select * from calendrier where equipe1 LIKE $1 AND equipe2 LIKE $2', ['%'+equipe1+'%', '%'+equipe2+'%'], function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
@@ -333,7 +333,7 @@ export class PostgresSQL {
 	 * @return {object} Informations sur le match
 	 */
 	public static getActuById = function(/**string */id, /**function */success, /**function */fail) {
-		pgQuery('select * from actus where postId=$1', [id], function(err, results) {
+		pgQuery('select * from actus where postId=$1', [id], function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
@@ -348,7 +348,7 @@ export class PostgresSQL {
 	 * @param {function} fail callback d'erreur
 	 */
 	public static getNotificationClients = function(success, fail) {
-		pgQuery("SELECT notification_id from notification_client", null, function(err, result) {
+		pgQuery("SELECT notification_id from notification_client", null, function(err, result: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
@@ -357,3 +357,5 @@ export class PostgresSQL {
 		});
 	};
 }
+
+export = PostgresSQL;

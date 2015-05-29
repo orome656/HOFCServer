@@ -15,5 +15,6 @@ var Constants_District;
     Constants_District.agenda = optionsAgenda;
     Constants_District.matchInfos = optionsMatchInfos;
     Constants_District.calendrierExcellence = optionsCalendrierExcellence;
-})(Constants_District = exports.Constants_District || (exports.Constants_District = {}));
+})(Constants_District || (Constants_District = {}));
 ;
+module.exports = Constants_District;

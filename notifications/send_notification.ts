@@ -4,13 +4,12 @@
 /// <reference path="../typings/tsd.d.ts" />
 'use strict';
 import gcm = require('node-gcm');
-import databaseReq = require('../database/postgres');
-var database = databaseReq.PostgresSQL;
+import database = require('../database/postgres');
 
 import Logger = require('../utils/logger');
 var logger = new Logger('Notifications');
 
-export class Notification {
+class Notification {
     /**
      * Permet d'envoyer une notification aux client de l'application
      * @param {string} title Titre de la notification
@@ -51,3 +50,5 @@ export class Notification {
         });
     }
 }
+
+export = Notification;

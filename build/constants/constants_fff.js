@@ -13,4 +13,5 @@ var Constants_FFF;
     Constants_FFF.actus = optionsActus;
     Constants_FFF.agenda = optionsAgenda;
     Constants_FFF.matchInfos = optionsMatchInfos;
-})(Constants_FFF = exports.Constants_FFF || (exports.Constants_FFF = {}));
+})(Constants_FFF || (Constants_FFF = {}));
+module.exports = Constants_FFF;

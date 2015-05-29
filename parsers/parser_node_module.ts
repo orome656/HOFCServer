@@ -5,14 +5,11 @@
 /*jslint node: true */
 'use strict';
 var cheerio = require("cheerio");
-import notificationReq = require('../notifications/send_notification');
-var notification = notificationReq.Notification;
+import notification = require('../notifications/send_notification');
 import constants = require('../constants/constants');
-import constants_fff = require('../constants/constants_fff');
-import databaseReq = require('../database/postgres');
-var database = databaseReq.PostgresSQL
-import utilsReq = require('../utils/utils');  
-var Utils = utilsReq.Utils;
+import Constants_FFF = require('../constants/constants_fff');
+import database = require('../database/postgres');
+import Utils = require('../utils/utils');
 import Actu = require('../models/actu');
 import Article = require('../models/article');
 import ClassementLine = require('../models/classementLine');
@@ -21,16 +18,16 @@ var HOFC_NAME = constants.constants.HOFC_NAME;
 import Logger = require('../utils/logger');
 var logger = new Logger('Parser FFF');
 // Paramétrage url
-var optionsClassement = constants_fff.Constants_FFF.classement;
+var optionsClassement = Constants_FFF.classement;
 
-var optionsCalendrier = constants_fff.Constants_FFF.calendrier;
+var optionsCalendrier = Constants_FFF.calendrier;
 
-var optionsActus = constants_fff.Constants_FFF.actus;
-var optionsAgendaPathBase = constants_fff.Constants_FFF.agenda.basePath;
-var optionsAgenda = constants_fff.Constants_FFF.agenda;
+var optionsActus = Constants_FFF.actus;
+var optionsAgendaPathBase = Constants_FFF.agenda.basePath;
+var optionsAgenda = Constants_FFF.agenda;
 
-var optionsMatchInfosPathBase = constants_fff.Constants_FFF.matchInfos.basePath;
-var optionsMatchInfos = constants_fff.Constants_FFF.matchInfos;
+var optionsMatchInfosPathBase = Constants_FFF.matchInfos.basePath;
+var optionsMatchInfos = Constants_FFF.matchInfos;
 
 /**
  *	Tableau permettant de convertir la chaine date récupérée en objet date

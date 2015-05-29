@@ -31,4 +31,4 @@ var Utils = (function () {
     };
     return Utils;
 })();
-exports.Utils = Utils;
+module.exports = Utils;

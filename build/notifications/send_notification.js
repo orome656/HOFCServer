@@ -1,7 +1,6 @@
 'use strict';
 var gcm = require('node-gcm');
-var databaseReq = require('../database/postgres');
-var database = databaseReq.PostgresSQL;
+var database = require('../database/postgres');
 var Logger = require('../utils/logger');
 var logger = new Logger('Notifications');
 var Notification = (function () {
@@ -38,4 +37,4 @@ var Notification = (function () {
     };
     return Notification;
 })();
-exports.Notification = Notification;
+module.exports = Notification;

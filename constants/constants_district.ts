@@ -53,7 +53,7 @@ var optionsCalendrierExcellence = new RequestParamsEditable(
     '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=305257&ph_no=1&gp_no=&sa_no=2014&pj_no='
 );
 
-export module Constants_District {
+module Constants_District {
 	export var classement = optionsClassement;
 	export var calendrier = optionsCalendrier;
 	export var actus = optionsActus;
@@ -61,3 +61,5 @@ export module Constants_District {
     export var matchInfos = optionsMatchInfos;
     export var calendrierExcellence = optionsCalendrierExcellence;
 };
+
+export = Constants_District;
