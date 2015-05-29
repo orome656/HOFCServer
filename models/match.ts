@@ -1,61 +1,12 @@
 class Match {
-	private _equipe1: string;
-	private _equipe2: string;
-	private _equipe1Complet: string;
-	private _equipe2Complet: string;
-	private _score1: number;
-	private _score2: number;
-	private _date: string; // TODO: Voir pour changer en Date
-	private _infosId: string;
-	get equipe1(): string {
-		return this._equipe1;
-	}
-	set equipe1(equipe1: string) {
-		this._equipe1 = equipe1;
-	}
-	get equipe2(): string {
-		return this._equipe2;
-	} 
-	set equipe2(equipe2: string) {
-		this._equipe2 = equipe2;
-	} 
-	get equipe1Complet(): string {
-		return this._equipe1Complet;
-	}
-	set equipe1Complet(equipe1Complet: string) {
-		this._equipe1Complet = equipe1Complet;
-	}
-	get equipe2Complet(): string {
-		return this._equipe2Complet;
-	} 
-	set equipe2Complet(equipe2Complet: string) {
-		this._equipe2Complet = equipe2Complet;
-	} 
-	get score1(): number {
-		return this._score1;
-	}
-	set score1(score1: number) {
-		this._score1 = score1;
-	}
-	get score2(): number {
-		return this._score2;
-	} 
-	set score2(score2: number) {
-		this._score2 = score2;
-	} 
-	get date(): string {
-		return this._date;
-	} 
-	set date(date: string) {
-		this._date = date;
-	} 
-	get infosId(): string {
-		return this._infosId;
-	} 
-	set infosId(infosId: string) {
-		this._infosId = infosId;
-	} 
-	
+	public equipe1: string;
+	public equipe2: string;
+	public equipe1Complet: string;
+	public equipe2Complet: string;
+	public score1: number;
+	public score2: number;
+	public date: string; // TODO: Voir pour changer en Date
+	public infos: string;	
 }
 
 export = Match;

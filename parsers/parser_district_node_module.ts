@@ -8,6 +8,7 @@ var cheerio = require("cheerio");
 import constants = require('../constants/constants');
 import Constants_District = require('../constants/constants_district');
 import Utils = require('../utils/utils');
+import MatchAgenda = require('../models/matchAgenda');
 var optionsAgendaPathBase = Constants_District.agenda.basePath;
 var optionsAgenda = Constants_District.agenda;
 
@@ -26,7 +27,7 @@ var listeMoisActu = constants.constants.listeMoisActu;
 * @param semaine Chaine de caractère au format DDMMYYYY
 **/
 class ParserDistrictNodeModule {
-    public static parseAgenda(semaine, callback) {
+    public static parseAgenda(semaine, callback: (array: Array<MatchAgenda>, error: number) => void) {
         if(semaine !== null) {
             optionsAgenda.path = optionsAgendaPathBase + semaine;
         } else {
@@ -34,7 +35,7 @@ class ParserDistrictNodeModule {
         }
         
         Utils.downloadData(optionsAgenda, function(result) {
-            var returnedValue = [];
+            var returnedValue = new Array<MatchAgenda>();
             var i = 0;
             var $2 = cheerio.load(result);
             var linesCalendar = $2('#refpop').children('.w450').contents().filter(
@@ -48,7 +49,7 @@ class ParserDistrictNodeModule {
                 });
             var nbLines = linesCalendar.length;
             if(nbLines === 0) {
-                callback([]);
+                callback(returnedValue, 0);
             }
             linesCalendar.each(function (index, item) {
                 
@@ -69,7 +70,7 @@ class ParserDistrictNodeModule {
                 if(date === null || date.length === 0) {
                     i++;
                     if(i === nbLines) {
-                        callback(returnedValue);
+                        callback(returnedValue,0);
                     }
                     return;
                 }
@@ -87,7 +88,7 @@ class ParserDistrictNodeModule {
                 if(equipe1 === null || equipe1.length === 0 || equipe2 === null || equipe2.length === 0) {
                     i++;
                     if(i === nbLines) {
-                        callback(returnedValue);
+                        callback(returnedValue,0);
                     }
                     return;
                 }
@@ -96,16 +97,24 @@ class ParserDistrictNodeModule {
                     score1 = score.split('-')[0].trim();
                     score2 = score.split('-')[1].trim();
                 }
-                var array = {equipe1:equipe1, equipe2: equipe2, title: title, date: annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00', score1: score1, score2: score2, infos:infos};
-                returnedValue.push(array);
+                var match = new MatchAgenda();
+                match.equipe1 = equipe1;
+                match.equipe2 = equipe2;
+                match.title = title;
+                match.date = annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00';
+                match.score1 = score1;
+                match.score2 = score2;
+                match.infos = infos;
+                
+                returnedValue.push(match);
                 i++;
                 if(i === nbLines) {
-                    callback(returnedValue);
+                    callback(returnedValue,0);
                 }
             });
         }, function(e) {
             console.log(e);
-            callback(-3);
+            callback(null, -3);
         });
     }
     

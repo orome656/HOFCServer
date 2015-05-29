@@ -1,6 +1,7 @@
 {
   "name": "HOFCServer",
   "version": "2.0.0",
+  "private": true,
   "author": "Anthony Maladot",
   "dependencies": {
 	  "cheerio": "0.17.0",

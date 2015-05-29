@@ -20,7 +20,7 @@ app.use(function (req, res, next) {
     console.log('Request on URL ' + req.url + ' with method ' + req.method);
     next();
 });
-new CronJob('0 */2 * * * *', function () {
+new CronJob('0 */15 * * * *', function () {
     logger.info('Update database start');
     parser.updateDatabase();
 }, function () {
@@ -122,12 +122,12 @@ app.get('/agendadistrict/:semaine', function (req, res) {
             month = '0' + month;
         }
         var year = date.getFullYear() + '';
-        parserdistrict.parseAgenda(day + month + year, function (result) {
-            if (isNaN(result)) {
+        parserdistrict.parseAgenda(day + month + year, function (result, error) {
+            if (result != null && error == 0) {
                 res.set('Content-Type', 'application/json; charset=utf-8');
                 res.send(result);
             }
-            else if (result === 404) {
+            else if (error === 404) {
                 res.send(-1);
             }
             else {
