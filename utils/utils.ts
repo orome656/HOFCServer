@@ -37,6 +37,16 @@ class Utils {
             }
         });
     }
+    
+    /**
+     * Permet de formatter une date pour l'envoi au client
+     * YYYY-MM-DDTHH:MI:SS.sssZ
+     */
+    public static formatDate(date: Date): string {
+        return date.getFullYear() + '-' + ((date.getMonth()<=9)?'0'+date.getMonth():date.getMonth())+'-'
+                +((date.getDate()<=9)?'0'+date.getDate():date.getDate())+'T'+((date.getHours()<=9)?'0'+date.getHours():date.getHours())+':'
+                +((date.getMinutes()<=9)?'0'+date.getMinutes():date.getMinutes())+':'+((date.getSeconds()<=9)?'0'+date.getSeconds():date.getSeconds())+'.000Z';
+    }
 }
 
 export = Utils;

@@ -46,7 +46,7 @@ app.get('/calendrier', function (req, res) {
 app.get('/actus', function (req, res) {
     database.getActusInfos(function (results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
-        res.send(results);
+        res.send('[' + results.toString() + ']');
     }, function (err) {
         logger.error('Error while connecting to database', err);
         res.send(constants.errorCode.INTERNAL);

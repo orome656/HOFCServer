@@ -102,6 +102,10 @@ gulp.task('build', ['copy', 'compile:typescript', 'copyConf'], function() {
     
 });
 
+gulp.task('test', ['nodemon'], function() {
+    
+});
+
 gulp.task('watch', function() {  
     gulp.watch('**/*.ts', ['compile:typescript']);
     gulp.watch('web/**', ['copy']);

@@ -13,6 +13,7 @@ import notification = require('./notifications/send_notification');
 import database = require('./database/postgres');
 import constants = require('./constants/constants');
 import Logger = require('./utils/logger');
+import Actu = require('./models/actu');
 
 var logger = new Logger('Server');
 
@@ -66,9 +67,9 @@ app.get('/calendrier', function(req, res){
  * Permet de récupérer la listes des actualités
  */
 app.get('/actus', function(req, res){
-    database.getActusInfos(function(/**array */results) {
+    database.getActusInfos(function(/**array */results: Array<Actu>) {
         res.set('Content-Type', 'application/json; charset=utf-8');
-        res.send(results);
+        res.send('['+results.toString()+']');
     }, function(err) {
         logger.error('Error while connecting to database', err);
         res.send(constants.errorCode.INTERNAL);

@@ -1,6 +1,7 @@
 'use strict';
 var pg = require('pg');
 var constants = require('../constants/constants');
+var Actu = require('../models/actu');
 var Logger = require('../utils/logger');
 var logger = new Logger('Postgres');
 var pgQuery = function (text, values, cb) {
@@ -108,7 +109,18 @@ var PostgresSQL = (function () {
                 fail(err);
             }
             else {
-                success(results.rows);
+                var res = new Array();
+                for (var i in results.rows) {
+                    var a = new Actu();
+                    a.date = results.rows[i].date;
+                    a.image = results.rows[i].image;
+                    a.postId = results.rows[i].postid;
+                    a.texte = results.rows[i].texte;
+                    a.titre = results.rows[i].titre;
+                    a.url = results.rows[i].url;
+                    res.push(a);
+                }
+                success(res);
             }
         });
     };
