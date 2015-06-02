@@ -11,6 +11,7 @@ var notification = require('./notifications/send_notification');
 var database = require('./database/postgres');
 var constants = require('./constants/constants');
 var Logger = require('./utils/logger');
+var Utils = require('./utils/utils');
 var logger = new Logger('Server');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -28,7 +29,7 @@ new CronJob('0 */15 * * * *', function () {
 app.get('/classement', function (req, res) {
     database.getRankingInfos(function (results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
-        res.send(results);
+        res.send(Utils.arrayToString(results));
     }, function (err) {
         logger.error('Error while connecting to database', err);
         res.send(constants.errorCode.INTERNAL);
@@ -37,7 +38,7 @@ app.get('/classement', function (req, res) {
 app.get('/calendrier', function (req, res) {
     database.getCalendarInfos(function (results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
-        res.send(results);
+        res.send(Utils.arrayToString(results));
     }, function (err) {
         logger.error('Error while connecting to database', err);
         res.send(constants.errorCode.INTERNAL);
@@ -46,7 +47,7 @@ app.get('/calendrier', function (req, res) {
 app.get('/actus', function (req, res) {
     database.getActusInfos(function (results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
-        res.send('[' + results.toString() + ']');
+        res.send(Utils.arrayToString(results));
     }, function (err) {
         logger.error('Error while connecting to database', err);
         res.send(constants.errorCode.INTERNAL);
@@ -93,21 +94,17 @@ app.post('/registerPush', function (req, res) {
 app.get('/agenda', function (req, res) {
     parser.parseAgenda(null, function (result) {
         res.set('Content-Type', 'application/json; charset=utf-8');
-        res.send(result);
+        res.send(Utils.arrayToString(result));
+    }, function (err) {
+        res.status(503).send('Error while contacting backend');
     });
 });
 app.get('/agenda/:semaine', function (req, res) {
     parser.parseAgenda(req.params.semaine, function (result) {
-        if (isNaN(result)) {
-            res.set('Content-Type', 'application/json; charset=utf-8');
-            res.send(result);
-        }
-        else if (result === 404) {
-            res.send(-1);
-        }
-        else {
-            res.send(-2);
-        }
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(Utils.arrayToString(result));
+    }, function (err) {
+        res.status(503).send('Error while contacting backend');
     });
 });
 app.get('/agendadistrict/:semaine', function (req, res) {

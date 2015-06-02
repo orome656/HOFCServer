@@ -14,6 +14,7 @@ import Actu = require('../models/actu');
 import Article = require('../models/article');
 import ClassementLine = require('../models/classementLine');
 import Match = require('../models/match');
+import MatchAgenda = require('../models/matchAgenda');
 var HOFC_NAME = constants.constants.HOFC_NAME;
 import Logger = require('../utils/logger');
 var logger = new Logger('Parser FFF');
@@ -253,7 +254,6 @@ class parser_node_module {
                 score2 = null;
             }
         }
-        
         var formattedDate = annee + "-" + mois + "-" + jour + " " + heure + ":" + minute + ":00";
         var match = new Match();
         match.equipe1 = equipe1;
@@ -370,7 +370,7 @@ class parser_node_module {
     * @param semaine Chaine de caractère au format YYYY-MM-DD
     * @param callback Callback a appeler à la fin de la récupération
     **/
-    public static parseAgenda(semaine, callback) {
+    public static parseAgenda(semaine, callback: ((res:Array<MatchAgenda>) => void), fail: Function) {
         if(semaine !== null) {
             optionsAgenda.path = optionsAgendaPathBase + '/semaine-' + semaine;
         } else {
@@ -378,7 +378,7 @@ class parser_node_module {
         }
         Utils.downloadData(optionsAgenda, function(result) {
             var i = 0;
-            var returnedValue = [];
+            var returnedValue = new Array<MatchAgenda>();
             var $2 = cheerio.load(result);
             
             var linesCalendar = $2("div.list_calendar").children('h3'),
@@ -426,9 +426,16 @@ class parser_node_module {
                 }
                 
                 var infosId = lineChildren.last().children('a').attr('data-target');
+                var matchAgenda = new MatchAgenda();
+                matchAgenda.equipe1 = equipe1;
+                matchAgenda.equipe2 = equipe2;
+                matchAgenda.score1 = score1;
+                matchAgenda.score2 = score2;
+                matchAgenda.infos = infosId;
+                matchAgenda.title = title;
+                matchAgenda.date = annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00';
                 
-                var array = {equipe1:equipe1, equipe2: equipe2, title: title, date: annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00', score1: score1, score2: score2, infos: infosId};
-                returnedValue.push(array);
+                returnedValue.push(matchAgenda);
                 i++;
                 if(i === nbLines) {
                     callback(returnedValue);
@@ -436,6 +443,7 @@ class parser_node_module {
             });
         }, function(err) {
             console.log(err);
+            fail(err);
         });
     }
     

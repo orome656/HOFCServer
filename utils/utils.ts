@@ -47,6 +47,20 @@ class Utils {
                 +((date.getDate()<=9)?'0'+date.getDate():date.getDate())+'T'+((date.getHours()<=9)?'0'+date.getHours():date.getHours())+':'
                 +((date.getMinutes()<=9)?'0'+date.getMinutes():date.getMinutes())+':'+((date.getSeconds()<=9)?'0'+date.getSeconds():date.getSeconds())+'.000Z';
     }
+    
+    /**
+     * Permet de formatter une date pour l'envoi au client
+     * YYYY-MM-DD HH:MI:SS
+     */
+    public static formatDateAgenda(date: Date): string {
+        return date.getFullYear() + '-' + ((date.getMonth()<=9)?'0'+date.getMonth():date.getMonth())+'-'
+                +((date.getDate()<=9)?'0'+date.getDate():date.getDate())+' '+((date.getHours()<=9)?'0'+date.getHours():date.getHours())+':'
+                +((date.getMinutes()<=9)?'0'+date.getMinutes():date.getMinutes())+':'+((date.getSeconds()<=9)?'0'+date.getSeconds():date.getSeconds());
+    }
+    
+    public static arrayToString(array: Array<any>): string {
+        return '['+array.toString()+']';
+    }
 }
 
 export = Utils;

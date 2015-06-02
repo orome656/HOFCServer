@@ -9,6 +9,7 @@ var Actu = require('../models/actu');
 var Article = require('../models/article');
 var ClassementLine = require('../models/classementLine');
 var Match = require('../models/match');
+var MatchAgenda = require('../models/matchAgenda');
 var HOFC_NAME = constants.constants.HOFC_NAME;
 var Logger = require('../utils/logger');
 var logger = new Logger('Parser FFF');
@@ -254,7 +255,7 @@ var parser_node_module = (function () {
                 fail(err);
         });
     };
-    parser_node_module.parseAgenda = function (semaine, callback) {
+    parser_node_module.parseAgenda = function (semaine, callback, fail) {
         if (semaine !== null) {
             optionsAgenda.path = optionsAgendaPathBase + '/semaine-' + semaine;
         }
@@ -263,7 +264,7 @@ var parser_node_module = (function () {
         }
         Utils.downloadData(optionsAgenda, function (result) {
             var i = 0;
-            var returnedValue = [];
+            var returnedValue = new Array();
             var $2 = cheerio.load(result);
             var linesCalendar = $2("div.list_calendar").children('h3'), nbLines = linesCalendar.length;
             if (nbLines === 0) {
@@ -294,8 +295,15 @@ var parser_node_module = (function () {
                     }
                 }
                 var infosId = lineChildren.last().children('a').attr('data-target');
-                var array = { equipe1: equipe1, equipe2: equipe2, title: title, date: annee + '-' + mois + '-' + jour + ' ' + heure + ':' + minute + ':00', score1: score1, score2: score2, infos: infosId };
-                returnedValue.push(array);
+                var matchAgenda = new MatchAgenda();
+                matchAgenda.equipe1 = equipe1;
+                matchAgenda.equipe2 = equipe2;
+                matchAgenda.score1 = score1;
+                matchAgenda.score2 = score2;
+                matchAgenda.infos = infosId;
+                matchAgenda.title = title;
+                matchAgenda.date = annee + '-' + mois + '-' + jour + ' ' + heure + ':' + minute + ':00';
+                returnedValue.push(matchAgenda);
                 i++;
                 if (i === nbLines) {
                     callback(returnedValue);
@@ -303,6 +311,7 @@ var parser_node_module = (function () {
             });
         }, function (err) {
             console.log(err);
+            fail(err);
         });
     };
     parser_node_module.parseMatchInfos = function (id, callback) {

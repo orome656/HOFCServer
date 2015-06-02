@@ -2,6 +2,8 @@
 var pg = require('pg');
 var constants = require('../constants/constants');
 var Actu = require('../models/actu');
+var ClassementLine = require('../models/classementLine');
+var Match = require('../models/match');
 var Logger = require('../utils/logger');
 var logger = new Logger('Postgres');
 var pgQuery = function (text, values, cb) {
@@ -89,7 +91,17 @@ var PostgresSQL = (function () {
                 fail(err);
             }
             else {
-                success(results.rows);
+                var res = new Array();
+                for (var i in results.rows) {
+                    var m = new Match();
+                    m.equipe1 = results.rows[i].equipe1;
+                    m.equipe2 = results.rows[i].equipe2;
+                    m.score1 = results.rows[i].score1;
+                    m.score2 = results.rows[i].score2;
+                    m.date = results.rows[i].date;
+                    res.push(m);
+                }
+                success(res);
             }
         });
     };
@@ -99,7 +111,21 @@ var PostgresSQL = (function () {
                 fail(err);
             }
             else {
-                success(results.rows);
+                var res = new Array();
+                for (var i in results.rows) {
+                    var c = new ClassementLine();
+                    c.nom = results.rows[i].nom;
+                    c.points = results.rows[i].points;
+                    c.joue = results.rows[i].joue;
+                    c.gagne = results.rows[i].gagne;
+                    c.nul = results.rows[i].nul;
+                    c.perdu = results.rows[i].perdu;
+                    c.bp = results.rows[i].bp;
+                    c.bc = results.rows[i].bc;
+                    c.diff = results.rows[i].diff;
+                    res.push(c);
+                }
+                success(res);
             }
         });
     };

@@ -209,12 +209,22 @@ class PostgresSQL {
 	 * @param {function} fail
 	 * @return array
 	 */
-	public static getCalendarInfos = function(/**function */success, /**function */fail): void {
+	public static getCalendarInfos = function(/**function */success :((res: Array<Match>) => void), /**function */fail): void {
 		pgQuery('select * from calendrier order by date asc', null, function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
-				success(results.rows);
+				var res = new Array<Match>();
+				for (var i in results.rows) {
+					var m = new Match();
+					m.equipe1 = results.rows[i].equipe1;
+					m.equipe2 = results.rows[i].equipe2;
+					m.score1 = results.rows[i].score1;
+					m.score2 = results.rows[i].score2;
+					m.date = results.rows[i].date;
+					res.push(m);
+				}
+				success(res);
 			}
 		});
 	};
@@ -226,12 +236,26 @@ class PostgresSQL {
 	 * @param {function} fail
 	 * @return array
 	 */
-	public static getRankingInfos = function(/**function */success, /**function */fail): void {
+	public static getRankingInfos = function(/**function */success: ((res: Array<ClassementLine>)=>void), /**function */fail): void {
 		pgQuery('select * from classement order by points desc, diff desc', null, function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
-				success(results.rows);
+				var res = new Array<ClassementLine>();
+				for (var i in results.rows) {
+					var c = new ClassementLine();
+					c.nom = results.rows[i].nom;
+					c.points = results.rows[i].points;
+					c.joue = results.rows[i].joue;
+					c.gagne = results.rows[i].gagne;
+					c.nul = results.rows[i].nul;
+					c.perdu = results.rows[i].perdu;
+					c.bp = results.rows[i].bp;
+					c.bc = results.rows[i].bc;
+					c.diff = results.rows[i].diff;
+					res.push(c);
+				}
+				success(res);
 			}
 		});
 	};
@@ -242,7 +266,7 @@ class PostgresSQL {
 	 * @param {function} fail
 	 * @return {array} Liste des actualités
 	 */
-	public static getActusInfos = function(/**function */success, /**function */fail): void {
+	public static getActusInfos = function(/**function */success: ((res: Array<Actu>) => void), /**function */fail): void {
 		pgQuery('select * from actus order by date desc', null, function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);

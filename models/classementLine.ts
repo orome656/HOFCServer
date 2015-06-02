@@ -10,7 +10,7 @@ class ClassementLine {
 	public bc: number;
 	public diff: number;
 	
-	public toString(): string {
+	toString(): string {
 		return '{"nom":"'+this.nom+'","joue":"'+this.joue+'","points":"'+this.points+'","gagne":"'+this.gagne+'","nul":"'+this.nul+'","perdu":"'+this.perdu+'","bp":"'+this.bp+'","bc":"'+this.bc+'","diff":"'+this.diff+'"}'
 	}
 }

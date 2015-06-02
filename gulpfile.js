@@ -110,5 +110,3 @@ gulp.task('watch', function() {
     gulp.watch('**/*.ts', ['compile:typescript']);
     gulp.watch('web/**', ['copy']);
 });
-
-//gulp.task('default', ['compile:typescript']);
