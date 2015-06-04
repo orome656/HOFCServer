@@ -9,6 +9,8 @@ import constants = require('../constants/constants');
 import Constants_District = require('../constants/constants_district');
 import Utils = require('../utils/utils');
 import MatchAgenda = require('../models/matchAgenda');
+import Logger = require('../utils/logger');
+var logger = new Logger('Parser_District');
 var optionsAgendaPathBase = Constants_District.agenda.basePath;
 var optionsAgenda = Constants_District.agenda;
 
@@ -113,7 +115,7 @@ class ParserDistrictNodeModule {
                 }
             });
         }, function(e) {
-            console.log(e);
+            logger.error('Error while downloading agenda infos data ', e);
             callback(null, -3);
         });
     }
@@ -123,7 +125,7 @@ class ParserDistrictNodeModule {
         Utils.downloadData(optionsMatchInfos, function(result) {
             var $2 = cheerio.load(result);
             var adresseContent = $2('.w350').children('div').first().find('.s90').contents();
-            console.log(adresseContent[0].textContent);
+            
             var nom = $2(adresseContent[0]).text();
             var adresse = $2(adresseContent[2]).text();
             var ville = $2(adresseContent[4]).text();
@@ -136,7 +138,7 @@ class ParserDistrictNodeModule {
             
             callback({nom:nom, adresse:adresse, ville:ville, arbitres:arbitres});
         }, function(e) {
-            console.log(e);
+            logger.error('Error while downloading match infos data ', e);
             callback(-3);        
         });
     }
@@ -149,7 +151,7 @@ class ParserDistrictNodeModule {
             var $2 = cheerio.load(result);
             var linesCalendar = $2('#refpop').children('.resultatmatch');
             var nbLines = linesCalendar.length;
-            console.log('nbLines = ' + nbLines);
+            
             if(nbLines === 0) {
                 callback([]);
             }
@@ -163,10 +165,7 @@ class ParserDistrictNodeModule {
                 var score1 = null;
                 var score2 = null;
                 var html = node.children('.voirtout').html();
-                console.log(date);
-                console.log(equipe1);
-                console.log(equipe2);
-                console.log(score);
+                
                 var infos = null;
                 if(html) {
                     infos = /det_match\(this,&apos;([0-9]+)/.exec(html)[1];
@@ -209,7 +208,7 @@ class ParserDistrictNodeModule {
                 }
             });
         }, function(e) {
-            console.log(e);
+            logger.error('Error while downloading journee excellence infos data ', e);
             callback(-3);        
         });
     }

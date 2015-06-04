@@ -15,6 +15,7 @@ import Article = require('../models/article');
 import ClassementLine = require('../models/classementLine');
 import Match = require('../models/match');
 import MatchAgenda = require('../models/matchAgenda');
+import MatchInfos = require('../models/matchInfos');
 var HOFC_NAME = constants.constants.HOFC_NAME;
 import Logger = require('../utils/logger');
 var logger = new Logger('Parser FFF');
@@ -100,11 +101,11 @@ class parser_node_module {
                     }
     
                 }, function(err) {
-                    console.log(err);
+                    logger.error('Error while getting match on database', err);
                 });
             });
         }, function(err) {
-            console.log(err);
+            logger.error('Error while downloading match infos', err);
         });
     }
     
@@ -139,7 +140,7 @@ class parser_node_module {
                 });
             });
         }, function(err) {
-            console.log(err);
+            logger.error('Error while downloading match infos', err);
         });
     }
     
@@ -160,11 +161,11 @@ class parser_node_module {
                         database.insertActusLine(actus);
                     }
                 }, function(err) {
-                    console.log(err);
+                    logger.error('Error while updating actus data ', err);
                 });
             });
         }, function(err) {
-            console.log(err);
+            logger.error('Error while downloading actus infos', err);
         });
     }
     
@@ -328,7 +329,7 @@ class parser_node_module {
      * @param url URL de l'article a parser sur le site http://www.HOFC.fr/
      * @param {function} fail Callback d'erreur
      */
-    public static parseArticle(url, callback, fail) { // TODO Ajouter le type de retour
+    public static parseArticle(url, callback: ((article: Article) => void), fail) { // TODO Ajouter le type de retour
         Utils.downloadData(url, function(result) { 
             // do parse
             var $5 = cheerio.load(result);
@@ -442,7 +443,7 @@ class parser_node_module {
                 }
             });
         }, function(err) {
-            console.log(err);
+            logger.error('Error while downloading agenda data ', err);
             fail(err);
         });
     }
@@ -453,7 +454,7 @@ class parser_node_module {
      * @param {function} callback fonction appelée lors de la fin du traitement
      * 
      */
-    public static parseMatchInfos(id, callback) {
+    public static parseMatchInfos(id: string, callback: ((match: MatchInfos)=>void)) {
         optionsMatchInfos.path = optionsMatchInfosPathBase.replace('{id}', id);
         Utils.downloadData(optionsMatchInfos, function(result) {
             var $2 = cheerio.load(result);
@@ -465,14 +466,21 @@ class parser_node_module {
             
             var arbitresNode = $2('.info_inner').children('p').last().children().slice(1);
             
-            var arbitres = [];
+            var arbitres = new Array<string>();
             
             arbitresNode.each(function(index,line) {
                 arbitres.push($2(line).text());
             });
-            callback({nom:nom, adresse:adresse, ville:ville, arbitres:arbitres});
+            
+            var matchInfos = new MatchInfos();
+            matchInfos.adresse = adresse;
+            matchInfos.nom = nom;
+            matchInfos.ville = ville;
+            matchInfos.arbitres = arbitres;
+            
+            callback(matchInfos);
         }, function(err) {
-            console.log(err);
+            logger.error('Error while downloading match infos data ', err);
         });
     }
 };

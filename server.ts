@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 app.set('port', (process.env.PORT || 3000));
 app.use(express.static('web'));
 app.use(function(req, res, next) {
-    console.log('Request on URL ' + req.url + ' with method ' + req.method);
+    logger.info('Request on URL ' + req.url + ' with method ' + req.method);
     next();
 });
 
@@ -105,8 +105,8 @@ app.post('/parsePage', function(req, res) {
  * Permet de s'enregistrer aux notifications push
  */
 app.post('/registerPush', function(req, res){
-    var notificationId = req.body.notification_id;
-    var uuid = req.body.uuid;
+    var notificationId: string = req.body.notification_id;
+    var uuid: string = req.body.uuid;
 	logger.info('New registration -> {notification_id: ' + notificationId + ', uuid:' + uuid + '}');
     if(notificationId && uuid) {
         database.insertNotificationId(notificationId, uuid, function() {
@@ -171,7 +171,7 @@ app.get('/agendadistrict/:semaine', function(req,res) {
             }
         });
     } catch(e) {
-        console.log(e);
+        logger.error('Error while getting agenda infos', e);
         res.send(-3);
     }
 });

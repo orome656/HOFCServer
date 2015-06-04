@@ -294,7 +294,7 @@ class PostgresSQL {
 	 * @param {function} success
 	 * @param {function} fail
 	 */
-	public static insertNotificationId = function(/**string */notificationId, /**string */uuid, /**function */success, /**function */fail): void {
+	public static insertNotificationId = function(/**string */notificationId: string, /**string */uuid: string, /**function */success: Function, /**function */fail: Function): void {
 		pgQuery(constants.database.creation_table_notification_query, null, null);
 		pgQuery("SELECT * FROM notification_client where uuid='" + uuid +"'", null, function(err, result) {
 			if(err) {
