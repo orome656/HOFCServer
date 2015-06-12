@@ -1,6 +1,7 @@
 /**
  * Permet de récupérer les informations à partir du site district-foot-65.fff.fr
  */
+/// <reference path="../../typings/tsd.d.ts" />
 /*jslint node: true */
 'use strict';
 var cheerio = require("cheerio");

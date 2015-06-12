@@ -1,7 +1,7 @@
 /**
  * Permet de récupérer les informations à partir du site fff.fr
  */
-/// <reference path="../typings/node/node.d.ts" />
+/// <reference path="../../typings/tsd.d.ts" />
 /*jslint node: true */
 'use strict';
 var cheerio = require("cheerio");
