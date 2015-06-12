@@ -180,14 +180,18 @@ class ParserDistrictNodeModule {
                 }
                 
                 var dateString = date.split('-')[0].replace(/ +(?= )/g,'');
-                var timeString = date.split('-')[1].trim();
-                
                 var jour = dateString.split(' ')[1];
                 var mois = listeMoisActu[dateString.split(' ')[2]];
                 var annee = dateString.split(' ')[3];
                 
-                var heure = timeString.split('H')[0];
-                var minute = timeString.split('H')[1];
+                var heure = '00';
+                var minute = '00';
+                
+                if(date.split('-')[1] != null) {
+                    var timeString = date.split('-')[1].trim();
+                    heure = timeString.split('H')[0];
+                    minute = timeString.split('H')[1];
+                }
                 
                 if(equipe1 === null || equipe1.length === 0 || equipe2 === null || equipe2.length === 0) {
                     i++;
