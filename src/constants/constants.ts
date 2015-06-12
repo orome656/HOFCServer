@@ -40,6 +40,24 @@ var listeMoisActu = {
         "novembre": "11",
         "décembre": "12"
     };
+    
+/**
+ *	Tableau permettant de convertir la chaine date récupérée en objet date pour les match du site du district
+ */
+var listeMoisDistrict = {
+    "janvier": "01",
+    "fevrier": "02",
+    "mars": "03",
+    "avril": "04",
+    "mai": "05",
+    "juin": "06",
+    "juillet": "07",
+    "aout": "08",
+    "septembre": "09",
+    "octobre": "10",
+    "novembre": "11",
+    "decembre": "12"
+};
 module Constants {
     export var errorCode =  {
         INTERNAL:-1
@@ -50,7 +68,8 @@ module Constants {
     export var constants = {
         HOFC_NAME: HOFC_NAME,
         listeMois: listeMois,
-        listeMoisActu: listeMoisActu
+        listeMoisActu: listeMoisActu,
+        listeMoisDistrict: listeMoisDistrict
     }
     export var database = {
         creation_table_classement_query: "CREATE TABLE IF NOT EXISTS classement (id serial PRIMARY KEY , nom varchar(255) NOT NULL, points NUMERIC(11) NOT NULL, joue NUMERIC(11) NOT NULL, gagne NUMERIC(11) NOT NULL, nul NUMERIC(11) NOT NULL, perdu NUMERIC(11) NOT NULL, bp NUMERIC(11) NOT NULL, bc NUMERIC(11) NOT NULL, diff NUMERIC(11) NOT NULL)",
