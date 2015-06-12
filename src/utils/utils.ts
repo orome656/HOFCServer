@@ -27,7 +27,7 @@ class Utils {
                 });
     
                 res.on('end', function () {
-                    logger.errorMessage('End getting response on ' + options.path);
+                    logger.info('End getting response on ' + options.path);
                     success(result);
                 });
         }).on('error', function(e) {
