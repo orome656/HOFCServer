@@ -8,16 +8,16 @@ var RequestParamsEditable = RequestParamsReq.RequestParamsEditable;
 
 // Paramétrage url
 var optionsClassement = new RequestParams(
-    'fr-proxy.groupinfra.com',
-    3128,
-    'http://www.fff.fr/championnats/fff/district-hautes-pyrenees/2014/305257-excellence/phase-1/poule-1/derniers-resultats',
+    'www.fff.fr',
+    80,
+    '/championnats/fff/district-hautes-pyrenees/2014/305257-excellence/phase-1/poule-1/derniers-resultats',
     true
 );
 
 var optionsCalendrier = new RequestParams(
-    'fr-proxy.groupinfra.com',
-    3128,
-    'http://www.fff.fr/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/305257/phase-1/groupe-1',
+    'www.fff.fr',
+    80,
+    '/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/305257/phase-1/groupe-1',
     true
 );
 
@@ -29,11 +29,11 @@ var optionsActus = new RequestParams(
 );
 
 var optionsAgenda = new RequestParamsEditable(
-    'fr-proxy.groupinfra.com',
-    3128,
-    'http://www.fff.fr/la-vie-des-clubs/177005/agenda',
+    'www.fff.fr',
+    80,
+    '/la-vie-des-clubs/177005/agenda',
     true,
-    'http://www.fff.fr/la-vie-des-clubs/177005/agenda'
+    '/la-vie-des-clubs/177005/agenda'
 );
 
 
