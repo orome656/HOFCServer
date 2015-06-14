@@ -68,13 +68,13 @@ class parser_node_module {
             
             $2(linesCalendar).each(function (index, line) {
                 var match: Match = parser_node_module.parseCalendarLine(line);
-                database.getMatchByName(match.equipe1, match.equipe2, function (results) {
-                    if (results.length > 0 ) {
+                database.getMatchByName(match.equipe1, match.equipe2, function (result) {
+                    if (result != null ) {
                         /**
                          * Mise a jour des informations
                          */
-                        if((results[0].score1 === null) && 
-                           (results[0].score2 === null) && 
+                        if((result.score1 === null) && 
+                           (result.score2 === null) && 
                             match.score1 !== null && match.score2 !== null) {
                             var notifTitle = 'Nouveau Résultat';
                             var notifMessage = null;
@@ -120,14 +120,9 @@ class parser_node_module {
                 if(team === null) {
                     return;
                 }
-                database.getRankByName(team.nom, function(results) {
-                    if(results !== null && results.length > 0) {
+                database.getRankByName(team.nom, function(result) {
+                    if(result !== null) {
                         // Mise a jour des informatons de classement
-                        /*
-                        if(results.nom == HOFC_NAME && results.joue < joue) {
-                            notification.sendNotification(db, 'Nouveau Classement', 'Le HOFC est maintenant ' + place + ((place == 1) ? 'er' : 'eme'));
-                        }
-                        */
                         database.updateRankingLine(team);
                     } else {
                         // Nouvelle équipe dans le classement
@@ -153,7 +148,7 @@ class parser_node_module {
                 var actus = parser_node_module.parseActuLine(line);
                 database.getActuById(actus.postId, function (res) {
                     
-                    if (res.length > 0) {
+                    if (res != null) {
                 
                         database.updateActusLine(actus);
                     } else {
@@ -169,7 +164,7 @@ class parser_node_module {
         });
     }
     
-    public static parseClassementLine(/**string */ line): ClassementLine { // Ajouter le type de retour
+    public static parseClassementLine(line /**: DOM Element */): ClassementLine {
         var $ = cheerio.load(line);
         var lineChildren = $(line).children();
         if (lineChildren !== null && lineChildren.length > 3) {
@@ -205,7 +200,7 @@ class parser_node_module {
      * @param {string} ligne html des infos du match
      * @return {object} Informations sur le match
      */
-    public static parseCalendarLine(/**string */line): Match { // TODO ajouter le type de retour
+    public static parseCalendarLine(line /**: DOM Element */): Match {
         var $2 = cheerio.load(line);
         var lineChildren = $2(line).children(),
             date = $2(lineChildren[0]).text().trim(),
@@ -272,7 +267,7 @@ class parser_node_module {
      * @param {string} ligne html de l'élément
      * @return {object} Informations de l'actualité
      */
-    public static parseActuLine(/**string */line): Actu { // TODO ajouter le type de retour
+    public static parseActuLine(line /**: DOM Element */): Actu {
         var $ = cheerio.load(line);
         var postId = $(line).attr('id').split('-')[1]; 
         /**
@@ -309,7 +304,7 @@ class parser_node_module {
      * @param {function} callback appelé lorsde la fin du traitement
      * @param {function} fail Callback d'erreur
      */
-    public static parseDiaporama(url, callback, fail) { // TODO Ajouter le type de retour
+    public static parseDiaporama(url: string, callback: (results: Array<string>)=>void, fail: Function) { // TODO Ajouter le type de retour
         downloadData(url, function(result) { 
             // do parse
             var $4 = cheerio.load(result);
@@ -329,7 +324,7 @@ class parser_node_module {
      * @param url URL de l'article a parser sur le site http://www.HOFC.fr/
      * @param {function} fail Callback d'erreur
      */
-    public static parseArticle(url, callback: ((article: Article) => void), fail) { // TODO Ajouter le type de retour
+    public static parseArticle(url: string, callback: ((article: Article) => void), fail: Function) {
         Utils.downloadData(url, function(result) { 
             // do parse
             var $5 = cheerio.load(result);

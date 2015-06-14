@@ -32,17 +32,14 @@ app.use(function(req, res, next) {
 new CronJob('0 */15 * * * *', function(){
       logger.info('Update database start');
       parser.updateDatabase();
-    }, function () {
-    
-    },
-    true // Start the job right now
+    }, null, true // Start the job right now
 );
 
 /**
  * Permet de récupérer le classement de l'équipe
  */
 app.get('/classement', function(req, res){
-    database.getRankingInfos(function(/**array */results) {
+    database.getRankingInfos(function(results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(Utils.arrayToString(results));
     }, function(err) {
@@ -55,7 +52,7 @@ app.get('/classement', function(req, res){
  * Permet de récupérer la liste des matchs de la saison avec les résultats des matchs
  */
 app.get('/calendrier', function(req, res){
-    database.getCalendarInfos(function(/**array */results) {
+    database.getCalendarInfos(function(results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(Utils.arrayToString(results));
     }, function(err) {
@@ -68,7 +65,7 @@ app.get('/calendrier', function(req, res){
  * Permet de récupérer la listes des actualités
  */
 app.get('/actus', function(req, res){
-    database.getActusInfos(function(/**array */results: Array<Actu>) {
+    database.getActusInfos(function(results: Array<Actu>) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(Utils.arrayToString(results));
     }, function(err) {

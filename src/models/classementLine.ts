@@ -9,6 +9,19 @@ class ClassementLine {
 	public bp: number;
 	public bc: number;
 	public diff: number;
+		
+	fromObject(object) {
+		this.id = object.id;
+		this.nom = object.nom;
+		this.joue = object.joue;
+		this.points = object.points;
+		this.gagne = object.gagne;
+		this.nul = object.nul;
+		this.perdu = object.perdu;
+		this.bp = object.bp;
+		this.bc = object.bc;
+		this.diff = object.diff;
+	}
 	
 	toString(): string {
 		return '{"nom":"'+this.nom+'","joue":"'+this.joue+'","points":"'+this.points+'","gagne":"'+this.gagne+'","nul":"'+this.nul+'","perdu":"'+this.perdu+'","bp":"'+this.bp+'","bc":"'+this.bc+'","diff":"'+this.diff+'"}'

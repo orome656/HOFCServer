@@ -209,7 +209,7 @@ class PostgresSQL {
 	 * @param {function} fail
 	 * @return array
 	 */
-	public static getCalendarInfos = function(/**function */success :((res: Array<Match>) => void), /**function */fail): void {
+	public static getCalendarInfos = function(success :((res: Array<Match>) => void), fail): void {
 		pgQuery('select * from calendrier order by date asc', null, function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
@@ -330,12 +330,19 @@ class PostgresSQL {
 	 * @param {function} fail
 	 * @return {object} Informations de l'équipe
 	 */
-	public static getRankByName = function(/**string */nom, /**function */success, /**function */fail) {
+	public static getRankByName = function(nom: string, success: (line: ClassementLine)=>void, fail) {
 		pgQuery('select * from classement where nom LIKE $1', [nom], function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
-				success(results.rows);
+				if(results.rows.length > 0) {
+					var line = new ClassementLine();
+					line.fromObject(results.rows[0]);
+					
+					success(line);
+				} else {
+					success(null);
+				}
 			}
 		});
 	};
@@ -349,30 +356,44 @@ class PostgresSQL {
 	 * @param {function} fail
 	 * @return {object} Informations sur le match
 	 */
-	public static getMatchByName = function(/**string */equipe1, /** string*/equipe2, /**function */success, /**function */fail) {
+	public static getMatchByName = function(equipe1: string, equipe2: string, success: (match: Match)=>void, fail: Function) {
 		pgQuery('select * from calendrier where equipe1 LIKE $1 AND equipe2 LIKE $2', ['%'+equipe1+'%', '%'+equipe2+'%'], function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
-				success(results.rows);
+				if(results.rows.length > 0) {
+					var result = new Match();
+					result.fromObject(results.rows[0]);
+					
+					success(result);
+				} else {
+					success(null);
+				}
 			}
 		});
 	};
 	
 	/**
-	 * Permet de sélectionner les informations d'un match par son nom dans 
-	 * la table classement
+	 * Permet de sélectionner les informations actualité par son id
 	 * @param {string} id Id de l'actualité
 	 * @param {function} success
 	 * @param {function} fail
-	 * @return {object} Informations sur le match
+	 * @return {object} Informations sur l'actualité
 	 */
-	public static getActuById = function(/**string */id, /**function */success, /**function */fail) {
+	public static getActuById = function(id: string, success: (result: Actu)=>void, fail: Function) {
 		pgQuery('select * from actus where postId=$1', [id], function(err, results: pg.QueryResult) {
 			if(err) {
 				fail(err);
 			} else {
-				success(results.rows);
+				if(results.rows.length > 0) {
+					var result: Actu = new Actu();
+					result.fromObject(results.rows[0]);
+					
+					
+					success(result);
+				} else {
+					success(null);
+				}
 			}
 		});
 	};
@@ -382,7 +403,7 @@ class PostgresSQL {
 	 * @param {function} success callback de succes
 	 * @param {function} fail callback d'erreur
 	 */
-	public static getNotificationClients = function(success, fail) {
+	public static getNotificationClients = function(success: (array: Array<string>)=>void, fail: Function) {
 		pgQuery("SELECT notification_id from notification_client", null, function(err, result: pg.QueryResult) {
 			if(err) {
 				fail(err);

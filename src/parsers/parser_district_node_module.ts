@@ -50,7 +50,7 @@ class ParserDistrictNodeModule {
                         return true;
                     }
                 });
-            var nbLines = linesCalendar.length;
+            var nbLines: number = linesCalendar.length;
             if(nbLines === 0) {
                 callback(returnedValue, 0);
             }

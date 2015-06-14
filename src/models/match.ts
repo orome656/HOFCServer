@@ -9,6 +9,15 @@ class Match {
 	public date: string; // TODO: Voir pour changer en Date
 	public infos: string;	
 	
+	fromObject(object): void {
+		this.date = object.date;
+		this.equipe1 = object.equipe1;
+		this.equipe2 = object.equipe2;
+		this.infos = object.infos;
+		this.score1 = object.score1;
+		this.score2 = object.score2;
+	}
+	
 	formatDate(): string {
 		return Utils.formatDate(new Date(this.date));
 	}

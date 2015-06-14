@@ -2,10 +2,8 @@
  * Contient les constantes spécifiques au site fff.fr
  */
 /*jslint node: true */
-import RequestParamsReq = require('../models/requestParams');
-var RequestParams = RequestParamsReq.RequestParams;
-var RequestParamsEditable = RequestParamsReq.RequestParamsEditable;
-
+import RequestParams = require('../models/requestParams');
+var RequestParamsEditable = require('../models/requestParamsEditable');
 // Paramétrage url
 var optionsClassement = new RequestParams(
     'www.fff.fr',
