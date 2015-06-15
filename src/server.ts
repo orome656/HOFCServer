@@ -110,11 +110,11 @@ app.post('/registerPush', function(req, res){
             res.send(0);
         }, function(err) {
             logger.error('Error while registring notification id', err);
-            res.send(-3);            
+            res.send(constants.errorCode.INTERNAL);            
         });
     } else {
         logger.errorMessage('Missing one parameter.');
-        res.send(-3);
+        res.send(constants.errorCode.CALLING_PROBLEM);
     }
 });
 
@@ -162,14 +162,14 @@ app.get('/agendadistrict/:semaine', function(req,res) {
                 res.set('Content-Type', 'application/json; charset=utf-8');
                 res.send(result);
             } else if(error === 404) {
-                res.send(-1);
+                res.send(constants.errorCode.BACKEND);
             } else {
-                res.send(-2);
+                res.send(constants.errorCode.UNKNOWN);
             }
         });
     } catch(e) {
         logger.error('Error while getting agenda infos', e);
-        res.send(-3);
+        res.send(constants.errorCode.INTERNAL);
     }
 });
 
@@ -219,7 +219,7 @@ app.get('/dev/notification/:title/:message', function(req, res){
     var isDebug = (process.env.NODE_ENV === "DEV");
     if(isDebug) {
         notification.sendNotification(req.params.title, req.params.message);
-        res.send(0);
+        res.send(constants.errorCode.OK);
     } else {
         res.status(404).send('Not found'); // HTTP status 404: NotFound
     }
