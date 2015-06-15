@@ -403,7 +403,7 @@ class PostgresSQL {
 	 * @param {function} success callback de succes
 	 * @param {function} fail callback d'erreur
 	 */
-	public static getNotificationClients = function(success: (array: Array<string>)=>void, fail: Function) {
+	public static getNotificationClients = function(success: (array: Array<any>)=>void, fail: Function) {
 		pgQuery("SELECT notification_id from notification_client", null, function(err, result: pg.QueryResult) {
 			if(err) {
 				fail(err);
