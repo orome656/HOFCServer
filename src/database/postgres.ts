@@ -10,6 +10,7 @@ import constants = require('../constants/constants');
 import Actu = require('../models/actu');
 import ClassementLine = require('../models/classementLine');
 import Match = require('../models/match');
+import Journee = require('../models/journee');
 import Logger = require('../utils/logger');
 var logger = new Logger('Postgres');
 
@@ -49,6 +50,16 @@ class PostgresSQL {
 		pgQuery(constants.database.creation_table_actus_query, null, function(err) {
 			if(err) {
 				logger.errorMessage('Error creating actus table');
+			}
+		});
+		pgQuery(constants.database.creation_table_journee_query, null, function(err) {
+			if(err) {
+				logger.errorMessage('Error creating journee table');
+			}
+		});
+		pgQuery(constants.database.creation_table_agenda_query, null, function(err) {
+			if(err) {
+				logger.errorMessage('Error creating agenda table');
 			}
 		});
 	};
@@ -412,6 +423,84 @@ class PostgresSQL {
 			}
 		});
 	};
+	
+	public static insertJournee = function(journee: Journee, success: Function, fail: Function) {
+		pgQuery("INSERT INTO journee (date,equipe1,equipe2,score1,score2,id_journee) VALUES ($1, $2, $3, $4, $5, $6)", 
+			[journee.date, journee.equipe1, journee.equipe2, journee.score1, journee.score2, journee.idJournee], 
+			function(err, result: pg.QueryResult) {
+			if(err) {
+				logger.error("Error while inserting journee", err);
+				if(fail)
+					fail(err);
+			}
+		});
+	}
+	
+	public static updateJournee = function(journee: Journee, success: Function, fail: Function) {
+		pgQuery('UPDATE journee set date=$1, score1=$2, score2=$3, equipe1=$4, equipe2=$5, id_journee=$6 WHERE equipe1 LIKE $6 AND equipe2 LIKE $7',
+				[journee.date, journee.score1, journee.score2, journee.equipe1, journee.equipe2, journee.idJournee, '%'+journee.equipe1+'%', '%'+journee.equipe2+'%' ], 
+			function(err, result: pg.QueryResult) {
+				if(err) {
+					logger.error("Error while updating journee", err);
+					if(fail)
+						fail(err);
+				}
+		});
+	}
+	
+	public static getJournee = function(idJournee: number, success: Function, fail: Function) {
+		pgQuery('SELECT * from journee where id_journee=$1 order by date asc', [idJournee], function(err, results) {
+			if(err) {
+				if(fail)
+					fail(err);
+			} else {
+				
+				var res = new Array<Journee>();
+				for (var i in results.rows) {
+					var j = new Journee();
+					j.equipe1 = results.rows[i].equipe1;
+					j.equipe2 = results.rows[i].equipe2;
+					j.score1 = results.rows[i].score1;
+					j.score2 = results.rows[i].score2;
+					j.date = results.rows[i].date;
+					j.idJournee = idJournee;
+					res.push(j);
+				}
+				success(res);
+			}
+		})
+	}
+	
+	public static getJourneeByName = function(idJournee: number, equipe1: string, equipe2: string, success: Function, fail: Function) {
+		pgQuery('SELECT * from journee where id_journee=$1 and equipe1 LIKE $2 and equipe2 LIKE $3 order by date asc', [idJournee, equipe1, equipe2], function(err, results) {
+			if(err) {
+				logger.error('Error while getting journee', err);
+				if(fail)
+					fail(err);
+			} else {
+				if(results.rows != null && results.rows.length > 0) {
+					var j = new Journee();
+					j.equipe1 = results.rows[0].equipe1;
+					j.equipe2 = results.rows[0].equipe2;
+					j.score1 = results.rows[0].score1;
+					j.score2 = results.rows[0].score2;
+					j.date = results.rows[0].date;
+					j.idJournee = idJournee;
+					success(j);
+				} else {
+					success(null);
+				}
+			}
+		})
+	}
+	
+	public static deleteJournee = function(idJournee: number) {
+		pgQuery('DELETE FROM journee where id_journee=$1', [idJournee], function(err) {
+			if(err) {
+				logger.error('Error while deleting journee', err);
+			}
+		})
+	}
 }
 
 export = PostgresSQL;

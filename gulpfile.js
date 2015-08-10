@@ -26,7 +26,7 @@ var paths = {
  var paths = {
     tscripts : { 
         src : [
-            '**/*.ts',
+            'src/**/*.ts',
             '!node_modules/**',
             '!typings/**'
         ],

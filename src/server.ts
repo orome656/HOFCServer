@@ -35,6 +35,13 @@ new CronJob('0 */15 * * * *', function(){
     }, null, true // Start the job right now
 );
 
+new CronJob('0 */30 * * * *', function() {
+    logger.info('Start updating database journee');
+    var nbJournee = constants.params.SEASON_MATCHS_COUNT;
+    for(var i = 1; i<=22; i++)
+        parserdistrict.updateDatabaseJournee(i);
+}, null, true);
+
 /**
  * Permet de récupérer le classement de l'équipe
  */
@@ -195,10 +202,10 @@ app.get('/matchinfosdistrict/:id', function(req, res) {
 });
 
 app.get('/journee/:id', function (req, res) {
-    parserdistrict.parseJourneeExcellence(req.params.id, function(result) {
+    database.getJournee(req.params.id, function(result) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(result);
-    });
+    }, null);
 });
 
 /**

@@ -10,11 +10,12 @@ import constants = require('../constants/constants');
 import Constants_District = require('../constants/constants_district');
 import Utils = require('../utils/utils');
 import MatchAgenda = require('../models/matchAgenda');
+import Journee = require('../models/journee');
 import Logger = require('../utils/logger');
 var logger = new Logger('Parser_District');
 var optionsAgendaPathBase = Constants_District.agenda.basePath;
 var optionsAgenda = Constants_District.agenda;
-
+var database = require('../database/postgres');
 var optionsMatchInfosPathBase = Constants_District.matchInfos.basePath;
 var optionsMatchInfos = Constants_District.matchInfos;
 
@@ -149,7 +150,7 @@ class ParserDistrictNodeModule {
         });
     }
     
-    public static parseJourneeExcellence(journee, callback) {
+    public static parseJourneeExcellence(journee, callback: (array: Array<Journee>, error: number) => void) {
         optionsCalendrierExcellence.path = optionsCalendrierExcellencePathBase + journee;
         Utils.downloadData(optionsCalendrierExcellence, function(result) {
             var returnedValue = [];
@@ -159,7 +160,7 @@ class ParserDistrictNodeModule {
             var nbLines = linesCalendar.length;
             
             if(nbLines === 0) {
-                callback([]);
+                callback([], 0);
             }
             linesCalendar.each(function (index, item) {
                 
@@ -179,7 +180,7 @@ class ParserDistrictNodeModule {
                 if(date === null || date.length === 0) {
                     i++;
                     if(i === nbLines) {
-                        callback(returnedValue);
+                        callback(returnedValue, 0);
                     }
                     return;
                 }
@@ -201,7 +202,7 @@ class ParserDistrictNodeModule {
                 if(equipe1 === null || equipe1.length === 0 || equipe2 === null || equipe2.length === 0) {
                     i++;
                     if(i === nbLines) {
-                        callback(returnedValue);
+                        callback(returnedValue, 0);
                     }
                     return;
                 }
@@ -214,12 +215,24 @@ class ParserDistrictNodeModule {
                 returnedValue.push(array);
                 i++;
                 if(i === nbLines) {
-                    callback(returnedValue);
+                    callback(returnedValue, 0);
                 }
             });
         }, function(e) {
             logger.error('Error while downloading journee excellence infos data ', e);
-            callback(-3);        
+            callback(null, -3);        
+        });
+    }
+    
+    public static updateDatabaseJournee(idJournee: number) {
+        this.parseJourneeExcellence(idJournee, function(res, err) {
+            if(err == 0) {
+                database.deleteJournee(idJournee);
+                res.forEach(function(element) {
+                    element.idJournee = idJournee;
+                    database.insertJournee(element, null, null);
+                });
+            }
         });
     }
 }
