@@ -29,13 +29,13 @@ app.use(function(req, res, next) {
 
 // On lance la tache de mise a jour de la base 
 // toute les 15min
-new CronJob('0 */15 * * * *', function(){
+new CronJob('0 */15 0,9-23 * * *', function(){
       logger.info('Update database start');
       parser.updateDatabase();
     }, null, true // Start the job right now
 );
 
-new CronJob('0 */30 * * * *', function() {
+new CronJob('0 */30 0,9-23 * * *', function() {
     logger.info('Start updating database journee');
     var nbJournee = constants.params.SEASON_MATCHS_COUNT;
     for(var i = 1; i<=22; i++)
@@ -225,7 +225,7 @@ app.get('/keepalive', function(req, res) {
 app.get('/dev/notification/:title/:message', function(req, res){
     var isDebug = (process.env.NODE_ENV === "DEV");
     if(isDebug) {
-        notification.sendNotification(req.params.title, req.params.message);
+        notification.sendNotification(req.params.title, req.params.message, {'TYPE': req.params.type});
         res.send(constants.errorCode.OK);
     } else {
         res.status(404).send('Not found'); // HTTP status 404: NotFound
@@ -236,16 +236,3 @@ app.listen(app.get('port'), function() {
     logger.info('Node app is running at localhost:' + app.get('port'));
     database.init();
 });
-
-// Keep alive app
-setInterval(function() {
-    http.get(process.env.KEEP_ALIVE_URL, function(res) {
-        if (res.statusCode === 200) {
-            logger.info("Heroku Keep Alive Ping: Success");
-        } else {
-            logger.errorMessage("Heroku Keep Alive Ping: Error - Status Code " + res.statusCode);
-        }
-    }).on('error', function(e) {
-        logger.errorMessage('Heroku Keep Alive Ping: Error - ' + e.message);
-    });
-}, 30 * 60 * 1000); // load every 30 minutes

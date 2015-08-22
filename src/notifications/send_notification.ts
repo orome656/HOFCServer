@@ -16,7 +16,7 @@ class Notification {
      * @param {string} messageNotif Message de la notification
      * @return {void}
      */
-    public static sendNotification(/**string */title: string, /**string */messageNotif: string): void {
+    public static sendNotification(/**string */title: string, /**string */messageNotif: string, extra: Object): void {
         logger.info('Envoi d\'une notification -> {title:'+title+', message:'+messageNotif+'}');
         database.getNotificationClients(function(results) {
             if(results.length > 0) {
@@ -28,6 +28,9 @@ class Notification {
                     }
                 });
     
+                if(extra != null)
+                    message.addData(extra);
+        
                 var sender = new gcm.Sender(process.env.ANDROID_SERVER_KEY);
                 var notificationIds = [];
                 for(var notif in results) {

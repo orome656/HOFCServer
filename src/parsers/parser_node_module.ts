@@ -90,7 +90,7 @@ class parser_node_module {
                                 notifMessage = 'Match nul entre le HOFC et ' + ((match.equipe1 === HOFC_NAME)? match.equipe2 : match.equipe1);
                             }
                             logger.info('Sending Notification with message : ' + notifMessage);
-                            notification.sendNotification(notifTitle, notifMessage);
+                            notification.sendNotification(notifTitle, notifMessage, {"TYPE": "Calendrier"});
                         }
                         database.updateCalendarLine(match);
                     } else {
@@ -152,7 +152,7 @@ class parser_node_module {
                 
                         database.updateActusLine(actus);
                     } else {
-                        notification.sendNotification('Nouvel article sur HOFC.fr', actus.titre);
+                        notification.sendNotification('Nouvel article sur HOFC.fr', actus.titre, {"URL": actus.url, "TYPE": "Actu"});
                         database.insertActusLine(actus);
                     }
                 }, function(err) {

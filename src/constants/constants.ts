@@ -81,7 +81,30 @@ module Constants {
         creation_table_actus_query: "CREATE TABLE IF NOT EXISTS actus (id serial PRIMARY KEY, postId NUMERIC(11) DEFAULT NULL, titre varchar(255) DEFAULT NULL, texte text, url varchar(255) DEFAULT NULL, image varchar(255) DEFAULT NULL, date date DEFAULT NULL)",
         creation_table_notification_query: "CREATE TABLE IF NOT EXISTS notification_client (id serial PRIMARY KEY , uuid varchar(255) NOT NULL, notification_id varchar(255) NOT NULL)",
         creation_table_agenda_query: "CREATE TABLE IF NOT EXISTS agenda (id serial PRIMARY KEY, equipe1 varchar(255) NOT NULL, score1 integer, equipe2 varchar(255) NOT NULL, score2 integer, date timestamp without time zone DEFAULT NULL, id_date varchar(50) NOT NULL)",
-        creation_table_journee_query: "CREATE TABLE IF NOT EXISTS journee (id serial PRIMARY KEY, equipe1 varchar(255) NOT NULL, score1 integer, equipe2 varchar(255) NOT NULL, score2 integer, date timestamp without time zone DEFAULT NULL, id_journee integer)"
+        creation_table_journee_query: "CREATE TABLE IF NOT EXISTS journee (id serial PRIMARY KEY, equipe1 varchar(255) NOT NULL, score1 integer, equipe2 varchar(255) NOT NULL, score2 integer, date timestamp without time zone DEFAULT NULL, id_journee integer)",
+        classement: {column_id: {name:'id', type:'serial'}, 
+                     column_nom: {name: 'nom', type: 'varchar(255)'},
+                     column_points: {name: 'points', type: 'NUMERIC(11)'},
+                     column_joue: {name: 'joue', type: 'NUMERIC(11)'},
+                     column_gagne: {name: 'gagne', type: 'NUMERIC(11)'},
+                     column_nul: {name: 'nul', type: 'NUMERIC(11)'},
+                     column_perdu: {name: 'perdu', type: 'NUMERIC(11)'},
+                     column_bp: {name: 'bp', type: 'NUMERIC(11)'},
+                     column_bc: {name: 'bc', type: 'NUMERIC(11)'},
+                     column_diff: {name: 'diff', type: 'NUMERIC(11)'}},
+        calendrier: {column_id: {name:'id', type:'serial'}, 
+                     column_equipe1: {name: 'equipe1', type: 'varchar(255)'},
+                     column_equipe2: {name: 'equipe2', type: 'varchar(255)'},
+                     column_score1: {name: 'score1', type: 'integer'},
+                     column_score2: {name: 'score2', type: 'integer'},
+                     column_date: {name: 'date', type: 'timestamp without time zone'}},
+        actus:      {column_id: {name:'id', type:'serial'}, 
+                     column_post_id: {name: 'postId', type: 'NUMERIC(11)'},
+                     column_titre: {name: 'titre', type: 'varchar(255)'},
+                     column_texte: {name: 'texte', type: 'integer'},
+                     column_url: {name: 'url', type: 'varchar(255)'},
+                     column_image: {name: 'image', type: 'varchar(255)'},
+                     column_date: {name: 'date', type: 'date'}}
     }
 }
 
