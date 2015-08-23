@@ -47,9 +47,9 @@ var optionsMatchInfos = new RequestParamsEditable(
 var optionsCalendrierExcellence = new RequestParamsEditable(
     'district-foot-65.fff.fr',
     80,
-    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=305257&ph_no=1&gp_no=&sa_no=2014&pj_no=',
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=319539&ph_no=1&gp_no=&sa_no=2015&pj_no=',
     true,
-    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=305257&ph_no=1&gp_no=&sa_no=2014&pj_no='
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=319539&ph_no=1&gp_no=&sa_no=2015&pj_no='
 );
 
 module Constants_District {

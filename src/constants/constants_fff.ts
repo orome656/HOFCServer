@@ -8,14 +8,14 @@ var RequestParamsEditable = require('../models/requestParamsEditable');
 var optionsClassement = new RequestParams(
     'www.fff.fr',
     80,
-    '/championnats/fff/district-hautes-pyrenees/2014/305257-excellence/phase-1/poule-1/derniers-resultats',
+    '/championnats/fff/district-hautes-pyrenees/2015/319539-excellence/phase-1/poule-1/derniers-resultats',
     true
 );
 
 var optionsCalendrier = new RequestParams(
     'www.fff.fr',
     80,
-    '/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/305257/phase-1/groupe-1',
+    '/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/319539/phase-1/groupe-1',
     true
 );
 
