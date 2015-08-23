@@ -81,7 +81,7 @@ module Constants {
         creation_table_actus_query: "CREATE TABLE IF NOT EXISTS actus (id serial PRIMARY KEY, postId NUMERIC(11) DEFAULT NULL, titre varchar(255) DEFAULT NULL, texte text, url varchar(255) DEFAULT NULL, image varchar(255) DEFAULT NULL, date date DEFAULT NULL)",
         creation_table_notification_query: "CREATE TABLE IF NOT EXISTS notification_client (id serial PRIMARY KEY , uuid varchar(255) NOT NULL, notification_id varchar(255) NOT NULL)",
         creation_table_agenda_query: "CREATE TABLE IF NOT EXISTS agenda (id serial PRIMARY KEY, equipe1 varchar(255) NOT NULL, score1 integer, equipe2 varchar(255) NOT NULL, score2 integer, date timestamp without time zone DEFAULT NULL, id_date varchar(50) NOT NULL)",
-        creation_table_journee_query: "CREATE TABLE IF NOT EXISTS journee (id serial PRIMARY KEY, equipe1 varchar(255) NOT NULL, score1 integer, equipe2 varchar(255) NOT NULL, score2 integer, date timestamp without time zone DEFAULT NULL, id_journee integer)",
+        creation_table_journee_query: "CREATE TABLE IF NOT EXISTS journee (id serial PRIMARY KEY, equipe1 varchar(255) NOT NULL, score1 integer, equipe2 varchar(255) NOT NULL, score2 integer, date timestamp without time zone DEFAULT NULL, id_journee integer, infos varchar(50))",
         classement: {column_id: {name:'id', type:'serial'}, 
                      column_nom: {name: 'nom', type: 'varchar(255)'},
                      column_points: {name: 'points', type: 'NUMERIC(11)'},

@@ -15,7 +15,7 @@ import Logger = require('../utils/logger');
 var logger = new Logger('Parser_District');
 var optionsAgendaPathBase = Constants_District.agenda.basePath;
 var optionsAgenda = Constants_District.agenda;
-var database = require('../database/postgres');
+import database = require('../database/postgres');
 var optionsMatchInfosPathBase = Constants_District.matchInfos.basePath;
 var optionsMatchInfos = Constants_District.matchInfos;
 

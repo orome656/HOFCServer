@@ -425,8 +425,8 @@ class PostgresSQL {
 	};
 	
 	public static insertJournee = function(journee: Journee, success: Function, fail: Function) {
-		pgQuery("INSERT INTO journee (date,equipe1,equipe2,score1,score2,id_journee) VALUES ($1, $2, $3, $4, $5, $6)", 
-			[journee.date, journee.equipe1, journee.equipe2, journee.score1, journee.score2, journee.idJournee], 
+		pgQuery("INSERT INTO journee (date,equipe1,equipe2,score1,score2,id_journee, infos) VALUES ($1, $2, $3, $4, $5, $6, $7)", 
+			[journee.date, journee.equipe1, journee.equipe2, journee.score1, journee.score2, journee.idJournee, journee.infos], 
 			function(err, result: pg.QueryResult) {
 			if(err) {
 				logger.error("Error while inserting journee", err);
