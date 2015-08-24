@@ -464,6 +464,7 @@ class PostgresSQL {
 					j.score2 = results.rows[i].score2;
 					j.date = results.rows[i].date;
 					j.idJournee = idJournee;
+					j.infos = results.rows[i].infos;
 					res.push(j);
 				}
 				success(res);
@@ -485,6 +486,7 @@ class PostgresSQL {
 					j.score1 = results.rows[0].score1;
 					j.score2 = results.rows[0].score2;
 					j.date = results.rows[0].date;
+					j.infos = results.rows[0].infos;
 					j.idJournee = idJournee;
 					success(j);
 				} else {
