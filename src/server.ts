@@ -226,7 +226,7 @@ app.get('/dev/notification/:title/:message/:type', function(req, res){
     var isDebug = (process.env.NODE_ENV === "DEV");
     if(isDebug) {
         notification.sendNotification(req.params.title, req.params.message, {'TYPE': req.params.type});
-        res.send(constants.errorCode.OK);
+        res.status(200).send(constants.errorCode.OK + '');
     } else {
         res.status(404).send('Not found'); // HTTP status 404: NotFound
     }
