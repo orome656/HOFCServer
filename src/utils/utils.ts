@@ -43,7 +43,7 @@ class Utils {
      * YYYY-MM-DDTHH:MI:SS.sssZ
      */
     public static formatDate(date: Date): string {
-        return date.getFullYear() + '-' + ((date.getMonth()<=9)?'0'+date.getMonth():date.getMonth())+'-'
+        return date.getFullYear() + '-' + ((date.getMonth()<9)?'0'+(date.getMonth()+1):(date.getMonth()+1))+'-'
                 +((date.getDate()<=9)?'0'+date.getDate():date.getDate())+'T'+((date.getHours()<=9)?'0'+date.getHours():date.getHours())+':'
                 +((date.getMinutes()<=9)?'0'+date.getMinutes():date.getMinutes())+':'+((date.getSeconds()<=9)?'0'+date.getSeconds():date.getSeconds())+'.000Z';
     }
@@ -53,7 +53,7 @@ class Utils {
      * YYYY-MM-DD HH:MI:SS
      */
     public static formatDateAgenda(date: Date): string {
-        return date.getFullYear() + '-' + ((date.getMonth()<=9)?'0'+date.getMonth():date.getMonth())+'-'
+        return date.getFullYear() + '-' + ((date.getMonth()<9)?'0'+(date.getMonth()+1):(date.getMonth()+1))+'-'
                 +((date.getDate()<=9)?'0'+date.getDate():date.getDate())+' '+((date.getHours()<=9)?'0'+date.getHours():date.getHours())+':'
                 +((date.getMinutes()<=9)?'0'+date.getMinutes():date.getMinutes())+':'+((date.getSeconds()<=9)?'0'+date.getSeconds():date.getSeconds());
     }
