@@ -21,13 +21,11 @@ class Notification {
         database.getNotificationClients(function(results) {
             if(results.length > 0) {
                 var message = new gcm.Message({
-                    collapseKey: 'demo',
-                    data: {
-                        title: title,
-                        message: messageNotif
-                    }
+                    collapseKey: 'demo'
                 });
-    
+                extra['title'] = title;
+                extra['message'] = message;
+                
                 if(extra != null)
                     message.addData(extra);
         
