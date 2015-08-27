@@ -24,7 +24,7 @@ class Notification {
                     collapseKey: 'demo'
                 });
                 extra['title'] = title;
-                extra['message'] = message;
+                extra['message'] = messageNotif;
                 
                 if(extra != null)
                     message.addData(extra);
