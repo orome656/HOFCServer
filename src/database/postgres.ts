@@ -22,7 +22,8 @@ var pgQuery = function(/**string */text: string, /**array */values: Array<any>, 
 		}
 		client.query(text, values, function(err, result) {
 			done();
-			cb(err, result);
+			if(cb != null && typeof cb === 'function')
+				cb(err, result);
 		});
 	});
 };
