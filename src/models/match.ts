@@ -1,5 +1,6 @@
 import Utils = require('../utils/utils');
 class Match {
+	public categorie: string;
 	public equipe1: string;
 	public equipe2: string;
 	public equipe1Complet: string;
@@ -16,6 +17,7 @@ class Match {
 		this.infos = object.infos;
 		this.score1 = object.score1;
 		this.score2 = object.score2;
+		this.categorie = object.categorie;
 	}
 	
 	formatDate(): string {

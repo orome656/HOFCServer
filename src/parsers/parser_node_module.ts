@@ -23,6 +23,7 @@ var logger = new Logger('Parser FFF');
 var optionsClassement = Constants_FFF.classement;
 
 var optionsCalendrier = Constants_FFF.calendrier;
+var optionsCalendrierArray = Constants_FFF.arrayCalendrier;
 
 var optionsActus = Constants_FFF.actus;
 var optionsAgendaPathBase = Constants_FFF.agenda.basePath;
@@ -77,6 +78,55 @@ class parser_node_module {
                            (result.score2 === null) && 
                             match.score1 !== null && match.score2 !== null) {
                             var notifTitle = 'Nouveau Résultat';
+                            var notifMessage = null;
+                            if(match.equipe1 === HOFC_NAME && match.score1 > match.score2) {
+                                notifMessage = 'Victoire du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe2;
+                            } else if (match.equipe2 === HOFC_NAME && match.score2 > match.score1) {
+                                notifMessage = 'Victoire du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe1;
+                            } else if(match.equipe1 === HOFC_NAME && match.score1 < match.score2) {
+                                notifMessage = 'Défaite du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe2;
+                            } else if (match.equipe2 === HOFC_NAME && match.score2 < match.score1) {
+                                notifMessage = 'Défaite du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe1;
+                            } else {
+                                notifMessage = 'Match nul entre le HOFC et ' + ((match.equipe1 === HOFC_NAME)? match.equipe2 : match.equipe1);
+                            }
+                            logger.info('Sending Notification with message : ' + notifMessage);
+                            notification.sendNotification(notifTitle, notifMessage, {"TYPE": "Calendrier"});
+                        }
+                        database.updateCalendarLine(match);
+                    } else {
+                        /**
+                         * Insertion d'une nouvelle ligne
+                         */
+                        database.insertCalendarLine(match);
+                    }
+    
+                }, function(err) {
+                    logger.error('Error while getting match on database', err);
+                });
+            });
+        }, function(err) {
+            logger.error('Error while downloading match infos', err);
+        });
+    }
+    
+    public static updateCalendarDataForTeam(equipe: string): void {
+        Utils.downloadData(optionsCalendrierArray[equipe], function(result) {
+            var $2 = cheerio.load(result);
+            var linesCalendar = $2("div.list_calendar").children('div');
+            
+            $2(linesCalendar).each(function (index, line) {
+                var match: Match = parser_node_module.parseCalendarLine(line);
+                match.categorie = equipe;
+                database.getMatchByName(match.equipe1, match.equipe2, function (result) {
+                    if (result != null ) {
+                        /**
+                         * Mise a jour des informations
+                         */
+                        if((result.score1 === null) && 
+                           (result.score2 === null) && 
+                            match.score1 !== null && match.score2 !== null) {
+                            var notifTitle = 'Nouveau Résultat '+ equipe;
                             var notifMessage = null;
                             if(match.equipe1 === HOFC_NAME && match.score1 > match.score2) {
                                 notifMessage = 'Victoire du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe2;

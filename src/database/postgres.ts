@@ -79,8 +79,8 @@ class PostgresSQL {
 	 * 			- equipe2Complet
 	 */
 	public static insertCalendarLine = function (/* object */ match: Match) {
-		pgQuery('insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ($1, $2, $3, $4, $5)',
-				[match.date, match.equipe1Complet, match.equipe2Complet, match.score1, match.score2], 
+		pgQuery('insert into calendrier (date,equipe1,equipe2,score1,score2, categorie) VALUES ($1, $2, $3, $4, $5, $6)',
+				[match.date, match.equipe1Complet, match.equipe2Complet, match.score1, match.score2, match.categorie], 
 				function(err/**, results*/) {
 					if(err) {
 						logger.error('Fail inserting match informations', err);
@@ -154,8 +154,8 @@ class PostgresSQL {
 	 * 			- equipe2Complet
 	 */
 	public static updateCalendarLine = function (/* object */ match: Match) {
-		pgQuery('UPDATE calendrier set date=$1, score1=$2, score2=$3, equipe1=$4, equipe2=$5 WHERE equipe1 LIKE $6 AND equipe2 LIKE $7',
-				[match.date, match.score1, match.score2, match.equipe1Complet, match.equipe2Complet, '%'+match.equipe1+'%', '%'+match.equipe2+'%' ], 
+		pgQuery('UPDATE calendrier set date=$1, score1=$2, score2=$3, equipe1=$4, equipe2=$5 WHERE equipe1 LIKE $6 AND equipe2 LIKE $7 AND categorie LIKE $8',
+				[match.date, match.score1, match.score2, match.equipe1Complet, match.equipe2Complet, '%'+match.equipe1+'%', '%'+match.equipe2+'%', match.categorie], 
 				function(err/**, results*/) {
 					if(err) {
 						logger.error('Fail updating match informations', err);
@@ -241,6 +241,31 @@ class PostgresSQL {
 		});
 	};
 	
+	/**
+	 * Permet de récupérer la liste des matchs du calendrier
+	 * @param {function} success
+	 * @param {function} fail
+	 * @return array
+	 */
+	public static getCalendarInfosByCategorie = function(categorie: string, success :((res: Array<Match>) => void), fail): void {
+		pgQuery('select * from calendrier where categorie=$1 order by date asc', [categorie], function(err, results: pg.QueryResult) {
+			if(err) {
+				fail(err);
+			} else {
+				var res = new Array<Match>();
+				for (var i in results.rows) {
+					var m = new Match();
+					m.equipe1 = results.rows[i].equipe1;
+					m.equipe2 = results.rows[i].equipe2;
+					m.score1 = results.rows[i].score1;
+					m.score2 = results.rows[i].score2;
+					m.date = results.rows[i].date;
+					res.push(m);
+				}
+				success(res);
+			}
+		});
+	};
 	
 	/**
 	 * Permet de récupérer le classement du championnat

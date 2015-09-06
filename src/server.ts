@@ -68,6 +68,15 @@ app.get('/calendrier', function(req, res){
     });
 });
 
+app.get('/calendrier/:categorie', function(req, res){
+    database.getCalendarInfosByCategorie(req.params.categorie,function(results) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(Utils.arrayToString(results));
+    }, function(err) {
+        logger.error('Error while connecting to database', err);
+        res.send(constants.errorCode.INTERNAL);
+    });
+});
 /**
  * Permet de récupérer la listes des actualités
  */

@@ -19,6 +19,18 @@ var optionsCalendrier = new RequestParams(
     true
 );
 
+var optionsCalendrierEquipe2 = new RequestParams(
+    'www.fff.fr',
+    80,
+    '/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/317727/phase-1/groupe-1',
+    true
+);
+
+var arrayOptionsCalendrier = {
+    'equipe1': optionsCalendrier,
+    'equipe2': optionsCalendrierEquipe2
+}
+
 var optionsActus = new RequestParams(
     'www.hofc.fr',
     80,
@@ -46,6 +58,7 @@ var optionsMatchInfos = new RequestParamsEditable(
 module Constants_FFF {
 	export var classement = optionsClassement
 	export var calendrier = optionsCalendrier
+	export var arrayCalendrier = arrayOptionsCalendrier
 	export var actus = optionsActus
     export var agenda = optionsAgenda
     export var matchInfos = optionsMatchInfos
