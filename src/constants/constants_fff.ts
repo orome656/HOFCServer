@@ -26,9 +26,17 @@ var optionsCalendrierEquipe2 = new RequestParams(
     true
 );
 
+var optionsCalendrierEquipe3 = new RequestParams(
+    'www.fff.fr',
+    80,
+    '/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/317728/phase-1/groupe-1',
+    true
+);
+
 var arrayOptionsCalendrier = {
     'equipe1': optionsCalendrier,
-    'equipe2': optionsCalendrierEquipe2
+    'equipe2': optionsCalendrierEquipe2,
+    'equipe3': optionsCalendrierEquipe3
 }
 
 var optionsActus = new RequestParams(

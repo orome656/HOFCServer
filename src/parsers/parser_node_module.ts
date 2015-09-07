@@ -54,6 +54,7 @@ class parser_node_module {
     
         this.updateCalendarDataForTeam('equipe1');
         this.updateCalendarDataForTeam('equipe2');
+        this.updateCalendarDataForTeam('equipe3');
         if (optionsActus.activated) {
             this.updateActusData();
         }
@@ -125,16 +126,16 @@ class parser_node_module {
                             match.score1 !== null && match.score2 !== null) {
                             var notifTitle = 'Nouveau Résultat '+ equipe;
                             var notifMessage = null;
-                            if(match.equipe1 === HOFC_NAME && match.score1 > match.score2) {
+                            if(match.equipe1.indexOf(HOFC_NAME) != -1 && match.score1 > match.score2) {
                                 notifMessage = 'Victoire du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe2;
-                            } else if (match.equipe2 === HOFC_NAME && match.score2 > match.score1) {
+                            } else if (match.equipe2.indexOf(HOFC_NAME) != -1 && match.score2 > match.score1) {
                                 notifMessage = 'Victoire du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe1;
-                            } else if(match.equipe1 === HOFC_NAME && match.score1 < match.score2) {
+                            } else if(match.equipe1.indexOf(HOFC_NAME) != -1 && match.score1 < match.score2) {
                                 notifMessage = 'Défaite du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe2;
-                            } else if (match.equipe2 === HOFC_NAME && match.score2 < match.score1) {
+                            } else if (match.equipe2.indexOf(HOFC_NAME) != -1 && match.score2 < match.score1) {
                                 notifMessage = 'Défaite du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe1;
                             } else {
-                                notifMessage = 'Match nul entre le HOFC et ' + ((match.equipe1 === HOFC_NAME)? match.equipe2 : match.equipe1);
+                                notifMessage = 'Match nul entre le HOFC et ' + ((match.equipe1.indexOf(HOFC_NAME) != -1)? match.equipe2 : match.equipe1);
                             }
                             logger.info('Sending Notification with message : ' + notifMessage);
                             notification.sendNotification(notifTitle, notifMessage, {"TYPE": "Calendrier"});
