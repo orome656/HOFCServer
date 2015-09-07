@@ -52,11 +52,8 @@ class parser_node_module {
             this.updateRankingData();
         }
     
-    
-        if (optionsCalendrier.activated) {
-            this.updateCalendarData();        
-        }
-    
+        this.updateCalendarDataForTeam('equipe1');
+        this.updateCalendarDataForTeam('equipe2');
         if (optionsActus.activated) {
             this.updateActusData();
         }

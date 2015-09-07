@@ -59,7 +59,7 @@ app.get('/classement', function(req, res){
  * Permet de récupérer la liste des matchs de la saison avec les résultats des matchs
  */
 app.get('/calendrier', function(req, res){
-    database.getCalendarInfos(function(results) {
+    database.getCalendarInfosByCategorie('equipe1',function(results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(Utils.arrayToString(results));
     }, function(err) {
