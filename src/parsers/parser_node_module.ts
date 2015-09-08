@@ -49,9 +49,9 @@ var listeMoisActu = constants.constants.listeMoisActu;
 var downloadData = Utils.downloadData;
 class parser_node_module {
     public static updateDatabase(): void {
-        if (optionsClassement.activated) {
-            this.updateRankingData();
-        }
+        this.updateRankingDataForTeam('equipe1');
+        this.updateRankingDataForTeam('equipe2');
+        this.updateRankingDataForTeam('equipe3');
     
         this.updateCalendarDataForTeam('equipe1');
         this.updateCalendarDataForTeam('equipe2');
