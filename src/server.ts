@@ -46,7 +46,7 @@ new CronJob('0 */30 0,9-23 * * *', function() {
  * Permet de récupérer le classement de l'équipe
  */
 app.get('/classement', function(req, res){
-    database.getRankingInfos(function(results) {
+    database.getRankingInfosByCategorie('equipe1', function(results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(Utils.arrayToString(results));
     }, function(err) {
