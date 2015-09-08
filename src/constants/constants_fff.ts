@@ -12,6 +12,26 @@ var optionsClassement = new RequestParams(
     true
 );
 
+var optionsClassementEquipe2 = new RequestParams(
+    'www.fff.fr',
+    80,
+    '/championnats/fff/district-hautes-pyrenees/2015/317727-premiere-division/phase-1/poule-1/derniers-resultats',
+    true
+);
+
+var optionsClassementEquipe3 = new RequestParams(
+    'www.fff.fr',
+    80,
+    '/championnats/fff/district-hautes-pyrenees/2015/317728-promotion-1ere-division/phase-1/poule-1/derniers-resultats',
+    true
+);
+
+var arrayOptionsClassement = {
+    'equipe1': optionsClassement,
+    'equipe2': optionsClassementEquipe2,
+    'equipe3': optionsClassementEquipe3
+}
+
 var optionsCalendrier = new RequestParams(
     'www.fff.fr',
     80,
@@ -65,6 +85,7 @@ var optionsMatchInfos = new RequestParamsEditable(
 
 module Constants_FFF {
 	export var classement = optionsClassement
+	export var arrayClassement = arrayOptionsClassement
 	export var calendrier = optionsCalendrier
 	export var arrayCalendrier = arrayOptionsCalendrier
 	export var actus = optionsActus

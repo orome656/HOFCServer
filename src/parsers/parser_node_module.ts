@@ -21,6 +21,7 @@ import Logger = require('../utils/logger');
 var logger = new Logger('Parser FFF');
 // Paramétrage url
 var optionsClassement = Constants_FFF.classement;
+var optionsClassementArray = Constants_FFF.arrayClassement;
 
 var optionsCalendrier = Constants_FFF.calendrier;
 var optionsCalendrierArray = Constants_FFF.arrayCalendrier;
@@ -168,6 +169,37 @@ class parser_node_module {
                 if(team === null) {
                     return;
                 }
+                database.getRankByName(team.nom, function(result) {
+                    if(result !== null) {
+                        // Mise a jour des informatons de classement
+                        database.updateRankingLine(team);
+                    } else {
+                        // Nouvelle équipe dans le classement
+                        database.insertRankingLine(team);
+                    }
+                }, function(err) {
+                    if(err) {
+                        logger.error('Error while updating ranking data ', err);
+                    }    
+                });
+            });
+        }, function(err) {
+            logger.error('Error while downloading match infos', err);
+        });
+    }
+    
+    public static updateRankingDataForTeam(equipe: string): void {
+        Utils.downloadData(optionsClassementArray[equipe], function(result) {
+            var $ = cheerio.load(result);
+            var linesClassement = $("table.classement").children('tbody').children().filter(function () {
+                return ($(this).children() !== null && $(this).children().length > 3);
+            });
+            $(linesClassement).each(function (index, line) {
+                var team = parser_node_module.parseClassementLine(line);
+                if(team === null) {
+                    return;
+                }
+                team.categorie = equipe;
                 database.getRankByName(team.nom, function(result) {
                     if(result !== null) {
                         // Mise a jour des informatons de classement

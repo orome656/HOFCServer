@@ -55,6 +55,16 @@ app.get('/classement', function(req, res){
     });
 });
 
+app.get('/classement/:categorie', function(req, res){
+    database.getRankingInfosByCategorie(req.params.categorie, function(results) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(Utils.arrayToString(results));
+    }, function(err) {
+        logger.error('Error while connecting to database', err);
+        res.send(constants.errorCode.INTERNAL);
+    });
+});
+
 /**
  * Permet de récupérer la liste des matchs de la saison avec les résultats des matchs
  */

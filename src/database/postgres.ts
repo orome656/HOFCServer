@@ -106,8 +106,8 @@ class PostgresSQL {
 	 * 			- nom
 	 */
 	public static insertRankingLine = function (/* object */ team: ClassementLine) {
-		pgQuery('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-				[team.nom, team.points, team.joue, team.gagne, team.nul, team.perdu, team.bp, team.bc, team.diff],
+		pgQuery('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff,categorie) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+				[team.nom, team.points, team.joue, team.gagne, team.nul, team.perdu, team.bp, team.bc, team.diff, team.categorie],
 				function(err/**, results*/){
 					if(err) {
 						logger.error('Fail inserting ranking data', err);
@@ -181,8 +181,8 @@ class PostgresSQL {
 	 * 			- nom
 	 */
 	public static updateRankingLine = function (/* object */ team: ClassementLine) {
-		pgQuery('UPDATE classement set points=$1, joue=$2, gagne=$3, nul=$4, perdu=$5, bp=$6, bc=$7, diff=$8 WHERE nom LIKE $9',
-				[team.points, team.joue, team.gagne, team.nul, team.perdu, team.bp, team.bc, team.diff, team.nom],
+		pgQuery('UPDATE classement set points=$1, joue=$2, gagne=$3, nul=$4, perdu=$5, bp=$6, bc=$7, diff=$8 WHERE nom LIKE $9 and categorie LIKE $10',
+				[team.points, team.joue, team.gagne, team.nul, team.perdu, team.bp, team.bc, team.diff, team.nom, team.categorie],
 				function(err/**, results*/){
 					if(err) {
 						logger.error('Fail updating ranking data', err);
@@ -297,6 +297,35 @@ class PostgresSQL {
 		});
 	};
 	
+	/**
+	 * Permet de récupérer le classement du championnat
+	 * @param {function} success
+	 * @param {function} fail
+	 * @return array
+	 */
+	public static getRankingInfosByCategorie = function(categorie: string, /**function */success: ((res: Array<ClassementLine>)=>void), /**function */fail): void {
+		pgQuery('select * from classement where categorie LIKE $1 order by points desc, diff desc', [categorie], function(err, results: pg.QueryResult) {
+			if(err) {
+				fail(err);
+			} else {
+				var res = new Array<ClassementLine>();
+				for (var i in results.rows) {
+					var c = new ClassementLine();
+					c.nom = results.rows[i].nom;
+					c.points = results.rows[i].points;
+					c.joue = results.rows[i].joue;
+					c.gagne = results.rows[i].gagne;
+					c.nul = results.rows[i].nul;
+					c.perdu = results.rows[i].perdu;
+					c.bp = results.rows[i].bp;
+					c.bc = results.rows[i].bc;
+					c.diff = results.rows[i].diff;
+					res.push(c);
+				}
+				success(res);
+			}
+		});
+	};
 	/**
 	 * Permet de récupérer la liste des actualités
 	 * @param {function} success
