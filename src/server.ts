@@ -37,9 +37,17 @@ new CronJob('0 */15 0,9-23 * * *', function(){
 
 new CronJob('0 */30 0,9-23 * * *', function() {
     logger.info('Start updating database journee');
-    var nbJournee = constants.params.SEASON_MATCHS_COUNT;
-    for(var i = 1; i<=22; i++)
-        parserdistrict.updateDatabaseJournee(i);
+    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE1;
+    for(var i = 1; i<=nbJournee; i++)
+        parserdistrict.updateDatabaseJournee(i, 'equipe1');
+        
+    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE2;
+    for(var i = 1; i<=nbJournee; i++)
+        parserdistrict.updateDatabaseJournee(i, 'equipe2');
+        
+    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE3;
+    for(var i = 1; i<=nbJournee; i++)
+        parserdistrict.updateDatabaseJournee(i, 'equipe3');
 }, null, true);
 
 /**
@@ -221,7 +229,18 @@ app.get('/matchinfosdistrict/:id', function(req, res) {
 });
 
 app.get('/journee/:id', function (req, res) {
-    database.getJournee(req.params.id, function(result) {
+    database.getJournee('equipe1', req.params.id, function(result) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(result);
+    }, null);
+});
+
+/**
+ * @params categorie Représente l'équipe concerné (equipe1, equipe2, equipe3)
+ * @params id N° de la journée
+ */
+app.get('/journee/:categorie/:id', function (req, res) {
+    database.getJournee(req.params.categorie,req.params.id, function(result) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(result);
     }, null);

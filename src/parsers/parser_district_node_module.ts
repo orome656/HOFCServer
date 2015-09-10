@@ -21,7 +21,7 @@ var optionsMatchInfos = Constants_District.matchInfos;
 
 var optionsCalendrierExcellencePathBase = Constants_District.calendrierExcellence.basePath;
 var optionsCalendrierExcellence = Constants_District.calendrierExcellence;
-
+var optionsCalendrierByJournee = Constants_District.calendrierByJournee;
 /**
  *	Tableau permettant de convertir la chaine date récupérée en objet date pour les actus
  */
@@ -150,9 +150,9 @@ class ParserDistrictNodeModule {
         });
     }
     
-    public static parseJourneeExcellence(journee, callback: (array: Array<Journee>, error: number) => void) {
-        optionsCalendrierExcellence.path = optionsCalendrierExcellencePathBase + journee;
-        Utils.downloadData(optionsCalendrierExcellence, function(result) {
+    public static parseJourneeExcellence(categorie: string, journee, callback: (array: Array<Journee>, error: number) => void) {
+        optionsCalendrierByJournee[categorie].path = optionsCalendrierByJournee[categorie].basePath + journee;
+        Utils.downloadData(optionsCalendrierByJournee[categorie], function(result) {
             var returnedValue = [];
             var i = 0;
             var $2 = cheerio.load(result);
@@ -224,12 +224,13 @@ class ParserDistrictNodeModule {
         });
     }
     
-    public static updateDatabaseJournee(idJournee: number) {
-        this.parseJourneeExcellence(idJournee, function(res, err) {
+    public static updateDatabaseJournee(idJournee: number, categorie: string) {
+        this.parseJourneeExcellence(categorie, idJournee, function(res, err) {
             if(err == 0) {
-                database.deleteJournee(idJournee);
+                database.deleteJournee(categorie, idJournee);
                 res.forEach(function(element) {
                     element.idJournee = idJournee;
+                    element.categorie = categorie;
                     database.insertJournee(element, null, null);
                 });
             }

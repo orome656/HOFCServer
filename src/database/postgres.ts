@@ -480,8 +480,8 @@ class PostgresSQL {
 	};
 	
 	public static insertJournee = function(journee: Journee, success: Function, fail: Function) {
-		pgQuery("INSERT INTO journee (date,equipe1,equipe2,score1,score2,id_journee, infos) VALUES ($1, $2, $3, $4, $5, $6, $7)", 
-			[journee.date, journee.equipe1, journee.equipe2, journee.score1, journee.score2, journee.idJournee, journee.infos], 
+		pgQuery("INSERT INTO journee (date,equipe1,equipe2,score1,score2,id_journee, infos, categorie) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", 
+			[journee.date, journee.equipe1, journee.equipe2, journee.score1, journee.score2, journee.idJournee, journee.infos, journee.categorie], 
 			function(err, result: pg.QueryResult) {
 			if(err) {
 				logger.error("Error while inserting journee", err);
@@ -503,8 +503,8 @@ class PostgresSQL {
 		});
 	}
 	
-	public static getJournee = function(idJournee: number, success: Function, fail: Function) {
-		pgQuery('SELECT * from journee where id_journee=$1 order by date asc', [idJournee], function(err, results) {
+	public static getJournee = function(categorie: string, idJournee: number, success: Function, fail: Function) {
+		pgQuery('SELECT * from journee where id_journee=$1 and categorie=$2 order by date asc', [idJournee, categorie], function(err, results) {
 			if(err) {
 				if(fail)
 					fail(err);
@@ -551,8 +551,8 @@ class PostgresSQL {
 		})
 	}
 	
-	public static deleteJournee = function(idJournee: number) {
-		pgQuery('DELETE FROM journee where id_journee=$1', [idJournee], function(err) {
+	public static deleteJournee = function(categorie: string, idJournee: number) {
+		pgQuery('DELETE FROM journee where id_journee=$1 and categorie=$2', [idJournee, categorie], function(err) {
 			if(err) {
 				logger.error('Error while deleting journee', err);
 			}
