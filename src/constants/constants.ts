@@ -67,6 +67,7 @@ module Constants {
         CALLING_PROBLEM: 1
     }
     export var params = {
+        SEASON_MATCHS_COUNT: 22,
         SEASON_MATCHS_COUNT_EQUIPE1: 22,
         SEASON_MATCHS_COUNT_EQUIPE2: 22,
         SEASON_MATCHS_COUNT_EQUIPE3: 26
