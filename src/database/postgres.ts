@@ -243,6 +243,7 @@ class PostgresSQL {
 	
 	/**
 	 * Permet de récupérer la liste des matchs du calendrier
+	 * 
 	 * @param {function} success
 	 * @param {function} fail
 	 * @return array

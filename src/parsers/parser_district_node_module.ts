@@ -31,6 +31,9 @@ var listeMoisDistrict = constants.constants.listeMoisDistrict;
 * @param semaine Chaine de caractère au format DDMMYYYY
 **/
 class ParserDistrictNodeModule {
+    /**
+     * Récupère l'agenda d'une semaine
+     */
     public static parseAgenda(semaine, callback: (array: Array<MatchAgenda>, error: number) => void) {
         if(semaine !== null) {
             optionsAgenda.path = optionsAgendaPathBase + semaine;
@@ -126,7 +129,9 @@ class ParserDistrictNodeModule {
             callback(null, -3);
         });
     }
-    
+    /**
+     * Récupére les infos du match correspondant a l'id passé en parametre
+     */
     public static parseMatchInfos(id, callback) {
         optionsMatchInfos.path = optionsMatchInfosPathBase + id;
         Utils.downloadData(optionsMatchInfos, function(result) {
@@ -150,6 +155,9 @@ class ParserDistrictNodeModule {
         });
     }
     
+    /**
+     * Récupére les matchs d'une journee du championnat de l'équipe passé en parametre 
+     */
     public static parseJourneeExcellence(categorie: string, journee, callback: (array: Array<Journee>, error: number) => void) {
         optionsCalendrierByJournee[categorie].path = optionsCalendrierByJournee[categorie].basePath + journee;
         Utils.downloadData(optionsCalendrierByJournee[categorie], function(result) {
@@ -224,6 +232,9 @@ class ParserDistrictNodeModule {
         });
     }
     
+    /**
+     * Met à jour les informations d'une journee d'un championnat
+     */
     public static updateDatabaseJournee(idJournee: number, categorie: string) {
         this.parseJourneeExcellence(categorie, idJournee, function(res, err) {
             if(err == 0) {
