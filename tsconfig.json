@@ -30,7 +30,6 @@
 		"typings/cron/cron.d.ts",
 		"typings/express/express.d.ts",
 		"typings/node-gcm/node-gcm.d.ts",
-		"typings/pg/pg.d.ts",
-		"test/testDatabase.ts"
+		"typings/pg/pg.d.ts"
 	]
 }
