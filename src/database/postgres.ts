@@ -79,8 +79,8 @@ class PostgresSQL {
 	 * 			- equipe2Complet
 	 */
 	public static insertCalendarLine = function (/* object */ match: Match) {
-		pgQuery('insert into calendrier (date,equipe1,equipe2,score1,score2) VALUES ($1, $2, $3, $4, $5)',
-				[match.date, match.equipe1Complet, match.equipe2Complet, match.score1, match.score2], 
+		pgQuery('insert into calendrier (date,equipe1,equipe2,score1,score2, categorie) VALUES ($1, $2, $3, $4, $5, $6)',
+				[match.date, match.equipe1Complet, match.equipe2Complet, match.score1, match.score2, match.categorie], 
 				function(err/**, results*/) {
 					if(err) {
 						logger.error('Fail inserting match informations', err);
@@ -106,8 +106,8 @@ class PostgresSQL {
 	 * 			- nom
 	 */
 	public static insertRankingLine = function (/* object */ team: ClassementLine) {
-		pgQuery('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-				[team.nom, team.points, team.joue, team.gagne, team.nul, team.perdu, team.bp, team.bc, team.diff],
+		pgQuery('insert into classement (nom,points,joue,gagne,nul,perdu,bp,bc,diff,categorie) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+				[team.nom, team.points, team.joue, team.gagne, team.nul, team.perdu, team.bp, team.bc, team.diff, team.categorie],
 				function(err/**, results*/){
 					if(err) {
 						logger.error('Fail inserting ranking data', err);
@@ -154,8 +154,8 @@ class PostgresSQL {
 	 * 			- equipe2Complet
 	 */
 	public static updateCalendarLine = function (/* object */ match: Match) {
-		pgQuery('UPDATE calendrier set date=$1, score1=$2, score2=$3, equipe1=$4, equipe2=$5 WHERE equipe1 LIKE $6 AND equipe2 LIKE $7',
-				[match.date, match.score1, match.score2, match.equipe1Complet, match.equipe2Complet, '%'+match.equipe1+'%', '%'+match.equipe2+'%' ], 
+		pgQuery('UPDATE calendrier set date=$1, score1=$2, score2=$3, equipe1=$4, equipe2=$5 WHERE equipe1 LIKE $6 AND equipe2 LIKE $7 AND categorie LIKE $8',
+				[match.date, match.score1, match.score2, match.equipe1Complet, match.equipe2Complet, '%'+match.equipe1+'%', '%'+match.equipe2+'%', match.categorie], 
 				function(err/**, results*/) {
 					if(err) {
 						logger.error('Fail updating match informations', err);
@@ -181,8 +181,8 @@ class PostgresSQL {
 	 * 			- nom
 	 */
 	public static updateRankingLine = function (/* object */ team: ClassementLine) {
-		pgQuery('UPDATE classement set points=$1, joue=$2, gagne=$3, nul=$4, perdu=$5, bp=$6, bc=$7, diff=$8 WHERE nom LIKE $9',
-				[team.points, team.joue, team.gagne, team.nul, team.perdu, team.bp, team.bc, team.diff, team.nom],
+		pgQuery('UPDATE classement set points=$1, joue=$2, gagne=$3, nul=$4, perdu=$5, bp=$6, bc=$7, diff=$8 WHERE nom LIKE $9 and categorie LIKE $10',
+				[team.points, team.joue, team.gagne, team.nul, team.perdu, team.bp, team.bc, team.diff, team.nom, team.categorie],
 				function(err/**, results*/){
 					if(err) {
 						logger.error('Fail updating ranking data', err);
@@ -241,6 +241,32 @@ class PostgresSQL {
 		});
 	};
 	
+	/**
+	 * Permet de récupérer la liste des matchs du calendrier
+	 * 
+	 * @param {function} success
+	 * @param {function} fail
+	 * @return array
+	 */
+	public static getCalendarInfosByCategorie = function(categorie: string, success :((res: Array<Match>) => void), fail): void {
+		pgQuery('select * from calendrier where categorie=$1 order by date asc', [categorie], function(err, results: pg.QueryResult) {
+			if(err) {
+				fail(err);
+			} else {
+				var res = new Array<Match>();
+				for (var i in results.rows) {
+					var m = new Match();
+					m.equipe1 = results.rows[i].equipe1;
+					m.equipe2 = results.rows[i].equipe2;
+					m.score1 = results.rows[i].score1;
+					m.score2 = results.rows[i].score2;
+					m.date = results.rows[i].date;
+					res.push(m);
+				}
+				success(res);
+			}
+		});
+	};
 	
 	/**
 	 * Permet de récupérer le classement du championnat
@@ -272,6 +298,35 @@ class PostgresSQL {
 		});
 	};
 	
+	/**
+	 * Permet de récupérer le classement du championnat
+	 * @param {function} success
+	 * @param {function} fail
+	 * @return array
+	 */
+	public static getRankingInfosByCategorie = function(categorie: string, /**function */success: ((res: Array<ClassementLine>)=>void), /**function */fail): void {
+		pgQuery('select * from classement where categorie LIKE $1 order by points desc, diff desc', [categorie], function(err, results: pg.QueryResult) {
+			if(err) {
+				fail(err);
+			} else {
+				var res = new Array<ClassementLine>();
+				for (var i in results.rows) {
+					var c = new ClassementLine();
+					c.nom = results.rows[i].nom;
+					c.points = results.rows[i].points;
+					c.joue = results.rows[i].joue;
+					c.gagne = results.rows[i].gagne;
+					c.nul = results.rows[i].nul;
+					c.perdu = results.rows[i].perdu;
+					c.bp = results.rows[i].bp;
+					c.bc = results.rows[i].bc;
+					c.diff = results.rows[i].diff;
+					res.push(c);
+				}
+				success(res);
+			}
+		});
+	};
 	/**
 	 * Permet de récupérer la liste des actualités
 	 * @param {function} success
@@ -426,8 +481,8 @@ class PostgresSQL {
 	};
 	
 	public static insertJournee = function(journee: Journee, success: Function, fail: Function) {
-		pgQuery("INSERT INTO journee (date,equipe1,equipe2,score1,score2,id_journee, infos) VALUES ($1, $2, $3, $4, $5, $6, $7)", 
-			[journee.date, journee.equipe1, journee.equipe2, journee.score1, journee.score2, journee.idJournee, journee.infos], 
+		pgQuery("INSERT INTO journee (date,equipe1,equipe2,score1,score2,id_journee, infos, categorie) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", 
+			[journee.date, journee.equipe1, journee.equipe2, journee.score1, journee.score2, journee.idJournee, journee.infos, journee.categorie], 
 			function(err, result: pg.QueryResult) {
 			if(err) {
 				logger.error("Error while inserting journee", err);
@@ -449,8 +504,8 @@ class PostgresSQL {
 		});
 	}
 	
-	public static getJournee = function(idJournee: number, success: Function, fail: Function) {
-		pgQuery('SELECT * from journee where id_journee=$1 order by date asc', [idJournee], function(err, results) {
+	public static getJournee = function(categorie: string, idJournee: number, success: Function, fail: Function) {
+		pgQuery('SELECT * from journee where id_journee=$1 and categorie=$2 order by date asc', [idJournee, categorie], function(err, results) {
 			if(err) {
 				if(fail)
 					fail(err);
@@ -497,8 +552,8 @@ class PostgresSQL {
 		})
 	}
 	
-	public static deleteJournee = function(idJournee: number) {
-		pgQuery('DELETE FROM journee where id_journee=$1', [idJournee], function(err) {
+	public static deleteJournee = function(categorie: string, idJournee: number) {
+		pgQuery('DELETE FROM journee where id_journee=$1 and categorie=$2', [idJournee, categorie], function(err) {
 			if(err) {
 				logger.error('Error while deleting journee', err);
 			}

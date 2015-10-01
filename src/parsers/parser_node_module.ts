@@ -21,8 +21,10 @@ import Logger = require('../utils/logger');
 var logger = new Logger('Parser FFF');
 // Paramétrage url
 var optionsClassement = Constants_FFF.classement;
+var optionsClassementArray = Constants_FFF.arrayClassement;
 
 var optionsCalendrier = Constants_FFF.calendrier;
+var optionsCalendrierArray = Constants_FFF.arrayCalendrier;
 
 var optionsActus = Constants_FFF.actus;
 var optionsAgendaPathBase = Constants_FFF.agenda.basePath;
@@ -46,28 +48,33 @@ var listeMoisActu = constants.constants.listeMoisActu;
  */
 var downloadData = Utils.downloadData;
 class parser_node_module {
+    /**
+     * Met à jour les informations dans la base de données (Calendrier, Classement, Actus) pour les différentes équipes
+     */
     public static updateDatabase(): void {
-        if (optionsClassement.activated) {
-            this.updateRankingData();
-        }
+        this.updateRankingDataForTeam('equipe1');
+        this.updateRankingDataForTeam('equipe2');
+        this.updateRankingDataForTeam('equipe3');
     
-    
-        if (optionsCalendrier.activated) {
-            this.updateCalendarData();        
-        }
-    
+        this.updateCalendarDataForTeam('equipe1');
+        this.updateCalendarDataForTeam('equipe2');
+        this.updateCalendarDataForTeam('equipe3');
         if (optionsActus.activated) {
             this.updateActusData();
         }
     }
     
-    public static updateCalendarData(): void {
-        Utils.downloadData(optionsCalendrier, function(result) {
+    /**
+     * Met à jour la table calendrier pour l'équipe passé en paramétre
+     */
+    public static updateCalendarDataForTeam(equipe: string): void {
+        Utils.downloadData(optionsCalendrierArray[equipe], function(result) {
             var $2 = cheerio.load(result);
             var linesCalendar = $2("div.list_calendar").children('div');
             
             $2(linesCalendar).each(function (index, line) {
                 var match: Match = parser_node_module.parseCalendarLine(line);
+                match.categorie = equipe;
                 database.getMatchByName(match.equipe1, match.equipe2, function (result) {
                     if (result != null ) {
                         /**
@@ -76,18 +83,18 @@ class parser_node_module {
                         if((result.score1 === null) && 
                            (result.score2 === null) && 
                             match.score1 !== null && match.score2 !== null) {
-                            var notifTitle = 'Nouveau Résultat';
+                            var notifTitle = 'Nouveau Résultat '+ equipe;
                             var notifMessage = null;
-                            if(match.equipe1 === HOFC_NAME && match.score1 > match.score2) {
+                            if(match.equipe1.indexOf(HOFC_NAME) != -1 && match.score1 > match.score2) {
                                 notifMessage = 'Victoire du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe2;
-                            } else if (match.equipe2 === HOFC_NAME && match.score2 > match.score1) {
+                            } else if (match.equipe2.indexOf(HOFC_NAME) != -1 && match.score2 > match.score1) {
                                 notifMessage = 'Victoire du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe1;
-                            } else if(match.equipe1 === HOFC_NAME && match.score1 < match.score2) {
+                            } else if(match.equipe1.indexOf(HOFC_NAME) != -1 && match.score1 < match.score2) {
                                 notifMessage = 'Défaite du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe2;
-                            } else if (match.equipe2 === HOFC_NAME && match.score2 < match.score1) {
+                            } else if (match.equipe2.indexOf(HOFC_NAME) != -1 && match.score2 < match.score1) {
                                 notifMessage = 'Défaite du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe1;
                             } else {
-                                notifMessage = 'Match nul entre le HOFC et ' + ((match.equipe1 === HOFC_NAME)? match.equipe2 : match.equipe1);
+                                notifMessage = 'Match nul entre le HOFC et ' + ((match.equipe1.indexOf(HOFC_NAME) != -1)? match.equipe2 : match.equipe1);
                             }
                             logger.info('Sending Notification with message : ' + notifMessage);
                             notification.sendNotification(notifTitle, notifMessage, {"TYPE": "Calendrier"});
@@ -109,8 +116,11 @@ class parser_node_module {
         });
     }
     
-    public static updateRankingData(): void {
-        Utils.downloadData(optionsClassement, function(result) {
+    /**
+     * Met à jour la table classement pour l'équipe passé en paramétre
+     */   
+    public static updateRankingDataForTeam(equipe: string): void {
+        Utils.downloadData(optionsClassementArray[equipe], function(result) {
             var $ = cheerio.load(result);
             var linesClassement = $("table.classement").children('tbody').children().filter(function () {
                 return ($(this).children() !== null && $(this).children().length > 3);
@@ -120,6 +130,7 @@ class parser_node_module {
                 if(team === null) {
                     return;
                 }
+                team.categorie = equipe;
                 database.getRankByName(team.nom, function(result) {
                     if(result !== null) {
                         // Mise a jour des informatons de classement
@@ -164,6 +175,12 @@ class parser_node_module {
         });
     }
     
+    /**
+     * Transforme le bout de page passé en paramètre en objet classement
+     * 
+     * @param ligne html a parser.
+     * @return objet classement
+     */
     public static parseClassementLine(line /**: DOM Element */): ClassementLine {
         var $ = cheerio.load(line);
         var lineChildren = $(line).children();
@@ -197,6 +214,7 @@ class parser_node_module {
     
     /**
      * Parse une ligne de calendrier
+     * 
      * @param {string} ligne html des infos du match
      * @return {object} Informations sur le match
      */
@@ -363,9 +381,9 @@ class parser_node_module {
     
     /**
      * Parse l'agenda d'une semaine
-    * @param semaine Chaine de caractère au format YYYY-MM-DD
-    * @param callback Callback a appeler à la fin de la récupération
-    **/
+     * @param semaine Chaine de caractère au format YYYY-MM-DD
+     * @param callback Callback a appeler à la fin de la récupération
+     **/
     public static parseAgenda(semaine, callback: ((res:Array<MatchAgenda>) => void), fail: Function) {
         if(semaine !== null) {
             optionsAgenda.path = optionsAgendaPathBase + '/semaine-' + semaine;

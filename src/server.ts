@@ -37,16 +37,34 @@ new CronJob('0 */15 0,9-23 * * *', function(){
 
 new CronJob('0 */30 0,9-23 * * *', function() {
     logger.info('Start updating database journee');
-    var nbJournee = constants.params.SEASON_MATCHS_COUNT;
-    for(var i = 1; i<=22; i++)
-        parserdistrict.updateDatabaseJournee(i);
+    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE1;
+    for(var i = 1; i<=nbJournee; i++)
+        parserdistrict.updateDatabaseJournee(i, 'equipe1');
+        
+    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE2;
+    for(var i = 1; i<=nbJournee; i++)
+        parserdistrict.updateDatabaseJournee(i, 'equipe2');
+        
+    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE3;
+    for(var i = 1; i<=nbJournee; i++)
+        parserdistrict.updateDatabaseJournee(i, 'equipe3');
 }, null, true);
 
 /**
  * Permet de récupérer le classement de l'équipe
  */
 app.get('/classement', function(req, res){
-    database.getRankingInfos(function(results) {
+    database.getRankingInfosByCategorie('equipe1', function(results) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(Utils.arrayToString(results));
+    }, function(err) {
+        logger.error('Error while connecting to database', err);
+        res.send(constants.errorCode.INTERNAL);
+    });
+});
+
+app.get('/classement/:categorie', function(req, res){
+    database.getRankingInfosByCategorie(req.params.categorie, function(results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(Utils.arrayToString(results));
     }, function(err) {
@@ -59,7 +77,7 @@ app.get('/classement', function(req, res){
  * Permet de récupérer la liste des matchs de la saison avec les résultats des matchs
  */
 app.get('/calendrier', function(req, res){
-    database.getCalendarInfos(function(results) {
+    database.getCalendarInfosByCategorie('equipe1',function(results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(Utils.arrayToString(results));
     }, function(err) {
@@ -68,6 +86,15 @@ app.get('/calendrier', function(req, res){
     });
 });
 
+app.get('/calendrier/:categorie', function(req, res){
+    database.getCalendarInfosByCategorie(req.params.categorie,function(results) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(Utils.arrayToString(results));
+    }, function(err) {
+        logger.error('Error while connecting to database', err);
+        res.send(constants.errorCode.INTERNAL);
+    });
+});
 /**
  * Permet de récupérer la listes des actualités
  */
@@ -202,7 +229,18 @@ app.get('/matchinfosdistrict/:id', function(req, res) {
 });
 
 app.get('/journee/:id', function (req, res) {
-    database.getJournee(req.params.id, function(result) {
+    database.getJournee('equipe1', req.params.id, function(result) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(result);
+    }, null);
+});
+
+/**
+ * @params categorie Représente l'équipe concerné (equipe1, equipe2, equipe3)
+ * @params id N° de la journée
+ */
+app.get('/journee/:categorie/:id', function (req, res) {
+    database.getJournee(req.params.categorie,req.params.id, function(result) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(result);
     }, null);

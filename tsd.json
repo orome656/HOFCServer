@@ -25,6 +25,15 @@
     },
     "gulp/gulp.d.ts": {
       "commit": "70737c2a2496f7a13c4da63eb00081cad94d19f1"
+    },
+    "mocha/mocha.d.ts": {
+      "commit": "32029fcb4e1a3ef8968711b545d77b584435729d"
+    },
+    "assertion-error/assertion-error.d.ts": {
+      "commit": "32029fcb4e1a3ef8968711b545d77b584435729d"
+    },
+    "chai/chai.d.ts": {
+      "commit": "32029fcb4e1a3ef8968711b545d77b584435729d"
     }
   }
 }
