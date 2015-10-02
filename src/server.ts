@@ -168,16 +168,36 @@ app.get('/agenda', function(req, res){
  * Permet de récupérer l'ensemble des matchs d'une semaine pour le club
  */
 app.get('/agenda/:semaine', function(req, res){
-    parser.parseAgenda(req.params.semaine, function(result){
-        res.set('Content-Type', 'application/json; charset=utf-8');
-        res.send(Utils.arrayToString(result));
-    }, function(err) {
-        res.status(503).send('Error while contacting backend');
-    });
+    try {
+        var date = new Date(req.params.semaine);
+        var day = date.getDate() + '';
+        if(day.length === 1) {
+            day = '0'+day;
+        }
+        var month = date.getMonth() + 1 + '';
+        if(month.length === 1) {
+            month = '0'+month;
+        }
+        var year = date.getFullYear() + '';
+        parserdistrict.parseAgenda(day+month+year, function(result, error){
+            if(result != null && error == 0) {
+                res.set('Content-Type', 'application/json; charset=utf-8');
+                res.send(result);
+            } else if(error === 404) {
+                res.send(constants.errorCode.BACKEND);
+            } else {
+                res.send(constants.errorCode.UNKNOWN);
+            }
+        });
+    } catch(e) {
+        logger.error('Error while getting agenda infos', e);
+        res.send(constants.errorCode.INTERNAL);
+    }
 });
 
 /**
 * @param semaine Chaine de caractère au format YYYY-MM-DD
+* @deprecated -> Delete when change on client
 **/
 app.get('/agendadistrict/:semaine', function(req,res) {
     try {
@@ -211,7 +231,7 @@ app.get('/agendadistrict/:semaine', function(req,res) {
  * Permet de récupérer les informations sur un match (arbitres, lieu)
  */
 app.get('/matchinfos/:id', function(req, res) {
-    parser.parseMatchInfos(req.params.id, function(result) {
+    parserdistrict.parseMatchInfos(req.params.id, function(result) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(result);
     });
@@ -220,6 +240,7 @@ app.get('/matchinfos/:id', function(req, res) {
 
 /**
  * Permet de récupérer les informations sur un match (arbitres, lieu)
+* @deprecated -> Delete when change on client
  */
 app.get('/matchinfosdistrict/:id', function(req, res) {
     parserdistrict.parseMatchInfos(req.params.id, function(result) {
@@ -228,6 +249,9 @@ app.get('/matchinfosdistrict/:id', function(req, res) {
     });
 });
 
+/**
+ * @deprecated -> Delete when change on client
+ */
 app.get('/journee/:id', function (req, res) {
     database.getJournee('equipe1', req.params.id, function(result) {
         res.set('Content-Type', 'application/json; charset=utf-8');
