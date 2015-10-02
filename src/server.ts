@@ -284,11 +284,13 @@ app.get('/keepalive', function(req, res) {
 /**
  * Permet de tester les notifications sur environnement de développement
  */
-app.get('/dev/notification/:title/:message/:type/:optionName/:optionValue', function(req, res){
+app.post('/dev/notification/:title/:message/:type', function(req, res){
     var isDebug = (process.env.NODE_ENV === "DEV");
     if(isDebug) {
         var extra = {'TYPE': req.params.type};
-        extra[req.params.optionName] = req.params.optionValue;
+        for (var i in req.body) {
+            extra[i] = req.body[i];
+        }
         notification.sendNotification(req.params.title, req.params.message, extra);
         res.status(200).send(constants.errorCode.OK + '');
     } else {
