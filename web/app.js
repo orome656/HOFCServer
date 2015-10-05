@@ -14,7 +14,7 @@ app.config(['$routeProvider', function($routeProvider) {
         templateUrl: 'views/calendrier.html',
         controller: 'CalendrierController'
       })
-      .when('/agendas', {
+      .when('/agendas/:semaine', {
         templateUrl: 'views/agenda.html',
         controller: 'AgendaController'
       })
