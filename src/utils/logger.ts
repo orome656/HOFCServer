@@ -4,7 +4,11 @@ class Logger {
 	constructor(name: string) {
 		this._name = name;
 	}
-	
+	/**
+	 * Permet de créer une log d'info
+	 * 
+	 * @param message
+	 */
 	public info(message: string) {
 		console.log('[INFO] [' + this._name + '] : ' + message);
 	}

@@ -37,16 +37,34 @@ new CronJob('0 */15 0,9-23 * * *', function(){
 
 new CronJob('0 */30 0,9-23 * * *', function() {
     logger.info('Start updating database journee');
-    var nbJournee = constants.params.SEASON_MATCHS_COUNT;
-    for(var i = 1; i<=22; i++)
-        parserdistrict.updateDatabaseJournee(i);
+    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE1;
+    for(var i = 1; i<=nbJournee; i++)
+        parserdistrict.updateDatabaseJournee(i, 'equipe1');
+        
+    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE2;
+    for(var i = 1; i<=nbJournee; i++)
+        parserdistrict.updateDatabaseJournee(i, 'equipe2');
+        
+    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE3;
+    for(var i = 1; i<=nbJournee; i++)
+        parserdistrict.updateDatabaseJournee(i, 'equipe3');
 }, null, true);
 
 /**
  * Permet de récupérer le classement de l'équipe
  */
 app.get('/classement', function(req, res){
-    database.getRankingInfos(function(results) {
+    database.getRankingInfosByCategorie('equipe1', function(results) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(Utils.arrayToString(results));
+    }, function(err) {
+        logger.error('Error while connecting to database', err);
+        res.send(constants.errorCode.INTERNAL);
+    });
+});
+
+app.get('/classement/:categorie', function(req, res){
+    database.getRankingInfosByCategorie(req.params.categorie, function(results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(Utils.arrayToString(results));
     }, function(err) {
@@ -59,7 +77,7 @@ app.get('/classement', function(req, res){
  * Permet de récupérer la liste des matchs de la saison avec les résultats des matchs
  */
 app.get('/calendrier', function(req, res){
-    database.getCalendarInfos(function(results) {
+    database.getCalendarInfosByCategorie('equipe1',function(results) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(Utils.arrayToString(results));
     }, function(err) {
@@ -68,6 +86,15 @@ app.get('/calendrier', function(req, res){
     });
 });
 
+app.get('/calendrier/:categorie', function(req, res){
+    database.getCalendarInfosByCategorie(req.params.categorie,function(results) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(Utils.arrayToString(results));
+    }, function(err) {
+        logger.error('Error while connecting to database', err);
+        res.send(constants.errorCode.INTERNAL);
+    });
+});
 /**
  * Permet de récupérer la listes des actualités
  */
@@ -141,16 +168,36 @@ app.get('/agenda', function(req, res){
  * Permet de récupérer l'ensemble des matchs d'une semaine pour le club
  */
 app.get('/agenda/:semaine', function(req, res){
-    parser.parseAgenda(req.params.semaine, function(result){
-        res.set('Content-Type', 'application/json; charset=utf-8');
-        res.send(Utils.arrayToString(result));
-    }, function(err) {
-        res.status(503).send('Error while contacting backend');
-    });
+    try {
+        var date = new Date(req.params.semaine);
+        var day = date.getDate() + '';
+        if(day.length === 1) {
+            day = '0'+day;
+        }
+        var month = date.getMonth() + 1 + '';
+        if(month.length === 1) {
+            month = '0'+month;
+        }
+        var year = date.getFullYear() + '';
+        parserdistrict.parseAgenda(day+month+year, function(result, error){
+            if(result != null && error == 0) {
+                res.set('Content-Type', 'application/json; charset=utf-8');
+                res.send(result);
+            } else if(error === 404) {
+                res.send(constants.errorCode.BACKEND);
+            } else {
+                res.send(constants.errorCode.UNKNOWN);
+            }
+        });
+    } catch(e) {
+        logger.error('Error while getting agenda infos', e);
+        res.send(constants.errorCode.INTERNAL);
+    }
 });
 
 /**
 * @param semaine Chaine de caractère au format YYYY-MM-DD
+* @deprecated -> Delete when change on client
 **/
 app.get('/agendadistrict/:semaine', function(req,res) {
     try {
@@ -184,7 +231,7 @@ app.get('/agendadistrict/:semaine', function(req,res) {
  * Permet de récupérer les informations sur un match (arbitres, lieu)
  */
 app.get('/matchinfos/:id', function(req, res) {
-    parser.parseMatchInfos(req.params.id, function(result) {
+    parserdistrict.parseMatchInfos(req.params.id, function(result) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(result);
     });
@@ -193,6 +240,7 @@ app.get('/matchinfos/:id', function(req, res) {
 
 /**
  * Permet de récupérer les informations sur un match (arbitres, lieu)
+* @deprecated -> Delete when change on client
  */
 app.get('/matchinfosdistrict/:id', function(req, res) {
     parserdistrict.parseMatchInfos(req.params.id, function(result) {
@@ -201,8 +249,22 @@ app.get('/matchinfosdistrict/:id', function(req, res) {
     });
 });
 
+/**
+ * @deprecated -> Delete when change on client
+ */
 app.get('/journee/:id', function (req, res) {
-    database.getJournee(req.params.id, function(result) {
+    database.getJournee('equipe1', req.params.id, function(result) {
+        res.set('Content-Type', 'application/json; charset=utf-8');
+        res.send(result);
+    }, null);
+});
+
+/**
+ * @params categorie Représente l'équipe concerné (equipe1, equipe2, equipe3)
+ * @params id N° de la journée
+ */
+app.get('/journee/:categorie/:id', function (req, res) {
+    database.getJournee(req.params.categorie,req.params.id, function(result) {
         res.set('Content-Type', 'application/json; charset=utf-8');
         res.send(result);
     }, null);
@@ -222,10 +284,14 @@ app.get('/keepalive', function(req, res) {
 /**
  * Permet de tester les notifications sur environnement de développement
  */
-app.get('/dev/notification/:title/:message/:type', function(req, res){
+app.post('/dev/notification/:title/:message/:type', function(req, res){
     var isDebug = (process.env.NODE_ENV === "DEV");
     if(isDebug) {
-        notification.sendNotification(req.params.title, req.params.message, {'TYPE': req.params.type});
+        var extra = {'TYPE': req.params.type};
+        for (var i in req.body) {
+            extra[i] = req.body[i];
+        }
+        notification.sendNotification(req.params.title, req.params.message, extra);
         res.status(200).send(constants.errorCode.OK + '');
     } else {
         res.status(404).send('Not found'); // HTTP status 404: NotFound

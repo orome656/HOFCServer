@@ -52,6 +52,28 @@ var optionsCalendrierExcellence = new RequestParamsEditable(
     '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=319539&ph_no=1&gp_no=&sa_no=2015&pj_no='
 );
 
+var optionsCalendrierPremiereDiv = new RequestParamsEditable(
+    'district-foot-65.fff.fr',
+    80,
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=317727&ph_no=1&gp_no=&sa_no=2015&pj_no=',
+    true,
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=317727&ph_no=1&gp_no=&sa_no=2015&pj_no='
+);
+
+var optionsCalendrierPromotionPremiereDiv = new RequestParamsEditable(
+    'district-foot-65.fff.fr',
+    80,
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=317728&ph_no=1&gp_no=&sa_no=2015&pj_no=',
+    true,
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=317728&ph_no=1&gp_no=&sa_no=2015&pj_no='
+);
+
+var optionsCalendrierByJourneeArray = {
+    'equipe1': optionsCalendrierExcellence,
+    'equipe2': optionsCalendrierPremiereDiv,
+    'equipe3': optionsCalendrierPromotionPremiereDiv
+}
+
 module Constants_District {
 	export var classement = optionsClassement;
 	export var calendrier = optionsCalendrier;
@@ -59,6 +81,7 @@ module Constants_District {
     export var agenda = optionsAgenda;
     export var matchInfos = optionsMatchInfos;
     export var calendrierExcellence = optionsCalendrierExcellence;
+    export var calendrierByJournee = optionsCalendrierByJourneeArray;
 };
 
 export = Constants_District;

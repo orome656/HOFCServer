@@ -7,6 +7,8 @@ var browserSync = require('browser-sync');
 var nodemon = require('gulp-nodemon');
 var jshint = require('gulp-jshint');
 var tsc    = require('gulp-typescript');
+var mocha = require('gulp-mocha');
+var changed = require('gulp-changed');
  /*
 var paths = {
     tscripts : { 
@@ -90,7 +92,9 @@ gulp.task('compile:typescript', function () {
 });
 
 gulp.task('copy', function() {
-    gulp.src(paths.web.src).pipe(gulp.dest(paths.web.dest));
+    gulp.src(paths.web.src)
+        .pipe(changed(paths.web.dest))
+        .pipe(gulp.dest(paths.web.dest));
 });
 
 
@@ -105,6 +109,12 @@ gulp.task('build', ['copy', 'compile:typescript', 'copyConf'], function() {
 gulp.task('test', ['nodemon'], function() {
     
 });
+
+gulp.task('unitTest', ['compile:typescript'], function() {
+    return gulp
+        .src('./build/test/testDatabase.js')
+        .pipe(mocha());
+})
 
 gulp.task('watch', function() {  
     gulp.watch('**/*.ts', ['compile:typescript']);

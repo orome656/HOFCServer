@@ -11,8 +11,12 @@ Request Informations from multiples websites:
 
 Multiples request are possibles : 
 
-    * /calendrier       : Used to get team calendar
-    * /classement       : Used to get team rank
-    * /actus            : Used to get news list
-    * /agenda/:semaine  : Used to get club calendar for the week (week: YYYY-MM-DD)
-    * /matchInfos/:id   : Used to get match informations with id. (Location, referes)
+    * /calendrier/:equipe     : Used to get team calendar for team in parameter (equipe1, equipe2 or equipe3)
+    * /classement/:equipe     : Used to get team rank for team in parameter (equipe1, equipe2 or equipe3)
+    * /actus                  : Used to get news list
+    * /agenda/:semaine        : Used to get club calendar for the week (week: YYYY-MM-DD)
+    * /matchInfos/:id         : Used to get match informations with id. (Location, referes)
+    * /parsePage              : Used to get actuality page content (Page URL in post parameter)
+    * /registerPush           : Used to register to push notifications
+    * /journee/:categorie/:id : Used to get informations about one matchday of one league (league: equipe1 or equipe2 or equipe3)
+    * /params                 : Used to get application params

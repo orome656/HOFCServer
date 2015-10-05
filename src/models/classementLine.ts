@@ -9,6 +9,7 @@ class ClassementLine {
 	public bp: number;
 	public bc: number;
 	public diff: number;
+	public categorie: string;
 		
 	fromObject(object) {
 		this.id = object.id;
@@ -21,6 +22,7 @@ class ClassementLine {
 		this.bp = object.bp;
 		this.bc = object.bc;
 		this.diff = object.diff;
+		this.categorie = object.categorie;
 	}
 	
 	toString(): string {

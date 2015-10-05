@@ -21,7 +21,7 @@ var optionsMatchInfos = Constants_District.matchInfos;
 
 var optionsCalendrierExcellencePathBase = Constants_District.calendrierExcellence.basePath;
 var optionsCalendrierExcellence = Constants_District.calendrierExcellence;
-
+var optionsCalendrierByJournee = Constants_District.calendrierByJournee;
 /**
  *	Tableau permettant de convertir la chaine date récupérée en objet date pour les actus
  */
@@ -31,6 +31,9 @@ var listeMoisDistrict = constants.constants.listeMoisDistrict;
 * @param semaine Chaine de caractère au format DDMMYYYY
 **/
 class ParserDistrictNodeModule {
+    /**
+     * Récupère l'agenda d'une semaine
+     */
     public static parseAgenda(semaine, callback: (array: Array<MatchAgenda>, error: number) => void) {
         if(semaine !== null) {
             optionsAgenda.path = optionsAgendaPathBase + semaine;
@@ -126,7 +129,9 @@ class ParserDistrictNodeModule {
             callback(null, -3);
         });
     }
-    
+    /**
+     * Récupére les infos du match correspondant a l'id passé en parametre
+     */
     public static parseMatchInfos(id, callback) {
         optionsMatchInfos.path = optionsMatchInfosPathBase + id;
         Utils.downloadData(optionsMatchInfos, function(result) {
@@ -150,9 +155,12 @@ class ParserDistrictNodeModule {
         });
     }
     
-    public static parseJourneeExcellence(journee, callback: (array: Array<Journee>, error: number) => void) {
-        optionsCalendrierExcellence.path = optionsCalendrierExcellencePathBase + journee;
-        Utils.downloadData(optionsCalendrierExcellence, function(result) {
+    /**
+     * Récupére les matchs d'une journee du championnat de l'équipe passé en parametre 
+     */
+    public static parseJourneeExcellence(categorie: string, journee, callback: (array: Array<Journee>, error: number) => void) {
+        optionsCalendrierByJournee[categorie].path = optionsCalendrierByJournee[categorie].basePath + journee;
+        Utils.downloadData(optionsCalendrierByJournee[categorie], function(result) {
             var returnedValue = [];
             var i = 0;
             var $2 = cheerio.load(result);
@@ -224,12 +232,16 @@ class ParserDistrictNodeModule {
         });
     }
     
-    public static updateDatabaseJournee(idJournee: number) {
-        this.parseJourneeExcellence(idJournee, function(res, err) {
+    /**
+     * Met à jour les informations d'une journee d'un championnat
+     */
+    public static updateDatabaseJournee(idJournee: number, categorie: string) {
+        this.parseJourneeExcellence(categorie, idJournee, function(res, err) {
             if(err == 0) {
-                database.deleteJournee(idJournee);
+                database.deleteJournee(categorie, idJournee);
                 res.forEach(function(element) {
                     element.idJournee = idJournee;
+                    element.categorie = categorie;
                     database.insertJournee(element, null, null);
                 });
             }
