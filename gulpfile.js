@@ -8,6 +8,7 @@ var nodemon = require('gulp-nodemon');
 var jshint = require('gulp-jshint');
 var tsc    = require('gulp-typescript');
 var mocha = require('gulp-mocha');
+var changed = require('gulp-changed');
  /*
 var paths = {
     tscripts : { 
@@ -91,7 +92,9 @@ gulp.task('compile:typescript', function () {
 });
 
 gulp.task('copy', function() {
-    gulp.src(paths.web.src).pipe(gulp.dest(paths.web.dest));
+    gulp.src(paths.web.src)
+        .pipe(changed(paths.web.dest))
+        .pipe(gulp.dest(paths.web.dest));
 });
 
 

@@ -8,7 +8,7 @@ app.service('classementService', ['$q', '$http', function($q, $http) {
                 //Success
                 angular.copy(results.data, _classement); //this is the preferred; instead of $scope.movies = result.data
             }, function(results){
-                //Error
+                //Error  
             })
     }
 	
