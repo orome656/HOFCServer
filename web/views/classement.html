@@ -1,0 +1,30 @@
+<md-data-table-container>
+  <table md-data-table class="md-primary">
+    <thead md-table-head>
+      <tr>
+        <th name="Nom" order-by="nom"></th>
+        <th name="Points" order-by="points"></th>
+        <th name="J" order-by="joue"></th>
+        <th name="V" order-by="gagne"></th>
+        <th name="N" order-by="nul"></th>
+        <th name="P" order-by="perdu"></th>
+        <th name="BP" order-by="bp"></th>
+        <th name="BC" order-by="bc"></th>
+        <th name="DIFF" order-by="diff"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr md-auto-select ng-repeat="rank in ranking">
+        <td>{{rank.nom}}</td>
+        <td>{{rank.points}}</td>
+        <td>{{rank.joue}}</td>
+        <td>{{rank.gagne}}</td>
+        <td>{{rank.nul}}</td>
+        <td>{{rank.perdu}}</td>
+        <td>{{rank.bp}}</td>
+        <td>{{rank.bc}}</td>
+        <td>{{rank.diff}}</td>
+      </tr>
+    </tbody>
+  </table>
+</md-data-table-container>

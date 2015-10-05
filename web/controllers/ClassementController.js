@@ -1,7 +1,6 @@
-app.controller('ClassementController',['$scope', function($scope) {
-	$scope.ranking = [{
-		name: 'test'
-	},{
-		name: 'test2'
-	}]
+app.controller('ClassementController',['$scope', 'classementService', function($scope, classementService) {
+	$scope.ranking = classementService.classement;
+	
+	classementService.getClassement();
+	
 }]);
