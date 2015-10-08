@@ -1,0 +1,26 @@
+<md-card ng-repeat="item in calendrier" layout="column" layout-sm="column">
+	<md-card-content layout="column">
+		<div class="textCentered">
+			{{item.date | date:"EEEE dd MMMM yyyy HH:mm"}}
+		</div>
+		<div layout="row" layout-align="center center">
+			<div flex="10">
+				<img ng-if="item.equipe1.indexOf('HORGUES') > -1" class="round-face" src="../images/hofc.png" />
+			</div>
+			<span flex="30" class="textCentered" ng-class="item.equipe1.indexOf('HORGUES') > -1 ? 'hofcTextStyle' : '' ">{{item.equipe1}}</span>
+			<span flex="10" class="textCentered">{{item.score1}}</span>
+			<span flex class="textCentered"> - </span>
+			<span flex="10" class="textCentered">{{item.score2}}</span>
+			<span flex="30" class="textCentered" ng-class="item.equipe2.indexOf('HORGUES') > -1 ? 'hofcTextStyle' : '' ">{{item.equipe2}}</span>
+			<div flex="10">
+				<img ng-if="item.equipe2.indexOf('HORGUES') > -1" class="round-face" src="../images/hofc.png" />
+			</div>
+		</div>
+	</md-card-content>
+</md-card>
+
+<!-- md-list>
+	<md-list-item ng-repeat="item in calendrier">
+		{{item.equipe1}} {{item.score1}} - {{item.score2}} {{item.equipe2}}
+	</md-list-item>
+</md-list -->
