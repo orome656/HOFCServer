@@ -28,7 +28,9 @@
           </md-list>
         </md-sidenav>
         <md-content md-scroll-y style="width:100%">
-            <ng-view></ng-view>
+            <div class="view-animate-container">
+              <div ng-view class="view-animate"></div>
+            </div>
         </md-content>
     </div>
     <!-- Angular Material Dependencies -->
