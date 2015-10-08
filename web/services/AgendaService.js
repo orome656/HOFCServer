@@ -2,7 +2,6 @@ app.service('agendaService', ['$q', '$http', function($q, $http) {
 	var _agenda = [];
  
     var _getAgenda = function(semaine){
-		_agenda = [];
         $http.get("/agenda/"+semaine)
             .then(function(results){
                 //Success

@@ -20,7 +20,7 @@ app.config(['$routeProvider', function($routeProvider) {
       })
 }]);
 
-app.controller('AppCtrl', ['$scope', '$mdSidenav', '$timeout','$log', function($scope, $mdSidenav, $timeout, $log) {
+app.controller('AppCtrl', ['$scope', '$mdSidenav', '$timeout','$log', '$filter', function($scope, $mdSidenav, $timeout, $log, $filter) {
   
   $scope.menu = [{
     titre: 'Actualites',
@@ -39,7 +39,7 @@ app.controller('AppCtrl', ['$scope', '$mdSidenav', '$timeout','$log', function($
     lien: '#/calendriers/equipe3'
   },{
     titre: 'Agenda',
-    lien: '#/agendas'
+    lien: '#/agendas/'+$filter('date')(new Date(), 'yyyy-MM-dd')
   }]
   $scope.selected = null;
   $scope.selectMenu = selectMenu;
