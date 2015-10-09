@@ -24,6 +24,7 @@
 		"src/utils/utils.ts",
 		"src/utils/logger.ts",
 		"src/server.ts",
+		"src/updateDatabaseWorker.ts",
 		"typings/tsd.d.ts",
 		"typings/node/node.d.ts",
 		"typings/body-parser/body-parser.d.ts",

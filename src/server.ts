@@ -15,6 +15,8 @@ import constants = require('./constants/constants');
 import Logger = require('./utils/logger');
 import Utils = require('./utils/utils');
 import Actu = require('./models/actu');
+import cp = require('child_process');
+var child = cp.fork('./updateDatabaseWorker');
 
 var logger = new Logger('Server');
 
@@ -31,23 +33,13 @@ app.use(function(req, res, next) {
 // toute les 15min
 new CronJob('0 */15 0,9-23 * * *', function(){
       logger.info('Update database start');
-      parser.updateDatabase();
+      child.send('updateDatabase');
     }, null, true // Start the job right now
 );
 
 new CronJob('0 */30 0,9-23 * * *', function() {
     logger.info('Start updating database journee');
-    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE1;
-    for(var i = 1; i<=nbJournee; i++)
-        parserdistrict.updateDatabaseJournee(i, 'equipe1');
-        
-    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE2;
-    for(var i = 1; i<=nbJournee; i++)
-        parserdistrict.updateDatabaseJournee(i, 'equipe2');
-        
-    var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE3;
-    for(var i = 1; i<=nbJournee; i++)
-        parserdistrict.updateDatabaseJournee(i, 'equipe3');
+    child.send('updateJournee');
 }, null, true);
 
 /**
