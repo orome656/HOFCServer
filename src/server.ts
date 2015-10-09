@@ -16,7 +16,7 @@ import Logger = require('./utils/logger');
 import Utils = require('./utils/utils');
 import Actu = require('./models/actu');
 import cp = require('child_process');
-var child = cp.fork('./updateDatabaseWorker');
+var child = cp.fork(__dirname + '/updateDatabaseWorker');
 
 var logger = new Logger('Server');
 
