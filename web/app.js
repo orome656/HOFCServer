@@ -6,7 +6,7 @@ app.config(['$routeProvider', function($routeProvider) {
         templateUrl: 'views/actualites.html',
         controller: 'ActusController'
       })
-      .when('/classements', {
+      .when('/classements/:categorie', {
         templateUrl: 'views/classement.html',
         controller: 'ClassementController'
       })
@@ -26,16 +26,22 @@ app.controller('AppCtrl', ['$scope', '$mdSidenav', '$timeout','$log', '$filter',
     titre: 'Actualites',
     lien: '#/'
   },{
-    titre: 'Classement',
-    lien: '#/classements'
+    titre: 'Classement Equipe 1',
+    lien: '#/classements/equipe1'
   },{
-    titre: 'Calendrier Equipe1',
+    titre: 'Classement Equipe 2',
+    lien: '#/classements/equipe2'
+  },{
+    titre: 'Classement Equipe 3',
+    lien: '#/classements/equipe3'
+  },{
+    titre: 'Calendrier Equipe 1',
     lien: '#/calendriers/equipe1'
   },{
-    titre: 'Calendrier Equipe2',
+    titre: 'Calendrier Equipe 2',
     lien: '#/calendriers/equipe2'
   },{
-    titre: 'Calendrier Equipe3',
+    titre: 'Calendrier Equipe 3',
     lien: '#/calendriers/equipe3'
   },{
     titre: 'Agenda',

@@ -1,5 +1,7 @@
-app.controller('ClassementController',['$scope', 'classementService', function($scope, classementService) {
+app.controller('ClassementController',['$scope', '$routeParams', 'classementService', function($scope, $routeParams, classementService) {
 	$scope.ranking = classementService.classement;
+	$scope.categorie = $routeParams.categorie;
+	
 	$scope.query = {
         filter: '',
         order: ['-points', '-diff']
@@ -8,6 +10,6 @@ app.controller('ClassementController',['$scope', 'classementService', function($
 	$scope.onChange = function (order) {
 		$scope.query.order = order
 	};
-	classementService.getClassement();
+	classementService.getClassement($scope.categorie);
 	
 }]);
