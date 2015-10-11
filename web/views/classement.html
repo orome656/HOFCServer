@@ -1,30 +1,39 @@
-<md-data-table-container>
-  <table md-data-table class="md-primary">
-    <thead md-table-head md-order="query.order" md-trigger="onChange">
-      <tr>
-        <th name="Nom"></th>
-        <th numeric name="Points" order-by="points"></th>
-        <th numeric name="J" order-by="joue"></th>
-        <th numeric name="V" order-by="gagne"></th>
-        <th numeric name="N" order-by="nul"></th>
-        <th numeric name="P" order-by="perdu"></th>
-        <th numeric name="BP" order-by="bp"></th>
-        <th numeric name="BC" order-by="bc"></th>
-        <th numeric name="DIFF" order-by="diff"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr md-auto-select ng-repeat="rank in ranking | orderBy: query.order">
-        <td>{{rank.nom}}</td>
-        <td>{{rank.points}}</td>
-        <td>{{rank.joue}}</td>
-        <td>{{rank.gagne}}</td>
-        <td>{{rank.nul}}</td>
-        <td>{{rank.perdu}}</td>
-        <td>{{rank.bp}}</td>
-        <td>{{rank.bc}}</td>
-        <td>{{rank.diff}}</td>
-      </tr>
-    </tbody>
-  </table>
-</md-data-table-container>
+<md-tabs class="fullSize" md-selected="selectedIndex">
+  <md-tab ng-repeat="tab in tabs" md-on-select="onTabSelected(tab)">
+    <md-tab-label>
+      {{tab.title}}
+    </md-tab-label>
+    <md-tab-body>
+      <md-data-table-container>
+        <table md-data-table class="md-primary">
+          <thead md-table-head md-order="query.order" md-trigger="onChange">
+            <tr>
+              <th name="Nom"></th>
+              <th numeric name="Points" order-by="points"></th>
+              <th numeric name="J" order-by="joue"></th>
+              <th numeric name="V" order-by="gagne"></th>
+              <th numeric name="N" order-by="nul"></th>
+              <th numeric name="P" order-by="perdu"></th>
+              <th numeric name="BP" order-by="bp"></th>
+              <th numeric name="BC" order-by="bc"></th>
+              <th numeric name="DIFF" order-by="diff"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr md-auto-select ng-repeat="rank in ranking | orderBy: query.order">
+              <td>{{rank.nom}}</td>
+              <td>{{rank.points}}</td>
+              <td>{{rank.joue}}</td>
+              <td>{{rank.gagne}}</td>
+              <td>{{rank.nul}}</td>
+              <td>{{rank.perdu}}</td>
+              <td>{{rank.bp}}</td>
+              <td>{{rank.bc}}</td>
+              <td>{{rank.diff}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </md-data-table-container>
+    </md-tab-body>
+  </md-tab>
+</md-tabs>

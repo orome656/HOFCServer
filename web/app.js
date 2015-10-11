@@ -1,4 +1,4 @@
-var app = angular.module('HOFCApp', ['ngMaterial', 'ngRoute', 'md.data.table', 'ngAnimate']);
+var app = angular.module('HOFCApp', ['ngMaterial', 'ngRoute', 'ngResource', 'md.data.table', 'ngAnimate']);
 
 app.config(['$routeProvider', function($routeProvider) {
     $routeProvider
@@ -26,14 +26,8 @@ app.controller('AppCtrl', ['$scope', '$mdSidenav', '$timeout','$log', '$filter',
     titre: 'Actualites',
     lien: '#/'
   },{
-    titre: 'Classement Equipe 1',
+    titre: 'Classements',
     lien: '#/classements/equipe1'
-  },{
-    titre: 'Classement Equipe 2',
-    lien: '#/classements/equipe2'
-  },{
-    titre: 'Classement Equipe 3',
-    lien: '#/classements/equipe3'
   },{
     titre: 'Calendrier Equipe 1',
     lien: '#/calendriers/equipe1'
