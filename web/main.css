@@ -72,6 +72,10 @@
   height: 100%;
 }
 
+.tabsOnly {
+  min-height:0px !important;
+}
+
 /**
  * CSS animation entre les vues 
  * https://code.angularjs.org/1.3.15/docs/api/ngRoute/directive/ngView
