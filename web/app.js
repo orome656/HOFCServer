@@ -29,14 +29,8 @@ app.controller('AppCtrl', ['$scope', '$mdSidenav', '$timeout','$log', '$filter',
     titre: 'Classements',
     lien: '#/classements/equipe1'
   },{
-    titre: 'Calendrier Equipe 1',
+    titre: 'Calendriers',
     lien: '#/calendriers/equipe1'
-  },{
-    titre: 'Calendrier Equipe 2',
-    lien: '#/calendriers/equipe2'
-  },{
-    titre: 'Calendrier Equipe 3',
-    lien: '#/calendriers/equipe3'
   },{
     titre: 'Agenda',
     lien: '#/agendas/'+$filter('date')(new Date(), 'yyyy-MM-dd')
