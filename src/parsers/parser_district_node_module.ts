@@ -105,7 +105,8 @@ class ParserDistrictNodeModule {
                     return;
                 }
                 
-                if(score) {
+                // Le champ peut contenir 'Non joué'
+                if(score != null && score.indexOf('-') != -1) {
                     score1 = score.split('-')[0].trim();
                     score2 = score.split('-')[1].trim();
                 }
