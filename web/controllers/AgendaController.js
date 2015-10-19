@@ -1,6 +1,7 @@
 app.controller('AgendaController',['$scope', '$routeParams', '$filter', '$location', 'agendaService', function($scope, $routeParams, $filter, $location, agendaService) {
 	$scope.semaine = $routeParams.semaine;
 	$scope.agenda = agendaService.agenda;
+	$scope.isLoading = true;
 	$scope.currentWeekMonday = getMonday();
 	
 	$scope.tabs = [{
@@ -53,5 +54,7 @@ app.controller('AgendaController',['$scope', '$routeParams', '$filter', '$locati
 		return new Date(d.getTime() + i * 7 * 24 * 60 * 60 * 1000);
 	}
 	
-	agendaService.getAgenda($routeParams.semaine);
+	agendaService.getAgenda($routeParams.semaine, function() {
+		$scope.isLoading = false;
+	});
 }]);
