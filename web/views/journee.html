@@ -1,0 +1,33 @@
+<md-tabs class="tabsOnly" md-selected="selectedIndex">
+  <md-tab ng-repeat="tab in tabs" md-on-select="onTabSelected(tab)">
+    <md-tab-label>
+      {{tab.numero}}
+    </md-tab-label>
+  </md-tab>
+</md-tabs>
+<div style="height:100%" layout="row" layout-align="center center" ng-show="isLoading">
+	<md-progress-circular md-mode="indeterminate"></md-progress-circular>
+</div>
+<md-card ng-repeat="item in journee | orderBy: 'date'" layout="column" layout-sm="column" ng-show="!isLoading">
+	<md-card-content layout="column">
+		<div class="textCentered">
+			{{item.date | date:"EEEE dd MMMM yyyy HH:mm"}}
+		</div>
+		<div class="textCentered">
+			{{item.title}}
+		</div>
+		<div layout="row" layout-align="center center">
+			<div flex="10">
+				<img ng-if="item.equipe1.indexOf('HORGUES') > -1" class="round-face resizeImg" src="../images/hofc.png" />
+			</div>
+			<span flex="30" class="textCentered" ng-class="item.equipe1.indexOf('HORGUES') > -1 ? 'hofcTextStyle' : '' ">{{item.equipe1}}</span>
+			<span flex="10" class="textCentered">{{item.score1}}</span>
+			<span flex class="textCentered"> - </span>
+			<span flex="10" class="textCentered">{{item.score2}}</span>
+			<span flex="30" class="textCentered" ng-class="item.equipe2.indexOf('HORGUES') > -1 ? 'hofcTextStyle' : '' ">{{item.equipe2}}</span>
+			<div flex="10">
+				<img ng-if="item.equipe2.indexOf('HORGUES') > -1" class="round-face resizeImg" src="../images/hofc.png" />
+			</div>
+		</div>
+	</md-card-content>
+</md-card>

@@ -18,9 +18,13 @@ app.config(['$routeProvider', function($routeProvider) {
         templateUrl: 'views/agenda.html',
         controller: 'AgendaController'
       })
+      .when('/journees/:equipe/:idJournee', {
+        templateUrl: 'views/journee.html',
+        controller: 'JourneeController'
+      })
 }]);
 
-app.controller('AppCtrl', ['$scope', '$mdSidenav', '$timeout','$log', '$filter', function($scope, $mdSidenav, $timeout, $log, $filter) {
+app.controller('AppCtrl', ['$scope', '$mdSidenav', '$timeout','$log', '$filter', 'paramsService', function($scope, $mdSidenav, $timeout, $log, $filter, paramsService) {
   
   $scope.menu = [{
     titre: 'Actualites',
@@ -34,10 +38,21 @@ app.controller('AppCtrl', ['$scope', '$mdSidenav', '$timeout','$log', '$filter',
   },{
     titre: 'Agenda',
     lien: '#/agendas/'+$filter('date')(new Date(), 'yyyy-MM-dd')
+  },{
+    titre: 'Journee Equipe 1',
+    lien: '#/journees/equipe1/1'
+  },{
+    titre: 'Journee Equipe 2',
+    lien: '#/journees/equipe2/1'
+  },{
+    titre: 'Journee Equipe 3',
+    lien: '#/journees/equipe3/1'
   }]
   $scope.selected = null;
   $scope.selectMenu = selectMenu;
   $scope.toggleSidenav = toggleSidenav;
+  
+  paramsService.getParams();
   
   //*******************
   // Internal Methods
