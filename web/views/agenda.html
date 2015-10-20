@@ -5,7 +5,9 @@
     </md-tab-label>
   </md-tab>
 </md-tabs>
-<md-progress-circular layout-align="center center" md-mode="indeterminate" ng-show="isLoading"></md-progress-circular>
+<div layout="row" layout-align="center center">
+	<md-progress-circular md-mode="indeterminate" ng-show="isLoading"></md-progress-circular>
+</div>
 <md-card ng-repeat="item in agenda | orderBy: 'date'" layout="column" layout-sm="column" ng-show="!isLoading">
 	<md-card-content layout="column">
 		<div class="textCentered">
