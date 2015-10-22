@@ -26,6 +26,10 @@ app.config(['$routeProvider', function($routeProvider) {
         templateUrl: 'views/diaporama.html',
         controller: 'DiaporamaController'
       })
+      .when('/article/:url*', {
+        templateUrl: 'views/article.html',
+        controller: 'ArticleController'
+      })
 }]);
 
 app.controller('AppCtrl', ['$scope', '$mdSidenav', '$timeout','$log', '$filter', 'paramsService', function($scope, $mdSidenav, $timeout, $log, $filter, paramsService) {

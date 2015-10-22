@@ -9,7 +9,7 @@
       {{item.date | date:"dd/MM/yyyy"}}
     </md-card-footer>
     <div class="md-actions" layout="row" layout-align="end center">
-      <md-button ng-href="#/diaporama/{{item.url}}">Détails</md-button>
+      <md-button ng-href="#/{{(item.url.indexOf('en-image')>-1)?'diaporama':'article'}}/{{item.url}}">Détails</md-button>
     </div>
   </md-card>
 </div>
