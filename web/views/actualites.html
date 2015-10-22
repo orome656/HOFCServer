@@ -6,7 +6,10 @@
       <p>{{item.texte}}</p>
     </md-card-content>
     <md-card-footer style="text-align:right">
-      {{item.date | date:"MM/dd/yyyy"}}
+      {{item.date | date:"dd/MM/yyyy"}}
     </md-card-footer>
+    <div class="md-actions" layout="row" layout-align="end center">
+      <md-button ng-href="#/diaporama/{{item.url}}">Détails</md-button>
+    </div>
   </md-card>
 </div>
