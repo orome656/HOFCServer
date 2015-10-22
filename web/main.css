@@ -54,6 +54,19 @@ md-toolbar:not(.md-menu-toolbar) {
     margin-left: 0px;
     margin-right: 0px;
   }
+  table[md-data-table]:not([md-row-select])>thead:not([md-table-progress])>tr>th:nth-child(n+2):nth-last-child(n+2) {
+    padding: 0px !important;
+  }
+  table[md-data-table]>thead:not([md-table-progress])>tr>th:last-child {
+    padding: 0px !important;
+  }
+  table[md-data-table]:not([md-row-select])>tbody>tr>td:nth-child(n+2):nth-last-child(n+2){
+    padding: 0px !important;
+  }
+  table[md-data-table]>tbody>tr>td:last-child {
+    padding: 0px !important;
+  }
+  
 }
 
 .textCentered {
