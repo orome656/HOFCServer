@@ -1,4 +1,4 @@
-var app = angular.module('HOFCApp', ['ngMaterial', 'ngRoute', 'ngResource', 'md.data.table', 'ngAnimate']);
+var app = angular.module('HOFCApp', ['ngMaterial', 'ngSanitize', 'ngRoute', 'ngResource', 'md.data.table', 'ngAnimate']);
 
 app.config(['$routeProvider', function($routeProvider) {
     $routeProvider
