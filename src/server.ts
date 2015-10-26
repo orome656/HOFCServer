@@ -111,7 +111,7 @@ app.post('/parsePage', function(req, res) {
             res.send(resultats);
         }, function(err) {
             logger.error('Error while parsing diaporama', err);
-            res.send(constants.errorCode.INTERNAL);            
+            res.status(500).send(constants.errorCode.INTERNAL);            
         });   
     } else {
         parser.parseArticle(url, function(resultats){
@@ -119,7 +119,7 @@ app.post('/parsePage', function(req, res) {
             res.send(resultats);
         }, function(err) {
             logger.error('Error while parsing article', err);
-            res.send(constants.errorCode.INTERNAL);            
+            res.status(500).send(constants.errorCode.INTERNAL);            
         });   
     }
 });
