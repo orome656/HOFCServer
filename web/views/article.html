@@ -1,3 +1,6 @@
+<div style="height:100%" layout="row" layout-align="center center" ng-show="isLoading">
+	<md-progress-circular md-mode="indeterminate"></md-progress-circular>
+</div>
 <p>{{article.date | date:"dd/MM/yyyy"}}</p>
 <h3>{{article.title}}</h3>
 <div ng-bind-html="article.article"></div>

@@ -1,13 +1,16 @@
 app.service('articleService', ['$q', '$http', function($q, $http) {
 	var _article = [];
  
-    var _getArticle = function(url){
-        $http.post("/parsePage", {url:url})
+    var _getArticle = function(url, errCallback){
+        $http.post("/parsePage", {url:url}, {timeout: 30000})
             .then(function(results){
                 //Success
                 angular.copy(results.data, _article); //this is the preferred; instead of $scope.movies = result.data
             }, function(results){
                 //Error
+                if(errCallback) {
+                    errCallback();
+                }
             })
     }
 	
