@@ -71,6 +71,11 @@ md-toolbar:not(.md-menu-toolbar) {
 
 .textCentered {
   text-align: center;
+
+}
+
+md-card img {
+  max-height: 200px;
 }
 
 .hofcTextStyle {
