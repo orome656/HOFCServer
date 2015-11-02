@@ -60,11 +60,11 @@ var listeMoisDistrict = {
 };
 module Constants {
     export var errorCode =  {
-        OK: 0,
-        BACKEND:-1,
-        UNKNOWN:-2,
-        INTERNAL:-3,
-        CALLING_PROBLEM: 1
+        OK: '0',
+        BACKEND:'-1',
+        UNKNOWN:'-2',
+        INTERNAL:'-3',
+        CALLING_PROBLEM: '1'
     }
     export var params = {
         SEASON_MATCHS_COUNT: 22,
