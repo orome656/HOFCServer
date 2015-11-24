@@ -7,18 +7,60 @@ var RequestParamsEditable = require('../models/requestParamsEditable');
 // Paramétrage url
 
 var optionsClassement = new RequestParams(
-    'www.fff.fr',
+    'district-foot-65.fff.fr',
     80,
-    '/championnats/fff/district-hautes-pyrenees/2014/305257-excellence/phase-1/poule-1/derniers-resultats',
+    '/competitions/php/championnat/championnat_classement.php?sa_no=2015&cp_no=319539&ph_no=1&gp_no=',
     true
 );
 
-var optionsCalendrier = new RequestParams(
-    'www.fff.fr',
+var optionsClassementEquipe2 = new RequestParams(
+    'district-foot-65.fff.fr',
     80,
-    '/la-vie-des-clubs/177005/calendrier/liste-matchs-a-venir/305257/phase-1/groupe-1',
+    '/competitions/php/championnat/championnat_classement.php?sa_no=2015&cp_no=317727&ph_no=1&gp_no=',
     true
 );
+
+var optionsClassementEquipe3 = new RequestParams(
+    'district-foot-65.fff.fr',
+    80,
+    '/competitions/php/championnat/championnat_classement.php?sa_no=2015&cp_no=317728&ph_no=1&gp_no=1',
+    true
+);
+
+var arrayOptionsClassement = {
+    'equipe1': optionsClassement,
+    'equipe2': optionsClassementEquipe2,
+    'equipe3': optionsClassementEquipe3
+}
+
+var optionsCalendrier = new RequestParams(
+    'district-foot-65.fff.fr',
+    80,
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?cp_no=319539&ph_no=1&gp_no=&sa_no=2015&typ_rech=equipe&cl_no=177005&eq_no=1&type_match=deux&lieu_match=deux',
+    true
+);
+
+
+var optionsCalendrierEquipe2 = new RequestParams(
+    'district-foot-65.fff.fr',
+    80,
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?cp_no=317727&ph_no=1&gp_no=&sa_no=2015&typ_rech=equipe&cl_no=177005&eq_no=6&type_match=deux&lieu_match=deux',
+    true
+);
+
+
+var optionsCalendrierEquipe3 = new RequestParams(
+    'district-foot-65.fff.fr',
+    80,
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?cp_no=317728&ph_no=1&gp_no=1&sa_no=2015&typ_rech=equipe&cl_no=177005&eq_no=7&type_match=deux&lieu_match=deux',
+    true
+);
+
+var arrayOptionsCalendrier = {
+    'equipe1': optionsCalendrier,
+    'equipe2': optionsCalendrierEquipe2,
+    'equipe3': optionsCalendrierEquipe3
+}
 
 var optionsActus = new RequestParams(
     'www.hofc.fr',
@@ -76,7 +118,9 @@ var optionsCalendrierByJourneeArray = {
 
 module Constants_District {
 	export var classement = optionsClassement;
+	export var arrayClassement = arrayOptionsClassement;
 	export var calendrier = optionsCalendrier;
+	export var arrayCalendrier = arrayOptionsCalendrier;
 	export var actus = optionsActus;
     export var agenda = optionsAgenda;
     export var matchInfos = optionsMatchInfos;
