@@ -19,12 +19,16 @@ import database = require('../database/postgres');
 var optionsMatchInfosPathBase = Constants_District.matchInfos.basePath;
 var optionsMatchInfos = Constants_District.matchInfos;
 import Match = require('../models/match');
+import ClassementLine = require('../models/classementLine');
 import notification = require('../notifications/send_notification');
+var optionsActus = Constants_District.actus;
+import ParserCommun = require('./parser_commun_node_module');
 
 var optionsCalendrierExcellencePathBase = Constants_District.calendrierExcellence.basePath;
 var optionsCalendrierExcellence = Constants_District.calendrierExcellence;
 var optionsCalendrierByJournee = Constants_District.calendrierByJournee;
 var optionsCalendrierArray = Constants_District.arrayCalendrier;
+var optionsClassementArray = Constants_District.arrayClassement;
 /**
  *	Tableau permettant de convertir la chaine date récupérée en objet date pour les actus
  */
@@ -36,56 +40,30 @@ var HOFC_NAME = constants.constants.HOFC_NAME;
 **/
 class ParserDistrictNodeModule {
     
+    /**
+     * Met à jour les informations dans la base de données (Calendrier, Classement, Actus) pour les différentes équipes
+     */
+    public static updateDatabase(): void {
+        this.updateRankingDataForTeam('equipe1');
+        this.updateRankingDataForTeam('equipe2');
+        this.updateRankingDataForTeam('equipe3');
+    
+        this.updateCalendarDataForTeam('equipe1');
+        this.updateCalendarDataForTeam('equipe2');
+        this.updateCalendarDataForTeam('equipe3');
+    }
+    
+    /**
+     * Mise a jour du calendrier
+     */
     public static updateCalendarDataForTeam(equipe: string): void {
         Utils.downloadData(optionsCalendrierArray[equipe], function(result) {
             var $2 = cheerio.load(result);
-            var linesCalendar = $2('#refpop').children('.w450').contents().filter(
-                function() {
-                    if($2(this).attr('class') === 'allonge'||$2(this).attr('class') === 'header'|| ($2(this).prop && $2(this).prop('tagName') === 'DIV'))
-                    {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                });
+            var linesCalendar = $2('#refpop').children('div');
             $2(linesCalendar).each(function (index, line) {
                 var match: Match = ParserDistrictNodeModule.parseCalendarLine(line);
                 match.categorie = equipe;
-                database.getMatchByName(match.equipe1, match.equipe2, function (result) {
-                    if (result != null ) {
-                        /**
-                         * Mise a jour des informations
-                         */
-                        if((result.score1 === null) && 
-                           (result.score2 === null) && 
-                            match.score1 !== null && match.score2 !== null) {
-                            var notifTitle = 'Nouveau Résultat '+ equipe;
-                            var notifMessage = null;
-                            if(match.equipe1.indexOf(HOFC_NAME) != -1 && match.score1 > match.score2) {
-                                notifMessage = 'Victoire du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe2;
-                            } else if (match.equipe2.indexOf(HOFC_NAME) != -1 && match.score2 > match.score1) {
-                                notifMessage = 'Victoire du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe1;
-                            } else if(match.equipe1.indexOf(HOFC_NAME) != -1 && match.score1 < match.score2) {
-                                notifMessage = 'Défaite du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe2;
-                            } else if (match.equipe2.indexOf(HOFC_NAME) != -1 && match.score2 < match.score1) {
-                                notifMessage = 'Défaite du HOFC (' + match.score1+ '-' + match.score2 +') face à ' + match.equipe1;
-                            } else {
-                                notifMessage = 'Match nul entre le HOFC et ' + ((match.equipe1.indexOf(HOFC_NAME) != -1)? match.equipe2 : match.equipe1);
-                            }
-                            logger.info('Sending Notification with message : ' + notifMessage);
-                            notification.sendNotification(notifTitle, notifMessage, {"TYPE": "Calendrier"});
-                        }
-                        database.updateCalendarLine(match);
-                    } else {
-                        /**
-                         * Insertion d'une nouvelle ligne
-                         */
-                        database.insertCalendarLine(match);
-                    }
-    
-                }, function(err) {
-                    logger.error('Error while getting match on database', err);
-                });
+                ParserCommun.handleCalendrierLine(match, equipe);
             });
         }, function(err) {
             logger.error('Error while downloading match infos', err);
@@ -101,8 +79,7 @@ class ParserDistrictNodeModule {
     public static parseCalendarLine(line /**: DOM Element */): Match {
         var $2 = cheerio.load(line);
         
-        var title = $2(line).text();
-        var node = $2(line).next().children();
+        var node = $2(line);
         var date = node.children('.dat').text();
         var equipe1 = node.find('.team').first().text().trim().toUpperCase();
         var equipe2 = node.find('.team').last().text().trim().toUpperCase();
@@ -110,6 +87,16 @@ class ParserDistrictNodeModule {
         var score1 = null;
         var score2 = null;
         var html = node.children('.voirtout').html();
+        
+        var equipe1Complet = equipe1;
+        if(equipe1.indexOf('Pénalité') !== -1) {
+            equipe1 = equipe1.replace('Pénalité', '').trim();
+        }
+        
+        var equipe2Complet = equipe2;
+        if(equipe2.indexOf('Pénalité') !== -1) {
+            equipe2 = equipe2.replace('Pénalité', '').trim();
+        }
         
         var infos = null;
         if(html) {
@@ -136,16 +123,86 @@ class ParserDistrictNodeModule {
             score1 = score.split('-')[0].trim();
             score2 = score.split('-')[1].trim();
         }
-        var match = new MatchAgenda();
+        var match = new Match();
         match.equipe1 = equipe1;
         match.equipe2 = equipe2;
-        match.title = title;
+        match.equipe1Complet = equipe1Complet;
+        match.equipe2Complet = equipe2Complet;
         match.date = annee + '-' + mois + '-' + jour + ' '+heure+':'+minute+':00';
         match.score1 = score1;
         match.score2 = score2;
         match.infos = infos;
         
         return match;
+    }
+    
+     /**
+     * Met à jour la table classement pour l'équipe passé en paramétre
+     */   
+    public static updateRankingDataForTeam(equipe: string): void {
+        Utils.downloadData(optionsClassementArray[equipe], function(result) {
+            var $2 = cheerio.load(result);
+            var linesClassement = $2('.tablo').children('tr');
+            $2(linesClassement).each(function (index, line) {
+                var team = ParserDistrictNodeModule.parseClassementLine(line);
+                if(team === null) {
+                    return;
+                }
+                team.categorie = equipe;
+                database.getRankByName(team.nom, function(result) {
+                    if(result !== null) {
+                        // Mise a jour des informatons de classement
+                        database.updateRankingLine(team);
+                    } else {
+                        // Nouvelle équipe dans le classement
+                        database.insertRankingLine(team);
+                    }
+                }, function(err) {
+                    if(err) {
+                        logger.error('Error while updating ranking data ', err);
+                    }    
+                });
+            });
+        }, function(err) {
+            logger.error('Error while downloading match infos', err);
+        });
+    }
+    
+    /**
+     * Transforme le bout de page passé en paramètre en objet classement
+     * 
+     * @param ligne html a parser.
+     * @return objet classement
+     */
+    public static parseClassementLine(line /**: DOM Element */): ClassementLine {
+        var $ = cheerio.load(line);
+        var lineChildren = $(line).children();
+        if (lineChildren !== null && lineChildren.length > 3) {
+            
+            var nom = $(lineChildren[1]).text().trim(),
+                points = $(lineChildren[2]).text(),
+                joue = $(lineChildren[3]).text(),
+                victoire = $(lineChildren[4]).text(),
+                nul = $(lineChildren[5]).text(),
+                defaite = $(lineChildren[6]).text(),
+                bp = $(lineChildren[8]).text(),
+                bc = $(lineChildren[9]).text(),
+                diff = $(lineChildren[11]).text();
+                
+            var classementLine = new ClassementLine();
+            classementLine.nom = nom;
+            classementLine.points = points;
+            classementLine.joue = joue;
+            classementLine.gagne = victoire;
+            classementLine.nul = nul;
+            classementLine.perdu = defaite;
+            classementLine.bp = bp;
+            classementLine.bc = bc;
+            classementLine.diff = diff;
+            return classementLine;
+        } else {
+            return null;
+        }
     }
     
     /**

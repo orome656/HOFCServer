@@ -83,7 +83,7 @@ class PostgresSQL {
 				[match.date, match.equipe1Complet, match.equipe2Complet, match.score1, match.score2, match.categorie], 
 				function(err/**, results*/) {
 					if(err) {
-						logger.error('Fail inserting match informations', err);
+						logger.error('Fail inserting match informations', err.detail);
 					}
 				}
 		);

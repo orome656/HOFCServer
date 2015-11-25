@@ -21,6 +21,7 @@
 		"src/notifications/send_notification.ts",
 		"src/parsers/parser_district_node_module.ts",
 		"src/parsers/parser_node_module.ts",
+		"src/parsers/parser_commun_node_module.ts",
 		"src/utils/utils.ts",
 		"src/utils/logger.ts",
 		"src/server.ts",
