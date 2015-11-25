@@ -1,4 +1,4 @@
-import Match = require('../models/Match');
+import Match = require('../models/match');
 import database = require('../database/postgres');
 import Logger = require('../utils/logger');
 var logger = new Logger('Parser_Commun');
