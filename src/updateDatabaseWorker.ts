@@ -5,7 +5,8 @@ import constants = require('./constants/constants');
 
 process.on('message', function(m) {
   if (m === 'updateDatabase') {
-      parser.updateDatabase();    
+      parserdistrict.updateDatabase();  
+      parser.updateActusData();  
   } else if (m === 'updateJournee') {
     var nbJournee = constants.params.SEASON_MATCHS_COUNT_EQUIPE1;
     for(var i = 1; i<=nbJournee; i++)
