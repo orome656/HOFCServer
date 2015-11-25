@@ -179,7 +179,7 @@ class ParserDistrictNodeModule {
         var lineChildren = $(line).children();
         if (lineChildren !== null && lineChildren.length > 3) {
             
-            var nom = $(lineChildren[1]).text().trim(),
+            var nom = $(lineChildren[1]).text().trim().toUpperCase(),
                 points = $(lineChildren[2]).text(),
                 joue = $(lineChildren[3]).text(),
                 victoire = $(lineChildren[4]).text(),
