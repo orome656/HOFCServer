@@ -8,7 +8,6 @@ import notification = require('../notifications/send_notification');
 
 class ParserCommunNodeModule {
 	public static handleCalendrierLine(match: Match, equipe: string) {
-		logger.debug('Trying to update calendar line');
 		database.getMatchByName(match.equipe1, match.equipe2, function (result) {
 			if (result != null ) {
 				/**
