@@ -9,21 +9,21 @@ var RequestParamsEditable = require('../models/requestParamsEditable');
 var optionsClassement = new RequestParams(
     'district-foot-65.fff.fr',
     80,
-    '/competitions/php/championnat/championnat_classement.php?sa_no=2015&cp_no=319539&ph_no=1&gp_no=',
+    '/competitions/php/championnat/championnat_classement.php?sa_no=2016&cp_no=328367&ph_no=1&gp_no=',
     true
 );
 
 var optionsClassementEquipe2 = new RequestParams(
     'district-foot-65.fff.fr',
     80,
-    '/competitions/php/championnat/championnat_classement.php?sa_no=2015&cp_no=317727&ph_no=1&gp_no=',
+    '/competitions/php/championnat/championnat_classement.php?sa_no=2016&cp_no=328368&ph_no=1&gp_no=',
     true
 );
 
 var optionsClassementEquipe3 = new RequestParams(
     'district-foot-65.fff.fr',
     80,
-    '/competitions/php/championnat/championnat_classement.php?sa_no=2015&cp_no=317728&ph_no=1&gp_no=1',
+    '/competitions/php/championnat/championnat_classement.php?sa_no=2016&cp_no=328369&ph_no=1&gp_no=2',
     true
 );
 
@@ -36,7 +36,7 @@ var arrayOptionsClassement = {
 var optionsCalendrier = new RequestParams(
     'district-foot-65.fff.fr',
     80,
-    '/competitions/php/championnat/championnat_calendrier_resultat.php?cp_no=319539&ph_no=1&gp_no=&sa_no=2015&typ_rech=equipe&cl_no=177005&eq_no=1&type_match=deux&lieu_match=deux',
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?cp_no=328367&ph_no=1&gp_no=&sa_no=2016&typ_rech=equipe&cl_no=177005&eq_no=1&type_match=deux&lieu_match=deux',
     true
 );
 
@@ -44,7 +44,7 @@ var optionsCalendrier = new RequestParams(
 var optionsCalendrierEquipe2 = new RequestParams(
     'district-foot-65.fff.fr',
     80,
-    '/competitions/php/championnat/championnat_calendrier_resultat.php?cp_no=317727&ph_no=1&gp_no=&sa_no=2015&typ_rech=equipe&cl_no=177005&eq_no=6&type_match=deux&lieu_match=deux',
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?cp_no=328368&ph_no=1&gp_no=&sa_no=2016&typ_rech=equipe&cl_no=177005&eq_no=2&type_match=deux&lieu_match=deux',
     true
 );
 
@@ -52,7 +52,7 @@ var optionsCalendrierEquipe2 = new RequestParams(
 var optionsCalendrierEquipe3 = new RequestParams(
     'district-foot-65.fff.fr',
     80,
-    '/competitions/php/championnat/championnat_calendrier_resultat.php?cp_no=317728&ph_no=1&gp_no=1&sa_no=2015&typ_rech=equipe&cl_no=177005&eq_no=7&type_match=deux&lieu_match=deux',
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?cp_no=328369&ph_no=1&gp_no=2&sa_no=2016&typ_rech=equipe&cl_no=177005&eq_no=3&type_match=deux&lieu_match=deux',
     true
 );
 
@@ -89,25 +89,25 @@ var optionsMatchInfos = new RequestParamsEditable(
 var optionsCalendrierExcellence = new RequestParamsEditable(
     'district-foot-65.fff.fr',
     80,
-    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=319539&ph_no=1&gp_no=&sa_no=2015&pj_no=',
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=328367&ph_no=1&gp_no=&sa_no=2016&pj_no=',
     true,
-    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=319539&ph_no=1&gp_no=&sa_no=2015&pj_no='
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=328367&ph_no=1&gp_no=&sa_no=2016&pj_no='
 );
 
 var optionsCalendrierPremiereDiv = new RequestParamsEditable(
     'district-foot-65.fff.fr',
     80,
-    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=317727&ph_no=1&gp_no=&sa_no=2015&pj_no=',
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=328368&ph_no=1&gp_no=&sa_no=2016&pj_no=',
     true,
-    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=317727&ph_no=1&gp_no=&sa_no=2015&pj_no='
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=328368&ph_no=1&gp_no=&sa_no=2016&pj_no='
 );
 
 var optionsCalendrierPromotionPremiereDiv = new RequestParamsEditable(
     'district-foot-65.fff.fr',
     80,
-    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=317728&ph_no=1&gp_no=&sa_no=2015&pj_no=',
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=328369&ph_no=1&gp_no=2&sa_no=2016&pj_no=',
     true,
-    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=317728&ph_no=1&gp_no=&sa_no=2015&pj_no='
+    '/competitions/php/championnat/championnat_calendrier_resultat.php?typ_rech=journee&cp_no=328369&ph_no=1&gp_no=2&sa_no=2016&pj_no='
 );
 
 var optionsCalendrierByJourneeArray = {
